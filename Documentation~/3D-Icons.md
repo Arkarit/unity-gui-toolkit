@@ -91,6 +91,8 @@ A preset is a **prefab** with a `UiIcon3DPreset` on its root. It describes a lig
   - padding
   - background colour (alpha 0 = transparent)
   - alpha mode (see *Limits and pitfalls*): how the alpha of transparent materials is made right
+  - **shadow catcher**: an invisible ground under the object that shows only the shadow of the preset's light, as
+    alpha (see below)
 
 The library ships three presets:
 
@@ -222,6 +224,27 @@ animated.IsVisible = isOnScreen;      // invisible animated icons are not render
 - `EvBeforeRender` / `EvAfterRender` mark one renderer tick. It runs once per frame after the canvas layout, and
   on every editor update in edit mode.
 - `Layer`, `MsaaSamples`, `RendersPerFrame`, `RenderMilliseconds` and `Backend` can be overridden for tests.
+
+---
+
+## Shadow catcher
+
+A preset can put a soft shadow under the object without any visible ground: the icon stays transparent everywhere
+except where the shadow falls. Enable *Shadow Catcher* on the preset and set *Strength* (how dark), *Color*, *Extent*
+(ground half size as multiple of the object's radius; the shadow fades out towards the edge) and *Offset* (ground
+below the object's lowest point, as fraction of its height).
+
+- **The light decides where the shadow goes.** Author a *directional* key light that does not come from the camera's
+  direction (a shadow straight behind the object is hidden by it): from above and one side. Lights are camera
+  relative, so the shadow keeps its place on screen whatever the object's view rotation. Shadows of the preset's
+  directional lights are switched on automatically. Point and spot lights cast no catcher shadow.
+- **The scene's quality level does not matter.** A "Disable Shadows" level on a phone does not remove the icon's
+  shadow: the renderer switches shadows on for this render (high resolution, one cascade over exactly the camera's
+  depth range) and restores the settings afterwards. A preset's own `UiCameraRenderSettings` can still override them.
+- **The frame is not enlarged for the shadow.** Framing follows the object; a shadow that reaches beyond the edge is
+  cut off. Use *Padding* on the preset, or a light that keeps the shadow close.
+- **It costs a shadow map pass per icon.** Use it for icons that stay on screen (static results are cached), less so
+  for animated ones that render every frame.
 
 ---
 

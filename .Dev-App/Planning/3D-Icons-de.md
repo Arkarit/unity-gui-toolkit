@@ -364,6 +364,13 @@ sich, sobald echte Assets zeigen, wo das Erstellen hakt.
   ergibt Alpha 0,247 in Fast und 0,498 in Exact. Tests: `TestIcon3DAlpha`. Kosten: zwei Renders für Icons mit
   transparentem Material.
 - **Shadow Catcher** in Presets: unsichtbarer Boden, der nur Schatten empfängt und ins Alpha schreibt.
+  **Erledigt** (05.10.2026, Built-in): ein Quad unter dem Objekt (Shader `Icon3DShadowCatcher`), der den Schatten des
+  Haupt-Richtungslichts als vormultipliziertes Alpha ausgibt. Zwei Erkenntnisse: Er muss in der OPAKEN Queue liegen und
+  Tiefe schreiben, weil Richtungsschatten im Screen Space aus der Kamera-Tiefentextur gesammelt werden (ein transparenter
+  Boden hat dort keine Tiefe und bekommt keinen Schatten); und die Schattenkarte braucht Auflösung High, sonst verwischt
+  der Schatten eines kleinen Objekts zu einem blassen Plateau (gemessen: Spitzen-Alpha 0,19 von 0,6 bei Low, 0,60 bei
+  High). Die Qualitätsstufe der Szene wird für den Render überschrieben und danach wiederhergestellt. Tests:
+  `TestIcon3DShadowCatcher`.
 - **URP-Backend**, danach **HDRP-Backend**.
 
 ---

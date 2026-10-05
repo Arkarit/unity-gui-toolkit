@@ -352,6 +352,12 @@ assets show where authoring hurts.
   Fast / Exact). Pipeline independent, so it is also the plan for URP and HDRP. Measured: 50% glass leaves alpha 0.247
   in Fast, 0.498 in Exact. Tests: `TestIcon3DAlpha`. Cost: two renders for icons with a transparent material.
 - **Shadow catcher** in presets: invisible ground that only receives shadows, written into alpha.
+  **Done** (2026-10-05, Built-in): a quad under the object (`Icon3DShadowCatcher` shader) that outputs the main
+  directional light's shadow as premultiplied alpha. Two findings: it must live in the OPAQUE queue and write depth,
+  because directional shadows are collected in screen space from the camera depth texture (a transparent ground has no
+  depth there and gets no shadow); and the shadow map needs resolution High, otherwise a small object's shadow blurs
+  to a faint plateau (measured: peak alpha 0.19 of 0.6 at Low, 0.60 at High). The scene's quality level is overridden for
+  the render and restored. Tests: `TestIcon3DShadowCatcher`.
 - **URP backend**, then **HDRP backend**.
 
 ---

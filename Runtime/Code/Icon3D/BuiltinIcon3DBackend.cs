@@ -16,6 +16,10 @@ namespace GuiToolkit
 		private UiCameraRenderSettings m_baseline;
 		private Cubemap m_blackCube;
 		private UiCameraRenderSettings m_activePresetSettings;
+		private GameObject m_shadowGo;
+		private UiCameraRenderSettings m_shadowSettings;
+		private bool m_shadowsActive;
+		private bool m_presetSetsShadowDistance;
 
 		public void SetupCamera( Camera _camera )
 		{
@@ -33,12 +37,31 @@ namespace GuiToolkit
 			EnsureBaseline();
 			m_baseline.Apply();
 
+			// The shadow catcher needs shadows to be on, and the quality settings are global: what the scene's quality
+			// level says (maybe "Disable Shadows" on a phone) must not decide whether an icon has one. Under the
+			// preset's own settings, which may say more.
+			m_shadowsActive = _preset != null && _preset.ShadowCatcher.Enabled;
+			if (m_shadowsActive)
+			{
+				EnsureShadowSettings();
+				m_shadowSettings.Apply();
+			}
+
 			m_activePresetSettings = _preset != null ? _preset.RenderSettings : null;
+			m_presetSetsShadowDistance = m_activePresetSettings != null && m_activePresetSettings.ShadowDistance.Enabled;
 			if (m_activePresetSettings != null)
 				m_activePresetSettings.Apply();
 		}
 
-		public void Render( Camera _camera ) => _camera.Render();
+		public void Render( Camera _camera )
+		{
+			// The shadow map covers [camera, shadow distance]: as far as the camera sees is exactly what is needed, and a
+			// single cascade over anything more spends its resolution on empty space
+			if (m_shadowsActive && !m_presetSetsShadowDistance)
+				QualitySettings.shadowDistance = _camera.farClipPlane;
+
+			_camera.Render();
+		}
 
 		public void EndEnvironment()
 		{
@@ -46,16 +69,37 @@ namespace GuiToolkit
 				m_activePresetSettings.Restore();
 
 			m_activePresetSettings = null;
+
+			if (m_shadowsActive)
+				m_shadowSettings.Restore();
+
+			m_shadowsActive = false;
 			m_baseline.Restore();
 		}
 
 		public void Dispose()
 		{
 			DestroyObject(m_baselineGo);
+			DestroyObject(m_shadowGo);
+			m_shadowGo = null;
+			m_shadowSettings = null;
 			DestroyObject(m_blackCube);
 			m_baselineGo = null;
 			m_baseline = null;
 			m_blackCube = null;
+		}
+
+		private void EnsureShadowSettings()
+		{
+			if (m_shadowSettings != null)
+				return;
+
+			m_shadowGo = new GameObject("Icon3D Shadow Settings") { hideFlags = HideFlags.HideAndDontSave };
+			m_shadowSettings = m_shadowGo.AddComponent<UiCameraRenderSettings>();
+			Enable(m_shadowSettings.Shadows, ShadowQuality.All);
+			Enable(m_shadowSettings.ShadowResolution, UnityEngine.ShadowResolution.High);   // Low blurs a small object's shadow to a faint plateau
+			Enable(m_shadowSettings.ShadowCascades, 1);
+			Enable(m_shadowSettings.ShadowDistance, 20f);
 		}
 
 		private void EnsureBaseline()

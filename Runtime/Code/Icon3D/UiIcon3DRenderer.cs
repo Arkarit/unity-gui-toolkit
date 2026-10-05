@@ -56,6 +56,9 @@ namespace GuiToolkit
 		private static UiIcon3DPreset s_fallbackPreset;
 		private static Cubemap s_fallbackReflection;
 		private static Material s_alphaCombine;
+		private static GameObject s_shadowCatcher;
+		private static Material s_shadowCatcherMaterial;
+		private static Mesh s_shadowCatcherMesh;
 		private static bool s_alphaCombineWarned;
 		private static IIcon3DRenderBackend s_backend;
 
@@ -530,6 +533,8 @@ namespace GuiToolkit
 				Icon3DFitter.Fit(s_camera, _bounds, _rotation, _preset.Projection, _preset.FieldOfView, _preset.FitMode,
 					_preset.Padding, (float)target.width / target.height);
 				s_camera.cullingMask = 1 << Layer;
+				if (_preset.ShadowCatcher.Enabled)
+					PrepareShadowCatcher(_preset, _bounds);
 
 				// A second render over white only makes sense for a background that is transparent
 				var combine = _request.ExactAlpha && _preset.BackgroundColor.a <= 0f ? GetAlphaCombineMaterial() : null;
@@ -561,6 +566,9 @@ namespace GuiToolkit
 			}
 			finally
 			{
+				if (s_shadowCatcher != null)
+					s_shadowCatcher.SetActive(false);
+
 				RenderTexture.active = previousActive;
 
 				if (s_camera != null)
@@ -575,6 +583,69 @@ namespace GuiToolkit
 				if (_preset != null && s_parking != null)
 					_preset.transform.SetParent(s_parking, false);
 			}
+		}
+
+		/// <summary>
+		/// Places the invisible shadow receiving ground under the object (world space: it does not turn with the view,
+		/// the light does) and switches on the shadows of the preset's directional lights. Active for this render only.
+		/// </summary>
+		private static GameObject PrepareShadowCatcher( UiIcon3DPreset _preset, Bounds _bounds )
+		{
+			var settings = _preset.ShadowCatcher;
+			var material = GetShadowCatcherMaterial();
+			if (material == null)
+				return null;
+
+			if (s_shadowCatcher == null)
+			{
+				s_shadowCatcherMesh = new Mesh { name = "Icon3D Shadow Catcher", hideFlags = HideFlags.HideAndDontSave };
+				s_shadowCatcherMesh.vertices = new[] { new Vector3(-0.5f, 0, -0.5f), new Vector3(-0.5f, 0, 0.5f), new Vector3(0.5f, 0, 0.5f), new Vector3(0.5f, 0, -0.5f) };
+				s_shadowCatcherMesh.uv = new[] { Vector2.zero, Vector2.up, Vector2.one, Vector2.right };
+				s_shadowCatcherMesh.normals = new[] { Vector3.up, Vector3.up, Vector3.up, Vector3.up };
+				s_shadowCatcherMesh.triangles = new[] { 0, 1, 2, 0, 2, 3 };
+				s_shadowCatcherMesh.bounds = new Bounds(Vector3.zero, new Vector3(1, 0.01f, 1));
+
+				s_shadowCatcher = new GameObject("Shadow Catcher") { hideFlags = HideFlags.HideAndDontSave, layer = Layer };
+				s_shadowCatcher.transform.SetParent(s_stage.transform, false);
+				s_shadowCatcher.AddComponent<MeshFilter>().sharedMesh = s_shadowCatcherMesh;
+				var rend = s_shadowCatcher.AddComponent<MeshRenderer>();
+				rend.sharedMaterial = material;
+				rend.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+				rend.receiveShadows = true;
+				rend.lightProbeUsage = UnityEngine.Rendering.LightProbeUsage.Off;
+				rend.reflectionProbeUsage = UnityEngine.Rendering.ReflectionProbeUsage.Off;
+			}
+
+			material.SetFloat("_Strength", settings.Strength);
+			material.SetColor("_ShadowColor", settings.Color);
+
+			float diameter = 2f * settings.Extent * Mathf.Max(_bounds.extents.magnitude, 0.0001f);
+			s_shadowCatcher.transform.position = new Vector3(_bounds.center.x, _bounds.min.y - settings.Offset * _bounds.size.y, _bounds.center.z);
+			s_shadowCatcher.transform.localScale = new Vector3(diameter, 1, diameter);
+
+			// The preset instance is private to the renderer: shadows on its directional lights stay on
+			foreach (var light in _preset.GetComponentsInChildren<Light>(true))
+				if (light.type == LightType.Directional && light.shadows == LightShadows.None)
+					light.shadows = LightShadows.Soft;
+
+			s_shadowCatcher.SetActive(true);
+			return s_shadowCatcher;
+		}
+
+		private static Material GetShadowCatcherMaterial()
+		{
+			if (s_shadowCatcherMaterial != null)
+				return s_shadowCatcherMaterial;
+
+			var shader = Resources.Load<Shader>("Icon3D/Icon3DShadowCatcher");
+			if (shader == null || !shader.isSupported)
+			{
+				UiLog.LogWarning("3D icons: the shadow catcher shader (Resources/Icon3D/Icon3DShadowCatcher) is missing or unsupported - no shadow is drawn.");
+				return null;
+			}
+
+			s_shadowCatcherMaterial = new Material(shader) { name = "Icon3D Shadow Catcher", hideFlags = HideFlags.HideAndDontSave };
+			return s_shadowCatcherMaterial;
 		}
 
 		/// <summary>One camera render of the stage into _target, with the preset's environment and nothing else.</summary>
@@ -1002,6 +1073,15 @@ namespace GuiToolkit
 			if (s_alphaCombine != null)
 				DestroyObject(s_alphaCombine);
 			s_alphaCombine = null;
+
+			// The catcher object itself is a child of the stage and goes with it
+			if (s_shadowCatcherMaterial != null)
+				DestroyObject(s_shadowCatcherMaterial);
+			if (s_shadowCatcherMesh != null)
+				DestroyObject(s_shadowCatcherMesh);
+			s_shadowCatcher = null;
+			s_shadowCatcherMaterial = null;
+			s_shadowCatcherMesh = null;
 
 			if (s_stage != null)
 				DestroyObject(s_stage);

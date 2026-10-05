@@ -46,6 +46,25 @@ namespace GuiToolkit
 			Exact,
 		}
 
+		/// <summary>
+		/// An invisible ground under the object that only shows the shadow the preset's light casts on it, written into
+		/// the icon's alpha. Needs a DIRECTIONAL light in the preset that does not come from the camera's direction (a
+		/// shadow behind the object is hidden by it): author the key light from above and the side. Point and spot lights
+		/// cast no catcher shadow. Shadows of the preset's directional lights are switched on automatically.
+		/// </summary>
+		[System.Serializable]
+		public class ShadowCatcherSettings
+		{
+			public bool Enabled;
+			[Tooltip("How dark the shadow gets (alpha at its darkest).")]
+			[Range(0, 1)] public float Strength = 0.6f;
+			public Color Color = Color.black;
+			[Tooltip("Half size of the ground, as multiple of the object's radius. The shadow fades out towards its edge.")]
+			[Min(0.5f)] public float Extent = 2.5f;
+			[Tooltip("Ground height below the object's lowest point, as fraction of its height.")]
+			public float Offset = 0f;
+		}
+
 		[Tooltip("Rotation of the icon camera (euler angles). Unity objects face +Z, so (0,180,0) looks at an object's front and (90,0,0) looks down on it.")]
 		[SerializeField] private Vector3 m_viewRotation = new(15, 150, 0);
 		[SerializeField] private EProjection m_projection = EProjection.Perspective;
@@ -57,6 +76,7 @@ namespace GuiToolkit
 		[SerializeField] private Color m_backgroundColor = Color.clear;
 		[Tooltip("Exact doubles the render cost of an icon (once over black, once over white) and fixes the alpha of transparent materials. Auto uses it only for objects that have some. Ignored with an opaque background.")]
 		[SerializeField] private EAlphaMode m_alphaMode = EAlphaMode.Auto;
+		[SerializeField] private ShadowCatcherSettings m_shadowCatcher = new();
 
 		public Quaternion ViewRotation
 		{
@@ -93,6 +113,8 @@ namespace GuiToolkit
 			get => m_backgroundColor;
 			set => m_backgroundColor = value;
 		}
+
+		public ShadowCatcherSettings ShadowCatcher => m_shadowCatcher;
 
 		public EAlphaMode AlphaMode
 		{
