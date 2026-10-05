@@ -368,13 +368,19 @@ complete.
   **Done** (2026-10-05). `Icon3DEnvironmentBackend` holds the shared environment code; `Icon3DBackends` picks the backend by
   `GraphicsSettings.currentRenderPipeline`; `Urp/` and `Hdrp/` are assemblies compiled only with their packages. Test
   projects for each pipeline are made by `.Dev-App/SrpProjects/srp-project.mjs` (URP 14 + HDRP 14 on Unity 2022.3, URP 17 + HDRP 17
-  on Unity 6). The 3D icon tests: Built-in 90/90; URP 80 passed (both versions); HDRP 74 passed (both). The ignored ones are the
-  Built-in oracle and findings (10), the shadow catcher in HDRP (5) and the explicit exact-alpha comparison in HDRP.
+  on Unity 6). The 3D icon tests: Built-in 90/90; URP 80 passed (both versions); HDRP 80 passed (both, with the shadow catcher). The ignored ones are the
+  Built-in oracle and findings (10) and the explicit exact-alpha comparison in HDRP.
   Findings: URP ignores `Light.cullingMask` (scene lights are switched off for the batch); URP and HDRP blend alpha correctly
   so the two render path is Built-in only; HDRP ignores RenderSettings (own Volume with HDRI sky from the preset cubemap, fixed
   exposure, lights converted to lux = intensity x pi); HDRP with MSAA in the frame settings came out magnified and cropped, so it
   renders at twice the size and scales down (`ScratchScale`); HDRP needs a colour buffer with alpha and a linear colour space;
-  URP asset shadow resolution/softness can not be set from outside, only distance and cascades. Open: HDRP shadow catcher.
+  URP asset shadow resolution/softness can not be set from outside, only distance and cascades.
+  HDRP shadow catcher (done afterwards): a SubShader that asks HDRP's `ShadowLoopMin` for the main directional light (what the Shader Graph
+  "Shadow Matte" does), needing the shadow filter keywords (`SHADOW_LOW/MEDIUM/HIGH`, `AREA_SHADOW_*`) and `CommonLighting.hlsl`; the
+  Volume sets `HDShadowSettings` to one cascade over the camera's depth range; the rendering layer mask is passed as 0xFFFFFFFF because
+  the function that reads the mesh's own is named differently in HDRP 14 and 17. Lesson: a second shadowed directional light made HDRP
+  log "Cascade Shadow atlasing has failed", and the renderer had switched shadows on for every directional light - now only the brightest
+  one, and only if none casts shadows already.
 
 ---
 

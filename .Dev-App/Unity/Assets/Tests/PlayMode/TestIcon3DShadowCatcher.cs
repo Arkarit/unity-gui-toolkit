@@ -115,8 +115,9 @@ namespace GuiToolkit.Test
 		[Test]
 		public void Strength_Scales_The_Shadow()
 		{
-			float weak = ShadowPeak(RenderSphere(true, 0.3f));
-			float strong = ShadowPeak(RenderSphere(true, 0.6f));
+			var baseline = RenderSphere(false, 0.6f);
+			float weak = AddedPeak(baseline, RenderSphere(true, 0.3f));
+			float strong = AddedPeak(baseline, RenderSphere(true, 0.6f));
 
 			Debug.Log($"ICON3D shadow strength: peak alpha {weak:F2} at 0.3, {strong:F2} at 0.6");
 			Assert.Greater(strong, 0.3f, "no shadow to compare");
@@ -130,8 +131,9 @@ namespace GuiToolkit.Test
 			QualitySettings.shadowDistance = 0f;
 			QualitySettings.shadowCascades = 4;
 
+			var baseline = RenderSphere(false, 0.6f);
 			var with = RenderSphere(true, 0.6f);
-			Assert.Greater(ShadowPeak(with), 0.3f, "no shadow with shadows disabled in the quality settings");
+			Assert.Greater(AddedPeak(baseline, with), 0.3f, "no shadow with shadows disabled in the quality settings");
 
 			Assert.AreEqual(ShadowQuality.Disable, QualitySettings.shadows, "quality settings not restored");
 			Assert.AreEqual(0f, QualitySettings.shadowDistance, "shadow distance not restored");
@@ -139,10 +141,28 @@ namespace GuiToolkit.Test
 		}
 
 		[Test]
+		public void A_Second_Directional_Light_Does_Not_Break_The_Shadow()
+		{
+			// Only one directional light may cast shadows (HDRP logs an error for a second); the brightest one is chosen
+			var rimGo = new GameObject("Rim");
+			rimGo.transform.SetParent(m_preset.transform, false);
+			rimGo.transform.localRotation = Quaternion.Euler(10, 200, 0);
+			var rim = rimGo.AddComponent<Light>();
+			rim.type = LightType.Directional;
+			rim.intensity = 0.3f;
+
+			var baseline = RenderSphere(false, 0.6f);
+			var with = RenderSphere(true, 0.6f);
+			Assert.Greater(AddedPeak(baseline, with), 0.3f, "no shadow with a second directional light in the preset");
+		}
+
+		[Test]
 		public void Without_The_Catcher_Nothing_Changes()
 		{
-			float peak = ShadowPeak(RenderSphere(false, 0.6f));
-			Assert.AreEqual(0f, peak, 0.01f);
+			// Disabled, the catcher's settings are not looked at: different strengths give the same image
+			var a = RenderSphere(false, 0.3f);
+			var b = RenderSphere(false, 0.6f);
+			Assert.AreEqual(0f, MaxDifference(a, b), 0.005f);
 		}
 
 		#region Helpers
@@ -174,13 +194,22 @@ namespace GuiToolkit.Test
 			return m_readback.GetPixels();
 		}
 
-		/// Darkest alpha among the translucent pixels: the shadow, not the (alpha 1) object.
-		private static float ShadowPeak( Color[] _pixels )
+		/// Darkest alpha the catcher added: among the pixels that are empty without it. The object's own antialiased edge
+		/// has every alpha too and must not count as shadow.
+		private static float AddedPeak( Color[] _without, Color[] _with )
 		{
 			float max = 0;
-			foreach (var pixel in _pixels)
-				if (pixel.a < 0.97f)
-					max = Mathf.Max(max, pixel.a);
+			for (int i = 0; i < _with.Length; i++)
+				if (_without[i].a < 0.01f)
+					max = Mathf.Max(max, _with[i].a);
+			return max;
+		}
+
+		private static float MaxDifference( Color[] _a, Color[] _b )
+		{
+			float max = 0;
+			for (int i = 0; i < _a.Length; i++)
+				max = Mathf.Max(max, Mathf.Abs(_a[i].a - _b[i].a), Mathf.Abs(_a[i].r - _b[i].r), Mathf.Abs(_a[i].g - _b[i].g), Mathf.Abs(_a[i].b - _b[i].b));
 			return max;
 		}
 

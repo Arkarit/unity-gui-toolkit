@@ -381,14 +381,20 @@ Phase 5 ist abgeschlossen.
   **Erledigt** (05.10.2026). `Icon3DEnvironmentBackend` hält den gemeinsamen Umgebungscode; `Icon3DBackends` wählt das Backend nach
   `GraphicsSettings.currentRenderPipeline`; `Urp/` und `Hdrp/` sind Assemblies, die nur mit ihren Paketen kompiliert werden.
   Testprojekte je Pipeline erzeugt `.Dev-App/SrpProjects/srp-project.mjs` (URP 14 + HDRP 14 unter Unity 2022.3, URP 17 + HDRP 17 unter
-  Unity 6). Die 3D-Icon-Tests: Built-in 90/90; URP 80 bestanden (beide Versionen); HDRP 74 (beide). Ignoriert werden das
-  Built-in-Orakel und die Findings (10), der Shadow Catcher in HDRP (5) und der explizite Exact-Alpha-Vergleich in HDRP.
+  Unity 6). Die 3D-Icon-Tests: Built-in 90/90; URP 80 bestanden (beide Versionen); HDRP 80 (beide, mit Shadow Catcher). Ignoriert werden das
+  Built-in-Orakel und die Findings (10) und der explizite Exact-Alpha-Vergleich in HDRP.
   Erkenntnisse: URP ignoriert `Light.cullingMask` (Szenenlichter werden für den Stapel ausgeschaltet); URP und HDRP blenden Alpha
   richtig, der Zwei-Render-Weg ist also nur Built-in; HDRP ignoriert RenderSettings (eigenes Volume mit HDRI-Himmel aus dem
   Preset-Cubemap, feste Belichtung, Lichter als Lux = Intensität x Pi); HDRP mit MSAA in den Frame Settings lieferte ein
   vergrößertes, abgeschnittenes Bild, deshalb wird mit doppelter Größe gerendert und verkleinert (`ScratchScale`); HDRP braucht
   einen Farbpuffer mit Alpha und linearen Farbraum; Auflösung/Weichheit der URP-Schatten lassen sich von außen nicht setzen, nur
-  Distanz und Kaskaden. Offen: HDRP-Shadow-Catcher.
+  Distanz und Kaskaden.
+  HDRP-Shadow-Catcher (danach erledigt): ein SubShader, der `ShadowLoopMin` von HDRP für das Haupt-Richtungslicht fragt (wie das
+  Shader-Graph-"Shadow Matte"); braucht die Schatten-Filter-Keywords (`SHADOW_LOW/MEDIUM/HIGH`, `AREA_SHADOW_*`) und `CommonLighting.hlsl`;
+  das Volume setzt `HDShadowSettings` auf eine Kaskade über den Tiefenbereich der Kamera; die Rendering-Layer-Maske wird als 0xFFFFFFFF
+  übergeben, weil die Funktion für die des Meshes in HDRP 14 und 17 anders heißt. Lehre: ein zweites schattenwerfendes Richtungslicht
+  ließ HDRP "Cascade Shadow atlasing has failed" loggen, und der Renderer hatte Schatten für jedes Richtungslicht eingeschaltet – jetzt
+  nur für das hellste, und nur wenn keines schon Schatten wirft.
 
 ---
 

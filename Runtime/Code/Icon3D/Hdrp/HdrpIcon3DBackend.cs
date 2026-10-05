@@ -26,7 +26,7 @@ namespace GuiToolkit
 	/// volumetrics and the like are off in its frame settings. The colour buffer format of the HDRP asset needs an alpha
 	/// channel (R16G16B16A16) for transparent icons.</item>
 	/// </list>
-	/// No shadow catcher yet (<see cref="SupportsShadowCatcher"/>).
+	/// The shadow catcher is a SubShader of its own that asks HDRP's shadow loop for the main directional light.
 	/// </summary>
 	public class HdrpIcon3DBackend : Icon3DEnvironmentBackend
 	{
@@ -36,11 +36,10 @@ namespace GuiToolkit
 		private GameObject m_volumeGo;
 		private Volume m_volume;
 		private HDRISky m_sky;
+		private HDShadowSettings m_shadowSettings;
 		private readonly HashSet<Light> m_convertedLights = new();
 
 		public override bool LightsHonourCullingMask => false;
-
-		public override bool SupportsShadowCatcher => false;
 
 		public override bool BlendedAlphaIsCorrect => true;
 
@@ -91,6 +90,10 @@ namespace GuiToolkit
 		{
 			// HDRP clears to its own colour, not Camera.backgroundColor, which is what the renderer varies (black and white
 			// for the exact alpha path)
+			// The shadow cascade covers [camera, max distance]: as far as the camera sees is what is needed, in one cascade
+			if (m_shadowSettings != null)
+				m_shadowSettings.maxShadowDistance.Override(_camera.farClipPlane);
+
 			if (m_cameraData != null)
 				m_cameraData.backgroundColorHDR = _camera.backgroundColor.linear;   // HDRP takes it as a linear colour, Camera.backgroundColor is not
 		}
@@ -166,6 +169,9 @@ namespace GuiToolkit
 			exposure.mode.Override(ExposureMode.Fixed);
 			exposure.fixedExposure.Override(UnitExposure);
 
+			m_shadowSettings = profile.Add<HDShadowSettings>(true);
+			m_shadowSettings.cascadeShadowSplitCount.Override(1);
+
 			var fog = profile.Add<Fog>(true);
 			fog.enabled.Override(false);
 		}
@@ -178,6 +184,7 @@ namespace GuiToolkit
 			m_volumeGo = null;
 			m_volume = null;
 			m_sky = null;
+			m_shadowSettings = null;
 			m_convertedLights.Clear();
 			base.Dispose();
 		}

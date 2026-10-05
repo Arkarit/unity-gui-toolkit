@@ -58,7 +58,7 @@ URP 17 (Unity 6), HDRP 14 (2022.3) and HDRP 17 (Unity 6).
 | Ambient and reflection | preset's `UiCameraRenderSettings` | same | the preset's **reflection cubemap becomes the sky** (ambient and reflection); its flat ambient colour is not applied separately |
 | Transparent materials | wrong alpha from the pipeline's shaders: two renders (*Auto*) | alpha right as it is | alpha right as it is |
 | Antialiasing | MSAA | MSAA | rendered at twice the size and scaled down (MSAA made the image come out magnified) |
-| Shadow catcher | yes | yes (main light shadows must be on in the URP asset) | **not yet** |
+| Shadow catcher | yes | yes (main light shadows must be on in the URP asset) | yes (HDRP's shadow loop; a Volume sets one cascade over the camera's depth range) |
 | Light intensity | as authored | as authored | converted once to lux, times pi: the same image at exposure 1 |
 
 What to know per pipeline:
@@ -318,7 +318,9 @@ below the object's lowest point, as fraction of its height).
 - **The scene's quality level does not matter.** A "Disable Shadows" level on a phone does not remove the icon's
   shadow: the renderer switches shadows on for this render (high resolution, one cascade over exactly the camera's
   depth range) and restores the settings afterwards. A preset's own `UiCameraRenderSettings` can still override them.
-- **Not in HDRP yet.** A preset with a shadow catcher renders without it there and the console says so once.
+- **One shadow casting directional light.** URP shades only its main light, and HDRP logs an error for a second
+  shadowed directional light. If no directional light of the preset casts shadows, the brightest one starts to; author
+  your own key light with shadows and the others without.
 - **The frame is not enlarged for the shadow.** Framing follows the object; a shadow that reaches beyond the edge is
   cut off. Use *Padding* on the preset, or a light that keeps the shadow close.
 - **It costs a shadow map pass per icon.** Use it for icons that stay on screen (static results are cached), less so

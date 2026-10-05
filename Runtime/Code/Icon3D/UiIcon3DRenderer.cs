@@ -693,10 +693,24 @@ namespace GuiToolkit
 			s_shadowCatcher.transform.position = new Vector3(_bounds.center.x, _bounds.min.y - settings.Offset * _bounds.size.y, _bounds.center.z);
 			s_shadowCatcher.transform.localScale = new Vector3(diameter, 1, diameter);
 
-			// The preset instance is private to the renderer: shadows on its directional lights stay on
+			// Only ONE directional light may cast shadows (URP shades the main light only, HDRP refuses a second one with an error):
+			// if the preset has none that does, the brightest one starts to. The preset instance is private to the renderer, so
+			// this stays.
+			Light brightest = null;
+			bool hasShadowLight = false;
 			foreach (var light in _preset.GetComponentsInChildren<Light>(true))
-				if (light.type == LightType.Directional && light.shadows == LightShadows.None)
-					light.shadows = LightShadows.Soft;
+			{
+				if (light.type != LightType.Directional)
+					continue;
+
+				if (light.shadows != LightShadows.None)
+					hasShadowLight = true;
+				if (brightest == null || light.intensity > brightest.intensity)
+					brightest = light;
+			}
+
+			if (!hasShadowLight && brightest != null)
+				brightest.shadows = LightShadows.Soft;
 
 			s_shadowCatcher.SetActive(true);
 			return s_shadowCatcher;
