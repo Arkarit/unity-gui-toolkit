@@ -116,6 +116,8 @@ namespace GuiToolkit
 		public bool IsDirty;
 		public bool IsRendered;
 		public bool HasFailed;
+		/// <summary>Render twice (over black and over white) to get the alpha of transparent materials right; decided per instance.</summary>
+		public bool ExactAlpha;
 
 		// Animated icons: a persistent instance on the stage, invisible outside its own render
 		public readonly bool IsAnimated;

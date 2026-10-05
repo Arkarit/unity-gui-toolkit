@@ -36,6 +36,16 @@ namespace GuiToolkit
 			Box,
 		}
 
+		public enum EAlphaMode
+		{
+			/// <summary>Exact where the object has transparent materials (render queue 3000 and up), fast everywhere else.</summary>
+			Auto,
+			/// <summary>One render. Transparent materials of the object leave a wrong alpha (a 50% layer shows as 25%).</summary>
+			Fast,
+			/// <summary>Always two renders (over black and over white) and the alpha derived from both: right for any material.</summary>
+			Exact,
+		}
+
 		[Tooltip("Rotation of the icon camera (euler angles). Unity objects face +Z, so (0,180,0) looks at an object's front and (90,0,0) looks down on it.")]
 		[SerializeField] private Vector3 m_viewRotation = new(15, 150, 0);
 		[SerializeField] private EProjection m_projection = EProjection.Perspective;
@@ -45,6 +55,8 @@ namespace GuiToolkit
 		[SerializeField][Range(0, 0.5f)] private float m_padding = 0.05f;
 		[Tooltip("Background; alpha 0 for a transparent icon")]
 		[SerializeField] private Color m_backgroundColor = Color.clear;
+		[Tooltip("Exact doubles the render cost of an icon (once over black, once over white) and fixes the alpha of transparent materials. Auto uses it only for objects that have some. Ignored with an opaque background.")]
+		[SerializeField] private EAlphaMode m_alphaMode = EAlphaMode.Auto;
 
 		public Quaternion ViewRotation
 		{
@@ -80,6 +92,12 @@ namespace GuiToolkit
 		{
 			get => m_backgroundColor;
 			set => m_backgroundColor = value;
+		}
+
+		public EAlphaMode AlphaMode
+		{
+			get => m_alphaMode;
+			set => m_alphaMode = value;
 		}
 
 		/// <summary>Optional render settings on the same GameObject.</summary>

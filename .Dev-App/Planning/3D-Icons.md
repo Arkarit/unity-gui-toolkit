@@ -346,6 +346,10 @@ assets show where authoring hurts.
 
 - **Atlas** for static icons: storage pages instead of one texture per icon; `RawImage.uvRect`; fewer draw calls.
 - **Alpha fix** for transparent object materials (separate alpha pass or alpha-preserving blend override).
+  **Done** (2026-10-05): not a blend override (arbitrary shaders have fixed blend states) but a second render over
+  white; the alpha is `1 - mean(white - black)` per pixel (`Icon3DAlphaCombine` shader, preset `AlphaMode` Auto /
+  Fast / Exact). Pipeline independent, so it is also the plan for URP and HDRP. Measured: 50% glass leaves alpha 0.247
+  in Fast, 0.498 in Exact. Tests: `TestIcon3DAlpha`. Cost: two renders for icons with a transparent material.
 - **Shadow catcher** in presets: invisible ground that only receives shadows, written into alpha.
 - **URP backend**, then **HDRP backend**.
 

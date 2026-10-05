@@ -357,6 +357,11 @@ sich, sobald echte Assets zeigen, wo das Erstellen hakt.
 
 - **Atlas** für statische Icons: Speicherseiten statt einer Textur pro Icon; `RawImage.uvRect`; weniger Draw Calls.
 - **Alpha-Korrektur** für transparente Objektmaterialien (eigener Alpha-Pass oder alpha-erhaltender Blend-Override).
+  **Erledigt** (05.10.2026): kein Blend-Override (beliebige Shader haben feste Blend-Zustände), sondern ein zweiter
+  Render über Weiß; das Alpha ist pro Pixel `1 - Mittel(Weiß - Schwarz)` (Shader `Icon3DAlphaCombine`, Preset
+  `AlphaMode` Auto / Fast / Exact). Pipeline-unabhängig, also auch der Plan für URP und HDRP. Gemessen: 50 %-Glas
+  ergibt Alpha 0,247 in Fast und 0,498 in Exact. Tests: `TestIcon3DAlpha`. Kosten: zwei Renders für Icons mit
+  transparentem Material.
 - **Shadow Catcher** in Presets: unsichtbarer Boden, der nur Schatten empfängt und ins Alpha schreibt.
 - **URP-Backend**, danach **HDRP-Backend**.
 

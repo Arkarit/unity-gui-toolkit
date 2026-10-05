@@ -89,6 +89,7 @@ A preset is a **prefab** with a `UiIcon3DPreset` on its root. It describes a lig
     - *Sphere*: stable when the object rotates, but up to √3 looser for round objects.
   - padding
   - background colour (alpha 0 = transparent)
+  - alpha mode (see *Limits and pitfalls*): how the alpha of transparent materials is made right
 
 The library ships three presets:
 
@@ -221,9 +222,14 @@ animated.IsVisible = isOnScreen;      // invisible animated icons are not render
 
 ## Limits and pitfalls
 
-- **Transparent materials on the object** (glass, alpha blended particles) write a wrong alpha into the icon, because
-  their blend mode applies to the alpha channel too. **Additive** particles are fine: they add light, which is
-  what premultiplied alpha expects. A fix is planned.
+- **Transparent materials on the object** (glass, alpha blended particles) would write a wrong alpha into the icon,
+  because their blend mode applies to the alpha channel too (a 50% layer ends up at 25%). The preset's **Alpha Mode**
+  handles it: *Auto* (default) renders such objects twice, over black and over white, and derives the alpha from
+  the difference - right for any material, but twice the render cost for these icons. *Fast* always renders once
+  (use it when the object's transparency does not matter), *Exact* always renders twice. It only applies to a
+  transparent background; with an opaque background colour nothing is derived. Auto recognises an object by its
+  materials' render queue (3000 and up), so a material that switches to a transparent queue at runtime needs *Exact*.
+  **Additive** particles were always fine: they add light, which is what premultiplied alpha expects.
 - **Stencil `Mask`s** are not considered for "visible first"; only `RectMask2D` and the screen bounds are. Masked
   icons count as visible.
 - **Sphere fit** is conservative by design (see *Presets*). Static icons should use *Box*.

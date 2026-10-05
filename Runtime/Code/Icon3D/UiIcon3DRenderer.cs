@@ -55,6 +55,8 @@ namespace GuiToolkit
 		private static Camera s_camera;
 		private static UiIcon3DPreset s_fallbackPreset;
 		private static Cubemap s_fallbackReflection;
+		private static Material s_alphaCombine;
+		private static bool s_alphaCombineWarned;
 		private static IIcon3DRenderBackend s_backend;
 
 		private static int s_layerOverride = -1;
@@ -413,6 +415,7 @@ namespace GuiToolkit
 
 				// Bring animated characters into their entry pose instead of the stored bind pose
 				UpdateAnimators(instance, 0);
+				_request.ExactAlpha = NeedsExactAlpha(instance, preset);
 
 				GetFraming(instance, _request, preset, out var bounds, out var rotation);
 				RenderInstance(_request, preset, bounds, rotation);
@@ -477,6 +480,7 @@ namespace GuiToolkit
 		{
 			var target = _request.Texture;
 			RenderTexture scratch = null;
+			RenderTexture scratchOverWhite = null;
 			var previousActive = RenderTexture.active;
 
 			try
@@ -487,27 +491,33 @@ namespace GuiToolkit
 
 				Icon3DFitter.Fit(s_camera, _bounds, _rotation, _preset.Projection, _preset.FieldOfView, _preset.FitMode,
 					_preset.Padding, (float)target.width / target.height);
-				s_camera.backgroundColor = _preset.BackgroundColor;
 				s_camera.cullingMask = 1 << Layer;
+
+				// A second render over white only makes sense for a background that is transparent
+				var combine = _request.ExactAlpha && _preset.BackgroundColor.a <= 0f ? GetAlphaCombineMaterial() : null;
+				s_camera.backgroundColor = combine != null ? new Color(0, 0, 0, 0) : _preset.BackgroundColor;
 
 				scratch = RenderTexture.GetTemporary(target.width, target.height, 24, RenderTextureFormat.ARGB32,
 					RenderTextureReadWrite.Default, MsaaSamples);
-				s_camera.targetTexture = scratch;
+				RenderStage(_preset, scratch);
 
-				Backend.BeginEnvironment(_preset);
-				try
+				if (combine != null)
 				{
-					Backend.Render(s_camera);
+					s_camera.backgroundColor = new Color(1, 1, 1, 0);
+					scratchOverWhite = RenderTexture.GetTemporary(target.width, target.height, 24, RenderTextureFormat.ARGB32,
+						RenderTextureReadWrite.Default, MsaaSamples);
+					RenderStage(_preset, scratchOverWhite);
+
+					// Resolves MSAA, drops the depth buffer and derives the alpha from the difference of both
+					combine.SetTexture("_WhiteTex", scratchOverWhite);
+					Graphics.Blit(scratch, target, combine);
 				}
-				finally
+				else
 				{
-					Backend.EndEnvironment();
+					// Resolves MSAA and drops the depth buffer
+					Graphics.Blit(scratch, target);
 				}
 
-				s_camera.targetTexture = null;
-
-				// Resolves MSAA and drops the depth buffer
-				Graphics.Blit(scratch, target);
 				_request.IsRendered = true;
 				RenderCount++;
 			}
@@ -521,9 +531,75 @@ namespace GuiToolkit
 				if (scratch != null)
 					RenderTexture.ReleaseTemporary(scratch);
 
+				if (scratchOverWhite != null)
+					RenderTexture.ReleaseTemporary(scratchOverWhite);
+
 				if (_preset != null && s_parking != null)
 					_preset.transform.SetParent(s_parking, false);
 			}
+		}
+
+		/// <summary>One camera render of the stage into _target, with the preset's environment and nothing else.</summary>
+		private static void RenderStage( UiIcon3DPreset _preset, RenderTexture _target )
+		{
+			s_camera.targetTexture = _target;
+			Backend.BeginEnvironment(_preset);
+			try
+			{
+				Backend.Render(s_camera);
+			}
+			finally
+			{
+				Backend.EndEnvironment();
+				s_camera.targetTexture = null;
+			}
+		}
+
+		/// <summary>
+		/// Whether the alpha of this object needs the two render path: the preset says so, or (Auto) the object has a
+		/// material in the transparent render queue - glass, particles, anything blended.
+		/// </summary>
+		private static bool NeedsExactAlpha( GameObject _instance, UiIcon3DPreset _preset )
+		{
+			switch (_preset.AlphaMode)
+			{
+				case UiIcon3DPreset.EAlphaMode.Fast:
+					return false;
+				case UiIcon3DPreset.EAlphaMode.Exact:
+					return true;
+			}
+
+			foreach (var rend in _instance.GetComponentsInChildren<Renderer>(true))
+			{
+				foreach (var material in rend.sharedMaterials)
+				{
+					if (material != null && material.renderQueue >= (int)UnityEngine.Rendering.RenderQueue.Transparent)
+						return true;
+				}
+			}
+
+			return false;
+		}
+
+		private static Material GetAlphaCombineMaterial()
+		{
+			if (s_alphaCombine != null)
+				return s_alphaCombine;
+
+			var shader = Resources.Load<Shader>("Icon3D/Icon3DAlphaCombine");
+			if (shader == null || !shader.isSupported)
+			{
+				if (!s_alphaCombineWarned)
+				{
+					s_alphaCombineWarned = true;
+					UiLog.LogWarning("3D icons: the alpha combine shader (Resources/Icon3D/Icon3DAlphaCombine) is missing or unsupported - transparent materials keep their wrong alpha.");
+				}
+
+				return null;
+			}
+
+			s_alphaCombine = new Material(shader) { name = "Icon3D Alpha Combine", hideFlags = HideFlags.HideAndDontSave };
+			return s_alphaCombine;
 		}
 
 		/// <summary>Instantiate below the inactive parking slot (no Awake yet) and make it safe for the stage.</summary>
@@ -580,6 +656,7 @@ namespace GuiToolkit
 				if (light.enabled)
 					_request.Lights.Add(light);
 
+			_request.ExactAlpha = NeedsExactAlpha(instance, _preset);
 			_request.Instance = instance;
 			SetAnimatedVisible(_request, false);
 
@@ -883,6 +960,10 @@ namespace GuiToolkit
 			if (s_fallbackReflection != null)
 				DestroyObject(s_fallbackReflection);
 			s_fallbackReflection = null;
+
+			if (s_alphaCombine != null)
+				DestroyObject(s_alphaCombine);
+			s_alphaCombine = null;
 
 			if (s_stage != null)
 				DestroyObject(s_stage);
