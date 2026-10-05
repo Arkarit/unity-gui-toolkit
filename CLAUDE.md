@@ -103,6 +103,14 @@ instantiated, rendered and destroyed; animated ones keep an instance that is inv
 Results live in `RenderTextureManager` textures keyed by content, so identical icons share one render. Objects can
 be loaded by canonical id through `AssetManager` (`Icon3DAssetCache`, polled, never callbacks).
 
+Render pipelines: `Icon3DBackends` picks the backend by `GraphicsSettings.currentRenderPipeline`
+(`BuiltinIcon3DBackend`; `Urp/` and `Hdrp/` are assemblies compiled only with their packages). They share
+`Icon3DEnvironmentBackend`. URP and HDRP ignore `Light.cullingMask` (scene lights are switched off for the
+batch); HDRP has no `RenderSettings` (own Volume, fixed exposure, lights as lux = intensity x pi). Test projects
+for URP/HDRP: `.Dev-App/SrpProjects/srp-project.mjs create|sync|test`; the 3D icon tests are pipeline aware
+(`Icon3DTestModels.Pipeline`), the Built-in oracle is ignored elsewhere and `TestIcon3DSrpIsolation` covers all.
+Tests can be run from outside through the MCP bridge (`run_tests`, `mcp~/README.md`).
+
 Isolation is verified by pixel tests against an "oracle": the same render with a clean scene made active, which
 swaps Unity's complete environment (`TestIcon3DRenderer`, `TestIcon3DEnvironmentFindings`). If you touch
 the environment handling, run those first. Guide: `Documentation~/3D-Icons.md`; plan and findings:

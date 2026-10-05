@@ -27,6 +27,35 @@ All notable changes to this project will be documented in this file.
   physics are switched off (via `versionDefines` on the physics modules). Switching to `Static` freezes
   the current frame. In edit mode Animators and particles are advanced at 30 fps.
 
+  **Built-in, URP and HDRP.** The backend is picked by the project's render pipeline and switched when it
+  changes; the URP and HDRP backends are assemblies that exist only where their package is installed.
+  Tested in Built-in, URP 14 and 17, HDRP 14 and 17 (`.Dev-App/SrpProjects/srp-project.mjs` makes and runs
+  the test projects). URP and HDRP ignore `Light.cullingMask`, so the scene's lights are switched off for
+  the batch; HDRP, which has no `RenderSettings` environment, gets an own Volume that only the icon camera
+  sees (the preset's reflection cubemap becomes its sky, fixed exposure, lights converted to lux).
+
+  **More on top of that:**
+  - *Transparent materials* get the right alpha: Built-in's blended shaders square it (a 50% layer
+    ends up at 25%), so such objects are rendered over black and over white and the alpha is derived from the
+    difference (preset `Alpha Mode` Auto / Fast / Exact). URP and HDRP write the right alpha themselves.
+  - *Frame budget in milliseconds* next to the count (`Render Milliseconds per Frame`, at least one icon per
+    tick, CPU time only).
+  - *Shadow catcher* in a preset: an invisible ground that shows only the shadow of the preset's directional
+    light, written into the alpha. Own SubShader per pipeline; the scene's quality level does not decide
+    whether there is a shadow.
+  - *Rewinding*: `UiIcon3D.EMode.Rewinding` runs a running animation back, faster, to the first frame of its
+    loop and stands still there; playing again on the way carries on forward from where it is (hover out, hover in).
+    `Icon3DHoverAnimate` in the demo has an *On Exit* setting for it.
+  - *Preset Studio* (`Gui Toolkit > 3D Icons > Preset Studio...`): a grid of sample objects times presets.
+    *Debug View*: every icon with size, memory, references and state, renders per tick; the same data
+    through `Icon3DDiagnostics` at runtime.
+
+- **`run_tests` in the MCP bridge** runs Unity Test Runner tests (EditMode or PlayMode) in the open editor
+  and returns the result, failures and chosen log lines (`outputContains`) included, so a change can be
+  written, compiled and tested without clicking through the Test Runner window. The result goes through a
+  file under `Library/`, which is how it survives the domain reload of a PlayMode run. Needs
+  `com.unity.test-framework`; the code is an assembly of its own and is not compiled without it.
+
 - **`RenderTextureManager` links cameras and displays by keyword** and creates the render textures on
   demand, so a camera rendering into the UI needs no `.renderTexture` asset. `UiRenderTextureProducer`
   goes on the camera, `UiRawImageRenderTextureConsumer` / `UiRendererRenderTextureConsumer` on the display.
