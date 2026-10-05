@@ -61,7 +61,17 @@ namespace GuiToolkit
 			get => m_request != null && m_request.IsAnimated && m_request.IsPlaying;
 			set
 			{
-				if (m_request == null || !m_request.IsAnimated || m_request.IsPlaying == value)
+				if (m_request == null || !m_request.IsAnimated)
+					return;
+
+				// Playing again while it rewinds: carry on forward from where it is, not from the start
+				if (value && m_request.IsRewinding)
+				{
+					UiIcon3DRenderer.ResumeFromRewind(m_request);
+					return;
+				}
+
+				if (m_request.IsPlaying == value)
 					return;
 
 				m_request.IsPlaying = value;
@@ -71,6 +81,22 @@ namespace GuiToolkit
 					UiIcon3DRenderer.Freeze(m_request);
 			}
 		}
+
+		/// <summary>
+		/// Animated icons only: play the animation backwards, _speed times as fast, until it is back at the start of its
+		/// loop (the start of its clip if it does not loop), then stand still on that first frame. Setting
+		/// <see cref="IsPlaying"/> to true meanwhile carries on forward from the current time - the timing of "hover in,
+		/// hover out, hover in" needs exactly that. Needs an Animator on the object; for an animation driven by scripts or
+		/// particles there is nothing to rewind and the icon freezes where it is. A frozen icon stays frozen.
+		/// </summary>
+		public void Rewind( float _speed = 2f )
+		{
+			if (m_request != null && m_request.IsAnimated)
+				UiIcon3DRenderer.Rewind(m_request, _speed);
+		}
+
+		/// <summary>True while an animated icon is on its way back to its first frame.</summary>
+		public bool IsRewinding => m_request != null && m_request.IsRewinding;
 
 		/// <summary>Animated icons only: render every n-th frame (1 = every frame).</summary>
 		public int FrameDivider
@@ -123,6 +149,14 @@ namespace GuiToolkit
 		public readonly bool IsAnimated;
 		public bool IsPlaying;
 		public int FrameDivider = 1;
+
+		// Rewinding (animated icons): the animation runs backwards at RewindSpeed times its speed until it is back at the
+		// start of its loop (or of its clip), and the icon then stands still on that first frame. 0 = not rewinding.
+		public float RewindSpeed;
+		public float RewindTarget;
+		public float BaseAnimatorSpeed = 1;
+		public float RewindRate = 1;   // normalized time per second of the state it was playing
+		public bool IsRewinding => RewindSpeed > 0;
 		public int FrameCounter;
 		public GameObject Instance;
 		public Bounds FitBounds;

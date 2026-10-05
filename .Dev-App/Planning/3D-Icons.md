@@ -382,6 +382,19 @@ complete.
   log "Cascade Shadow atlasing has failed", and the renderer had switched shadows on for every directional light - now only the brightest
   one, and only if none casts shadows already.
 
+### Rewind (added after phase 6, 2026-10-05)
+
+Wish: an icon animated only while hovered should not stop dead when the pointer leaves, but run back to its first frame, with
+timing that survives "in, out, in". `UiIcon3D.EMode.Rewinding`, `UiIcon3D.RewindSpeed`, `Icon3DHandle.Rewind(speed)` /
+`IsRewinding`, and `IsPlaying = true` while rewinding carries on forward. Findings: `Animator.speed` can not be negative (it
+reads back 0), so the Animator stands still (speed 0) and the renderer sets its time by hand each tick with
+`Play(state, 0, time)` + `Update(0)`; `AnimatorStateInfo.length` is the length at the current speed (Infinity at 0), so the rate
+is taken when the rewind starts; a non-looping state keeps counting past 1 while it holds its last frame, so the rewind starts
+from 1; the target is the start of the current loop (`floor(normalizedTime)`), not of the whole run. A rewinding icon is rendered
+even when off screen so it always arrives. Tests: `TestIcon3DRewind` (real time: the image equals a fresh static render, 4x
+rewinds 0.8 s in 0.2 s, only the current loop, turn-around continues forward, no Animator freezes, frozen stays, component
+round trip). Demo: `Icon3DHoverAnimate` got an *On Exit* setting and `Animate`; `Icon3DDemo` has a second hover icon that rewinds.
+
 ---
 
 ## Test strategy

@@ -40,6 +40,13 @@ namespace GuiToolkit
 			/// <see cref="FrameDivider"/>-th frame. Switching to <see cref="Static"/> freezes the current frame.
 			/// </summary>
 			Animated,
+			/// <summary>
+			/// A running animation is played backwards, faster by <see cref="RewindSpeed"/>, to the first frame of its loop, and
+			/// the icon stands still there - the way back for <see cref="Animated"/> when the pointer leaves. Switching to
+			/// <see cref="Animated"/> again meanwhile carries on forward from where it is. Without a running animation this is
+			/// <see cref="Static"/>.
+			/// </summary>
+			Rewinding,
 		}
 
 		[Tooltip("Object to show; a prefab or any GameObject. It is copied for every render, never modified.")]
@@ -54,6 +61,8 @@ namespace GuiToolkit
 		[Tooltip("Camera rotation (euler angles); (0,180,0) looks at an object's front")]
 		[SerializeField] private Vector3 m_viewRotation = new(15, 150, 0);
 		[SerializeField] private EMode m_mode = EMode.Static;
+		[Tooltip("Rewinding mode: how much faster than normal the animation runs back to its first frame")]
+		[SerializeField][Min(0.1f)] private float m_rewindSpeed = 2f;
 		[SerializeField][Min(0.05f)] private float m_refreshInterval = 1;
 		[Tooltip("Animated mode: render every n-th frame (1 = every frame)")]
 		[SerializeField][Min(1)] private int m_frameDivider = 1;
@@ -168,6 +177,18 @@ namespace GuiToolkit
 
 				m_mode = value;
 				SetDirty();
+			}
+		}
+
+		/// <summary>Rewinding mode: speed of the way back, as multiple of normal.</summary>
+		public float RewindSpeed
+		{
+			get => m_rewindSpeed;
+			set
+			{
+				m_rewindSpeed = Mathf.Max(0.1f, value);
+				if (m_mode == EMode.Rewinding && m_shown != null)
+					m_shown.Rewind(m_rewindSpeed);
 			}
 		}
 
@@ -374,7 +395,10 @@ namespace GuiToolkit
 				m_pending?.Release();
 				m_pending = null;
 				m_shown.FrameDivider = m_frameDivider;
-				m_shown.IsPlaying = m_mode == EMode.Animated;
+				if (m_mode == EMode.Rewinding)
+					m_shown.Rewind(m_rewindSpeed);
+				else
+					m_shown.IsPlaying = m_mode == EMode.Animated;
 				return;
 			}
 

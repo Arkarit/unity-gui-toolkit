@@ -396,6 +396,18 @@ Phase 5 ist abgeschlossen.
   ließ HDRP "Cascade Shadow atlasing has failed" loggen, und der Renderer hatte Schatten für jedes Richtungslicht eingeschaltet – jetzt
   nur für das hellste, und nur wenn keines schon Schatten wirft.
 
+### Rewind (nach Phase 6, 05.10.2026)
+
+Wunsch: Ein Icon, das nur bei Hover animiert, soll beim Verlassen nicht stehenbleiben, sondern zum ersten Frame zurücklaufen, mit einem
+Timing, das "rein, raus, rein" übersteht. `UiIcon3D.EMode.Rewinding`, `UiIcon3D.RewindSpeed`, `Icon3DHandle.Rewind(speed)` / `IsRewinding`;
+`IsPlaying = true` während des Rücklaufs läuft vorwärts weiter. Erkenntnisse: `Animator.speed` kann nicht negativ sein (liest sich als 0
+zurück), also steht der Animator still (Speed 0) und der Renderer setzt die Zeit je Tick von Hand mit `Play(State, 0, Zeit)` + `Update(0)`;
+`AnimatorStateInfo.length` ist die Länge bei aktuellem Speed (Unendlich bei 0), die Rate wird deshalb beim Start des Rücklaufs genommen;
+ein State ohne Loop zählt nach seinem Ende weiter, solange er das letzte Bild hält, der Rücklauf beginnt darum bei 1; Ziel ist der Anfang
+der aktuellen Schleife (`floor(normalizedTime)`), nicht der des ganzen Laufs. Ein zurücklaufendes Icon wird auch außerhalb des Bildschirms
+gerendert, damit es ankommt. Tests: `TestIcon3DRewind` (Echtzeit). Demo: `Icon3DHoverAnimate` hat eine Einstellung *On Exit* und `Animate`;
+`Icon3DDemo` hat ein zweites Hover-Icon, das zurückspult.
+
 ---
 
 ## Teststrategie

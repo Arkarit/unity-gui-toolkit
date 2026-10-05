@@ -174,6 +174,7 @@ order: the icon's own override, then the object's hint, then the preset.
 | **Static** (default) | once, again only when something changes | the instance is destroyed after the render; only the texture stays |
 | **Periodic** | every *Refresh Interval* seconds | for time dependent presets or slowly changing shaders |
 | **Animated** | every frame, or every *Frame Divider*-th frame | the object's own animation plays: Animator, particles, scripts |
+| **Rewinding** | every frame, until it is back at the start | a running animation runs backwards to its first frame and stands still there (see below) |
 
 How animated icons behave:
 
@@ -196,6 +197,32 @@ How animated icons behave:
 public void OnPointerEnter( PointerEventData _ ) => icon.Mode = UiIcon3D.EMode.Animated;
 public void OnPointerExit( PointerEventData _ )  => icon.Mode = UiIcon3D.EMode.Static;
 ```
+
+**Rewinding** is the nicer way out: instead of stopping dead on whatever frame it has reached, the icon runs back.
+
+```csharp
+public void OnPointerExit( PointerEventData _ )  => icon.Mode = UiIcon3D.EMode.Rewinding;
+```
+
+- It runs back at *Rewind Speed* times normal speed (default 2, the demo uses 3) to the first frame **of the loop it is
+  in**: an icon that has looped five times does not run back five loops, only what is left of the current one. A clip
+  that does not loop runs back to its start.
+- It then **stands still on that first frame** and frees its instance, like a frozen icon. The image is the same as a
+  fresh static render of the object.
+- **Hovering in again on the way carries on forward from where it is.** Nothing restarts: "in, out, in" swings the
+  animation instead of making it jump, which is the whole point of the timing. Setting `Mode = Animated` while it
+  rewinds is all it takes (on the handle: `IsPlaying = true`).
+- The way back is time, not frames: it is the same with a frame divider, and it also completes while the icon is
+  scrolled out of view, so it is never left half way.
+- It needs an **Animator** on the object (its controller's current state is what runs backwards). For an animation
+  driven by scripts or particles there is nothing to rewind; the icon freezes where it is. A frozen icon stays frozen.
+- A state machine that leaves the state by itself while the icon plays (a transition to another state) is rewound
+  within the state it is in at that moment.
+
+Hover is one trigger of many. The demo component `Icon3DHoverAnimate` has `Animate` as its whole interface and an
+*On Exit* setting (Freeze or Rewind): set `Animate = isSelected` from a selection, a "new" marker or the active tab and
+the icon does the same, with the same way out. In code without the component:
+`handle.Rewind(speed)` and `handle.IsPlaying` on the handle from `UiIcon3DRenderer.RenderAnimated`.
 
 ---
 

@@ -323,6 +323,117 @@ namespace GuiToolkit
 			DestroyAnimatedInstance(_request);
 		}
 
+		/// <summary>
+		/// Starts the animation running backwards (see <see cref="Icon3DHandle.Rewind"/>). Only a running animated icon has
+		/// something to rewind; the loop it is in (not the whole animation, an icon that has looped five times does not go
+		/// back five loops) is run back at _speed times the speed.
+		/// </summary>
+		internal static void Rewind( Icon3DRequest _request, float _speed )
+		{
+			if (!_request.IsAnimated || !_request.IsPlaying || _request.Instance == null || _speed <= 0)
+				return;
+
+			var animators = _request.Instance.GetComponentsInChildren<Animator>(false);
+			Animator lead = null;
+			foreach (var animator in animators)
+			{
+				if (animator.isActiveAndEnabled && animator.runtimeAnimatorController != null)
+				{
+					lead = animator;
+					break;
+				}
+			}
+
+			if (lead == null)
+			{
+				// Scripts and particles can not run backwards
+				Freeze(_request);
+				return;
+			}
+
+			if (!_request.IsRewinding)
+			{
+				var info = lead.GetCurrentAnimatorStateInfo(0);
+				float time = info.normalizedTime;
+				if (!info.loop && time > 1f)
+				{
+					// A clip that does not loop keeps counting after its end while it holds the last frame: rewinding starts
+					// from the end of the clip, not from the (invisible) time that has passed since
+					lead.Play(info.fullPathHash, 0, 1f);
+					time = 1f;
+				}
+
+				_request.RewindTarget = info.loop ? Mathf.Floor(time) : 0f;
+				_request.BaseAnimatorSpeed = Mathf.Abs(lead.speed) > 0.0001f ? Mathf.Abs(lead.speed) : 1f;
+
+				// AnimatorStateInfo.length is the length at the current speed (it reads Infinity at speed 0, which is what the
+				// Animator gets for the rewind), so the rate has to be taken now
+				_request.RewindRate = info.length > 0.0001f && !float.IsInfinity(info.length) ? 1f / info.length : 1f;
+			}
+
+			// Animator.speed can not be negative (it reads back 0): the time is set by hand each tick (StepRewind), and the
+			// Animator itself stands still meanwhile
+			_request.RewindSpeed = _speed;
+			foreach (var animator in animators)
+				animator.speed = 0;
+		}
+
+		internal static void ResumeFromRewind( Icon3DRequest _request )
+		{
+			if (!_request.IsRewinding)
+				return;
+
+			_request.RewindSpeed = 0;
+			if (_request.Instance == null)
+				return;
+
+			foreach (var animator in _request.Instance.GetComponentsInChildren<Animator>(true))
+				animator.speed = _request.BaseAnimatorSpeed;
+		}
+
+		/// <summary>
+		/// One tick of a rewind: has the animation come back to the start? Then it is put exactly there (it would be a little
+		/// past it, by up to a frame) and the caller freezes the icon after rendering that frame. Returns true when done.
+		/// </summary>
+		private static bool StepRewind( Icon3DRequest _request, float _deltaTime )
+		{
+			var animators = _request.Instance.GetComponentsInChildren<Animator>(false);
+			Animator lead = null;
+			foreach (var animator in animators)
+			{
+				if (animator.isActiveAndEnabled && animator.runtimeAnimatorController != null)
+				{
+					lead = animator;
+					break;
+				}
+			}
+
+			if (lead == null)
+				return true;
+
+			var info = lead.GetCurrentAnimatorStateInfo(0);
+			float time = info.normalizedTime - _request.RewindSpeed * _request.RewindRate * _deltaTime;
+			bool done = time <= _request.RewindTarget + 0.0001f;
+			if (done)
+				time = 0f;   // exactly the first frame - not up to a frame past it, and not the end of the previous loop, which is the same pose
+			                 // only up to the last digit (and a hard edge turns that into a different pixel)
+
+			foreach (var animator in animators)
+			{
+				if (!animator.isActiveAndEnabled || animator.runtimeAnimatorController == null)
+					continue;
+
+				animator.Play(info.fullPathHash, 0, time);
+				animator.Update(0);
+				if (done)
+					animator.speed = _request.BaseAnimatorSpeed;
+			}
+
+			if (done)
+				_request.RewindSpeed = 0;
+			return done;
+		}
+
 		/// <summary>Release all icons and tear down the stage. Handles still held become empty.</summary>
 		public static void Shutdown()
 		{
@@ -487,7 +598,8 @@ namespace GuiToolkit
 					continue;
 
 				// Not visible: keep animating, but do not spend a render on it - unless it has no image at all yet
-				if (request.VisibleHandles == 0 && request.IsRendered && !request.IsDirty)
+				// (a rewinding one is always due: it must get back to its first frame)
+				if (request.VisibleHandles == 0 && request.IsRendered && !request.IsDirty && !request.IsRewinding)
 					continue;
 
 				if (!Application.isPlaying && request.IsRendered && !request.IsDirty
@@ -550,15 +662,20 @@ namespace GuiToolkit
 				}
 
 				double now = Time.realtimeSinceStartupAsDouble;
+				// In play mode the time is what really passed (a slow frame must not slow the rewind down); in edit mode the
+				// editor ticks irregularly and a long pause must not jump the animation
+				float sinceLast = Mathf.Clamp((float)(now - _request.LastAnimationTime), 0, Application.isPlaying ? 0.5f : 0.1f);
 				if (!Application.isPlaying)
 				{
 					// Nothing animates in edit mode on its own
-					float deltaTime = Mathf.Clamp((float)(now - _request.LastAnimationTime), 0, 0.1f);
+					float deltaTime = sinceLast;
 					UpdateAnimators(_request.Instance, deltaTime);
 					SimulateParticles(_request.Instance, deltaTime);
 				}
 
 				_request.LastAnimationTime = now;
+
+				bool rewindDone = _request.IsRewinding && StepRewind(_request, sinceLast);
 
 				SetAnimatedVisible(_request, true);
 				try
@@ -569,6 +686,10 @@ namespace GuiToolkit
 				{
 					SetAnimatedVisible(_request, false);
 				}
+
+				// Back on the first frame: it stays on screen, the instance is not needed any more
+				if (rewindDone)
+					Freeze(_request);
 			}
 			catch (Exception e)
 			{
@@ -878,6 +999,7 @@ namespace GuiToolkit
 			}
 
 			_request.Instance = null;
+			_request.RewindSpeed = 0;
 			_request.Renderers.Clear();
 			_request.Lights.Clear();
 		}
