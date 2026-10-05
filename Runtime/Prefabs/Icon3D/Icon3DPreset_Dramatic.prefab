@@ -144,12 +144,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db28d9cc4d44efa489dc8da0d4759fd1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_viewRotation: {x: 15, y: 150, z: 0}
+  m_viewRotation: {x: 25, y: 150, z: 0}
   m_projection: 0
   m_fieldOfView: 25
   m_fitMode: 1
-  m_padding: 0.05
+  m_padding: 0.12
   m_backgroundColor: {r: 0, g: 0, b: 0, a: 0}
+  m_alphaMode: 0
+  m_shadowCatcher:
+    Enabled: 1
+    Strength: 0.75
+    Color: {r: 0, g: 0, b: 0, a: 1}
+    Extent: 2.5
+    Offset: 0
 --- !u!114 &7329552939696382306
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -53,6 +53,13 @@ MonoBehaviour:
   m_fitMode: 1
   m_padding: 0.05
   m_backgroundColor: {r: 0, g: 0, b: 0, a: 0}
+  m_alphaMode: 0
+  m_shadowCatcher:
+    Enabled: 0
+    Strength: 0.6
+    Color: {r: 0, g: 0, b: 0, a: 1}
+    Extent: 2.5
+    Offset: 0
 --- !u!114 &1424952761380367488
 MonoBehaviour:
   m_ObjectHideFlags: 0

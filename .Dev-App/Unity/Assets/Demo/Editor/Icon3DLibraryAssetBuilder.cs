@@ -36,6 +36,14 @@ public static class Icon3DLibraryAssetBuilder
 		public LightShadows Shadows;
 	}
 
+	/// <summary>Framing and shadow catcher of a preset; a preset without one keeps the component defaults.</summary>
+	private class FrameDef
+	{
+		public Vector3 ViewRotation;
+		public float Padding;
+		public float ShadowStrength;
+	}
+
 	[MenuItem(StringConstants.MENU_HEADER + "3D Icons/Dev: Rebuild Library Assets")]
 	public static void Build()
 	{
@@ -43,19 +51,22 @@ public static class Icon3DLibraryAssetBuilder
 		Directory.CreateDirectory(ResourcesFolder);
 
 		// Neutral: soft studio light, the default for everything
-		BuildPreset(NeutralPresetPath, new Color(0.36f, 0.36f, 0.38f),
+		BuildPreset(NeutralPresetPath, null, new Color(0.36f, 0.36f, 0.38f),
 			new Color(0.9f, 0.9f, 0.92f), new Color(0.5f, 0.5f, 0.52f), new Color(0.14f, 0.14f, 0.15f),
 			new LightDef { Name = "Key", Euler = new Vector3(35, 30, 0), Color = Color.white, Intensity = 1.0f, Shadows = LightShadows.Soft },
 			new LightDef { Name = "Rim", Euler = new Vector3(15, 200, 0), Color = Color.white, Intensity = 0.5f, Shadows = LightShadows.None });
 
-		// Warm: golden key, violet rim, warm ambient
-		BuildPreset(WarmPresetPath, new Color(0.28f, 0.18f, 0.1f),
+		// Warm: golden key, violet rim, warm ambient; a soft shadow under the object. The camera looks down a little
+		// more than in Neutral, otherwise the ground (and with it the shadow) is seen edge on
+		BuildPreset(WarmPresetPath, new FrameDef { ViewRotation = new Vector3(25, 150, 0), Padding = 0.12f, ShadowStrength = 0.5f },
+			new Color(0.28f, 0.18f, 0.1f),
 			new Color(1f, 0.9f, 0.75f), new Color(0.6f, 0.42f, 0.28f), new Color(0.15f, 0.09f, 0.05f),
-			new LightDef { Name = "Key", Euler = new Vector3(35, 35, 0), Color = new Color(1f, 0.78f, 0.55f), Intensity = 1.2f, Shadows = LightShadows.Soft },
+			new LightDef { Name = "Key", Euler = new Vector3(50, 55, 0), Color = new Color(1f, 0.78f, 0.55f), Intensity = 1.2f, Shadows = LightShadows.Soft },
 			new LightDef { Name = "Rim", Euler = new Vector3(15, 200, 0), Color = new Color(0.55f, 0.45f, 0.8f), Intensity = 0.8f, Shadows = LightShadows.None });
 
-		// Dramatic: hard top light, cold strong rim, almost no ambient
-		BuildPreset(DramaticPresetPath, new Color(0.04f, 0.04f, 0.06f),
+		// Dramatic: hard top light, cold strong rim, almost no ambient; a dark shadow
+		BuildPreset(DramaticPresetPath, new FrameDef { ViewRotation = new Vector3(25, 150, 0), Padding = 0.12f, ShadowStrength = 0.75f },
+			new Color(0.04f, 0.04f, 0.06f),
 			new Color(0.6f, 0.7f, 0.9f), new Color(0.12f, 0.12f, 0.16f), new Color(0.02f, 0.02f, 0.03f),
 			new LightDef { Name = "Key", Euler = new Vector3(60, 50, 0), Color = Color.white, Intensity = 1.6f, Shadows = LightShadows.Hard },
 			new LightDef { Name = "Rim", Euler = new Vector3(10, 215, 0), Color = new Color(0.5f, 0.7f, 1f), Intensity = 1.4f, Shadows = LightShadows.None });
@@ -67,13 +78,20 @@ public static class Icon3DLibraryAssetBuilder
 		UiLog.Log("3D icon library assets rebuilt");
 	}
 
-	private static void BuildPreset( string _path, Color _ambient, Color _sky, Color _horizon, Color _ground, params LightDef[] _lights )
+	private static void BuildPreset( string _path, FrameDef _frame, Color _ambient, Color _sky, Color _horizon, Color _ground, params LightDef[] _lights )
 	{
 		string name = Path.GetFileNameWithoutExtension(_path);
 		var reflection = CreateOrUpdateCubemap(Path.ChangeExtension(_path, null) + "_Reflection.asset", _sky, _horizon, _ground);
 
 		var root = new GameObject(name);
-		root.AddComponent<UiIcon3DPreset>();
+		var preset = root.AddComponent<UiIcon3DPreset>();
+		if (_frame != null)
+		{
+			preset.ViewRotation = Quaternion.Euler(_frame.ViewRotation);
+			preset.Padding = _frame.Padding;
+			preset.ShadowCatcher.Enabled = true;
+			preset.ShadowCatcher.Strength = _frame.ShadowStrength;
+		}
 
 		var settings = root.AddComponent<UiCameraRenderSettings>();
 		Enable(settings.AmbientMode, AmbientMode.Flat);
