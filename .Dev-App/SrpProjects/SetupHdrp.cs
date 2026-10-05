@@ -11,6 +11,9 @@ public static class SetupHdrp
 	{
 		Directory.CreateDirectory("Assets/Settings");
 
+		// HDRP does not render in Gamma (a new project starts there)
+		PlayerSettings.colorSpace = ColorSpace.Linear;
+
 		// A plain HDRP asset; the alpha channel of the colour buffer needs the 16 bit format (the default 11/11/10 has none)
 		var asset = ScriptableObject.CreateInstance<HDRenderPipelineAsset>();
 		AssetDatabase.CreateAsset(asset, "Assets/Settings/HdrpAsset.asset");

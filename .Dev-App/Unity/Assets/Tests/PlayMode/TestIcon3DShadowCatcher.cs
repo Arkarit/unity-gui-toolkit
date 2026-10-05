@@ -53,6 +53,10 @@ namespace GuiToolkit.Test
 			var light = lightGo.AddComponent<Light>();
 			light.type = LightType.Directional;
 			light.intensity = 1f;
+
+			// Last, so that TearDown has everything it restores
+			if (!UiIcon3DRenderer.Backend.SupportsShadowCatcher)
+				Assert.Ignore($"{UiIcon3DRenderer.Backend.GetType().Name} has no shadow catcher");
 		}
 
 		[TearDown]

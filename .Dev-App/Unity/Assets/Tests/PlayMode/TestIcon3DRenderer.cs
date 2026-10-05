@@ -165,6 +165,11 @@ namespace GuiToolkit.Test
 		[UnityTest]
 		public IEnumerator Scene_Environment_Does_Not_Reach_The_Icon_Oracle()
 		{
+			// The oracle swaps Built-in's RenderSettings by activating another scene; the other pipelines are covered by
+			// TestIcon3DSrpIsolation
+			if (Icon3DTestModels.Pipeline != Icon3DTestModels.EPipeline.BuiltIn)
+				Assert.Ignore("Built-in specific oracle");
+
 			var sphere = CreateSphereTemplate();
 			var ambient = new Color(0.2f, 0.3f, 0.4f);
 			var preset = CreatePreset("WhiteWithAmbient", Color.white, ambient);
@@ -351,6 +356,9 @@ namespace GuiToolkit.Test
 		{
 			private readonly BuiltinIcon3DBackend m_builtin = new();
 			public bool LightsHonourCullingMask => m_builtin.LightsHonourCullingMask;
+			public bool SupportsShadowCatcher => m_builtin.SupportsShadowCatcher;
+			public bool BlendedAlphaIsCorrect => m_builtin.BlendedAlphaIsCorrect;
+			public int ScratchScale => m_builtin.ScratchScale;
 			public void SetupCamera( Camera _camera ) => m_builtin.SetupCamera(_camera);
 			public void BeginEnvironment( UiIcon3DPreset _preset ) { }
 			public void Render( Camera _camera ) => m_builtin.Render(_camera);

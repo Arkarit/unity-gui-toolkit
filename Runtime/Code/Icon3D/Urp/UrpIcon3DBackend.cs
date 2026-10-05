@@ -28,6 +28,8 @@ namespace GuiToolkit
 
 		public override bool LightsHonourCullingMask => false;
 
+		public override bool BlendedAlphaIsCorrect => true;
+
 		public override void SetupCamera( Camera _camera )
 		{
 			_camera.enabled = false;

@@ -11,6 +11,9 @@ public static class SetupUrp
 	{
 		Directory.CreateDirectory("Assets/Settings");
 
+		// Linear, like a project that cares about lighting (and like the HDRP test project, which has no choice)
+		PlayerSettings.colorSpace = ColorSpace.Linear;
+
 		var rendererData = ScriptableObject.CreateInstance<UniversalRendererData>();
 		AssetDatabase.CreateAsset(rendererData, "Assets/Settings/UrpRenderer.asset");
 

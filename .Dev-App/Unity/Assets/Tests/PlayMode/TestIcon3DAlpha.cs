@@ -88,7 +88,9 @@ namespace GuiToolkit.Test
 			Debug.Log($"ICON3D exact, 50% glass: {center}");
 
 			Assert.AreEqual(LayerAlpha, center.a, 0.06f);
-			Assert.LessOrEqual(Mathf.Max(center.r, center.g, center.b), center.a + 0.02f, "colour exceeds alpha - not premultiplied");
+			// Premultiplied holds for linear values; a texture in a linear project stores them encoded
+			var linear = QualitySettings.activeColorSpace == ColorSpace.Linear ? center.linear : center;
+			Assert.LessOrEqual(Mathf.Max(linear.r, linear.g, linear.b), center.a + 0.02f, "colour exceeds alpha - not premultiplied");
 			Assert.Greater(center.r, 0.05f, "the glass has no colour at all");
 			Assert.AreEqual(0f, pixels[0].a, 0.01f, "background is not transparent");
 		}
@@ -117,6 +119,11 @@ namespace GuiToolkit.Test
 		[Test]
 		public void Exact_Mode_Does_Not_Change_An_Opaque_Object()
 		{
+			// HDRP resolves MSAA non-linearly (weighted by brightness), so the black/white derivation is off at the edges.
+			// Auto never takes that path there: HDRP's blended shaders write the right alpha themselves.
+			if (Icon3DTestModels.Pipeline == Icon3DTestModels.EPipeline.Hdrp)
+				Assert.Ignore("HDRP's MSAA resolve is not linear");
+
 			m_preset.AlphaMode = UiIcon3DPreset.EAlphaMode.Fast;
 			var fast = Read(Render(CreateSphere(m_opaque)));
 

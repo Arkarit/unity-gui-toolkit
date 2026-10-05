@@ -30,6 +30,18 @@ namespace GuiToolkit
 
 		public virtual bool LightsHonourCullingMask => true;
 
+		public virtual bool SupportsShadowCatcher => true;
+
+		public virtual bool BlendedAlphaIsCorrect => false;
+
+		public virtual int ScratchScale => 1;
+
+		/// <summary>A black reflection cubemap: what an empty environment gives. Valid after the first <see cref="BeginEnvironment"/>.</summary>
+		protected Cubemap BlackCubemap => m_blackCube;
+
+		/// <summary>The preset's own render settings of the current render, if it has any.</summary>
+		protected UiCameraRenderSettings ActivePresetSettings => m_activePresetSettings;
+
 		public void BeginEnvironment( UiIcon3DPreset _preset )
 		{
 			EnsureBaseline();
@@ -46,6 +58,8 @@ namespace GuiToolkit
 			PresetSetsShadowDistance = m_activePresetSettings != null && m_activePresetSettings.ShadowDistance.Enabled;
 			if (m_activePresetSettings != null)
 				m_activePresetSettings.Apply();
+
+			OnEnvironmentBegin(_preset);
 		}
 
 		public void Render( Camera _camera )
@@ -56,6 +70,8 @@ namespace GuiToolkit
 
 		public void EndEnvironment()
 		{
+			OnEnvironmentEnd();
+
 			if (m_activePresetSettings != null)
 				m_activePresetSettings.Restore();
 
@@ -76,6 +92,11 @@ namespace GuiToolkit
 			m_baseline = null;
 			m_blackCube = null;
 		}
+
+		/// <summary>The environment is in place (baseline and preset settings applied). For pipelines that need more than RenderSettings.</summary>
+		protected virtual void OnEnvironmentBegin( UiIcon3DPreset _preset ) { }
+
+		protected virtual void OnEnvironmentEnd() { }
 
 		/// <summary>Switch shadows on for this render (and remember what to restore). Called only when the preset has a shadow catcher.</summary>
 		protected virtual void BeginShadows( UiIcon3DPreset _preset ) { }

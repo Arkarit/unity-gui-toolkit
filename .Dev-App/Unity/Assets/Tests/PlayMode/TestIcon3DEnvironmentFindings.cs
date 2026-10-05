@@ -42,6 +42,15 @@ namespace GuiToolkit.Test
 		private FogMode m_savedFogMode;
 		private float m_savedFogDensity;
 
+		/// These are findings about Built-in's global RenderSettings environment and how a second scene swaps it. URP and
+		/// HDRP have other inputs; TestIcon3DSrpIsolation covers what a hostile scene may do there.
+		[OneTimeSetUp]
+		public void BuiltInOnly()
+		{
+			if (Icon3DTestModels.Pipeline != Icon3DTestModels.EPipeline.BuiltIn)
+				Assert.Ignore("Built-in specific findings");
+		}
+
 		[UnitySetUp]
 		public IEnumerator SetUp()
 		{

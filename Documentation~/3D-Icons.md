@@ -45,6 +45,38 @@ Without the layer, icons fall back to layer 31 and log a warning once.
 
 ---
 
+## Render pipelines
+
+Built-in, URP and HDRP are supported. The renderer picks its backend by the project's render pipeline and switches when
+that changes; the URP and HDRP backends are in assemblies of their own that exist only where the pipeline's package is
+installed, so nothing is needed beyond having the package. Tested: Built-in (2022.3 and Unity 6), URP 14 (2022.3) and
+URP 17 (Unity 6), HDRP 14 (2022.3) and HDRP 17 (Unity 6).
+
+| | Built-in | URP | HDRP |
+|---|---|---|---|
+| Scene isolation | environment overridden per render; scene lights masked by layer | same; scene lights are switched off for the batch (URP ignores `Light.cullingMask`) | an own Volume only the icon camera sees replaces sky, ambient, exposure and fog; scene lights switched off for the batch |
+| Ambient and reflection | preset's `UiCameraRenderSettings` | same | the preset's **reflection cubemap becomes the sky** (ambient and reflection); its flat ambient colour is not applied separately |
+| Transparent materials | wrong alpha from the pipeline's shaders: two renders (*Auto*) | alpha right as it is | alpha right as it is |
+| Antialiasing | MSAA | MSAA | rendered at twice the size and scaled down (MSAA made the image come out magnified) |
+| Shadow catcher | yes | yes (main light shadows must be on in the URP asset) | **not yet** |
+| Light intensity | as authored | as authored | converted once to lux, times pi: the same image at exposure 1 |
+
+What to know per pipeline:
+
+- **URP:** the icon uses the pipeline's default renderer, so its renderer features (SSAO, full screen passes) apply.
+  The camera has no post processing, no volumes, no opaque or depth copy.
+- **HDRP:** the colour buffer format of the HDRP asset must have an alpha channel (*R16G16B16A16*), or transparent
+  icons are opaque. The project must be in a linear colour space (HDRP's own requirement). Exposure is fixed so
+  that a light of intensity 1 lights a white surface to 1: the icons do not adapt to their own brightness.
+  A preset that is meant for HDRP should get its mood from the reflection cubemap, since that is the sky.
+- **All of them:** objects bring their own materials, so use the pipeline's shaders on them. A Built-in material in
+  a URP project is pink in the icon, as everywhere else.
+
+The package's own tests run in test projects of each pipeline (`.Dev-App/SrpProjects/srp-project.mjs create urp|hdrp
+<dir>`, then `test <dir>`); results are in the planning document.
+
+---
+
 ## Quick start
 
 1. Drop `Prefabs/StandardElements/StandardIcon3D` into a canvas. Better: drop your project's variant of it.
@@ -286,6 +318,7 @@ below the object's lowest point, as fraction of its height).
 - **The scene's quality level does not matter.** A "Disable Shadows" level on a phone does not remove the icon's
   shadow: the renderer switches shadows on for this render (high resolution, one cascade over exactly the camera's
   depth range) and restores the settings afterwards. A preset's own `UiCameraRenderSettings` can still override them.
+- **Not in HDRP yet.** A preset with a shadow catcher renders without it there and the console says so once.
 - **The frame is not enlarged for the shadow.** Framing follows the object; a shadow that reaches beyond the edge is
   cut off. Use *Padding* on the preset, or a light that keeps the shadow close.
 - **It costs a shadow map pass per icon.** Use it for icons that stay on screen (static results are cached), less so
@@ -302,6 +335,8 @@ below the object's lowest point, as fraction of its height).
   (use it when the object's transparency does not matter), *Exact* always renders twice. It only applies to a
   transparent background; with an opaque background colour nothing is derived. Auto recognises an object by its
   materials' render queue (3000 and up), so a material that switches to a transparent queue at runtime needs *Exact*.
+  In URP and HDRP the pipelines' own shaders write the right alpha, so *Auto* renders once there; *Exact* forces
+  the two renders anyway.
   **Additive** particles were always fine: they add light, which is what premultiplied alpha expects.
 - **Stencil `Mask`s** are not considered for "visible first"; only `RectMask2D` and the screen bounds are. Masked
   icons count as visible.

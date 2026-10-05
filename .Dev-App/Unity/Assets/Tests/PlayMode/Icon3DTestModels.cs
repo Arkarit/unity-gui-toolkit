@@ -287,6 +287,28 @@ namespace GuiToolkit.Test
 				return material;
 			}
 
+			if (Pipeline == EPipeline.Hdrp)
+			{
+				material.SetFloat("_SurfaceType", 1);
+				material.SetFloat("_EnableBlendModePreserveSpecularLighting", 0);   // specular is added on top of the alpha: colour above alpha
+				material.SetFloat("_BlendMode", 0);
+				material.SetFloat("_ZWrite", 0);
+				material.SetFloat("_SrcBlend", (float)UnityEngine.Rendering.BlendMode.SrcAlpha);
+				material.SetFloat("_DstBlend", (float)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+				material.SetFloat("_AlphaSrcBlend", (float)UnityEngine.Rendering.BlendMode.One);
+				material.SetFloat("_AlphaDstBlend", (float)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+				material.SetOverrideTag("RenderType", "Transparent");
+				material.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+				material.EnableKeyword("_BLENDMODE_ALPHA");
+				material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
+#if UNITY_EDITOR
+				// HDRP's own inspector code derives the pass states and keywords from the properties
+				var utils = System.Type.GetType("UnityEditor.Rendering.HighDefinition.HDShaderUtils, Unity.RenderPipelines.HighDefinition.Editor");
+				utils?.GetMethod("ResetMaterialKeywords", new[] { typeof(Material) })?.Invoke(null, new object[] { material });
+#endif
+				return material;
+			}
+
 			material.SetFloat("_Mode", 2);
 			material.SetOverrideTag("RenderType", "Transparent");
 			material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
@@ -409,7 +431,7 @@ namespace GuiToolkit.Test
 				new(0.5f, 1.55f), new(0.45f, 1.2f), new(0.24f, 0.7f), new(0.0f, 0.62f),
 			}, "TestTrophyCup");
 			var baseMesh = Primitive(PrimitiveType.Cube);
-			var ribbon = BuildLathe(new List<Vector2> { new(0.34f, 0.66f), new(0.34f, 0.76f) }, "TestTrophyRibbon", 24);
+			var ribbon = BuildLathe(new List<Vector2> { new(0.37f, 0.6f), new(0.37f, 0.8f) }, "TestTrophyRibbon", 24);
 			_meshes = new[] { cup, ribbon };
 
 			var root = new GameObject("TestTrophy");
@@ -472,6 +494,13 @@ namespace GuiToolkit.Test
 
 		public static void RebuildAssets()
 		{
+			// Starting from an empty folder: rewriting assets in place left the new prefabs without their meshes and controllers
+			if (AssetDatabase.IsValidFolder(Folder))
+			{
+				AssetDatabase.DeleteAsset(Folder);
+				AssetDatabase.Refresh();
+			}
+
 			EnsureFolder(Folder);
 
 			var tentacleMaterial = SaveAsset(CreateOpaque("TestTentacle", new Color(0.35f, 0.75f, 0.45f), 0, 0.5f), "TestTentacle.mat");

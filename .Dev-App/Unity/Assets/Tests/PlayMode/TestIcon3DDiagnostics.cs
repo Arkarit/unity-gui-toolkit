@@ -148,7 +148,9 @@ namespace GuiToolkit.Test
 
 			Assert.AreEqual(1, summary.Animated);
 			Assert.AreEqual(1, icons.Count(_i => _i.IsAnimated && _i.IsPlaying));
-			Assert.AreEqual(1, icons.Count(_i => _i.ExactAlpha), "only the object with a transparent material needs two renders");
+			// Only where the pipeline's blended shaders leave a wrong alpha does a transparent material need two renders
+			int expected = UiIcon3DRenderer.Backend.BlendedAlphaIsCorrect ? 0 : 1;
+			Assert.AreEqual(expected, icons.Count(_i => _i.ExactAlpha), "only the object with a transparent material needs two renders");
 		}
 
 		[Test]

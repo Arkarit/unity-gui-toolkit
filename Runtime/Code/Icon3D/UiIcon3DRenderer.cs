@@ -62,6 +62,7 @@ namespace GuiToolkit
 		private static bool s_alphaCombineWarned;
 		private static IIcon3DRenderBackend s_backend;
 		private static bool s_backendExplicit;
+		private static bool s_warnedNoShadowCatcher;
 		private static UnityEngine.Rendering.RenderPipelineAsset s_backendPipeline;
 		private static readonly List<(Light light, bool wasEnabled)> s_disabledLights = new();
 
@@ -594,20 +595,29 @@ namespace GuiToolkit
 					_preset.Padding, (float)target.width / target.height);
 				s_camera.cullingMask = 1 << Layer;
 				if (_preset.ShadowCatcher.Enabled)
-					PrepareShadowCatcher(_preset, _bounds);
+				{
+					if (Backend.SupportsShadowCatcher)
+						PrepareShadowCatcher(_preset, _bounds);
+					else if (!s_warnedNoShadowCatcher)
+					{
+						s_warnedNoShadowCatcher = true;
+						UiLog.LogWarning($"3D icons: the {Backend.GetType().Name} has no shadow catcher yet - presets with one render without it.");
+					}
+				}
 
 				// A second render over white only makes sense for a background that is transparent
 				var combine = _request.ExactAlpha && _preset.BackgroundColor.a <= 0f ? GetAlphaCombineMaterial() : null;
 				s_camera.backgroundColor = combine != null ? new Color(0, 0, 0, 0) : _preset.BackgroundColor;
 
-				scratch = RenderTexture.GetTemporary(target.width, target.height, 24, RenderTextureFormat.ARGB32,
+				int scale = Mathf.Max(1, Backend.ScratchScale);
+				scratch = RenderTexture.GetTemporary(target.width * scale, target.height * scale, 24, RenderTextureFormat.ARGB32,
 					RenderTextureReadWrite.Default, MsaaSamples);
 				RenderStage(_preset, scratch);
 
 				if (combine != null)
 				{
 					s_camera.backgroundColor = new Color(1, 1, 1, 0);
-					scratchOverWhite = RenderTexture.GetTemporary(target.width, target.height, 24, RenderTextureFormat.ARGB32,
+					scratchOverWhite = RenderTexture.GetTemporary(target.width * scale, target.height * scale, 24, RenderTextureFormat.ARGB32,
 						RenderTextureReadWrite.Default, MsaaSamples);
 					RenderStage(_preset, scratchOverWhite);
 
@@ -737,6 +747,10 @@ namespace GuiToolkit
 				case UiIcon3DPreset.EAlphaMode.Exact:
 					return true;
 			}
+
+			// Pipelines whose blended shaders write the right alpha do not need two renders
+			if (Backend.BlendedAlphaIsCorrect)
+				return false;
 
 			foreach (var rend in _instance.GetComponentsInChildren<Renderer>(true))
 			{

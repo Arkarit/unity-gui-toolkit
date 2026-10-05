@@ -1,0 +1,26 @@
+{
+    "name": "de.phoenixgrafik.ui-toolkit.Hdrp",
+    "rootNamespace": "GuiToolkit",
+    "references": [
+        "de.phoenixgrafik.ui-toolkit",
+        "Unity.RenderPipelines.HighDefinition.Runtime",
+        "Unity.RenderPipelines.Core.Runtime"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [
+        "UITK_HDRP"
+    ],
+    "versionDefines": [
+        {
+            "name": "com.unity.render-pipelines.high-definition",
+            "expression": "",
+            "define": "UITK_HDRP"
+        }
+    ],
+    "noEngineReferences": false
+}
