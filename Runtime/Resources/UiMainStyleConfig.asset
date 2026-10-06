@@ -107,6 +107,10 @@ MonoBehaviour:
     - rid: 5597920602800521281
     - rid: 5597920602800521282
     - rid: 5597920602800521283
+    - rid: 5597920602800521334
+    - rid: 5597920602800521335
+    - rid: 5597920602800521336
+    - rid: 5597920602800521337
     m_aspectRatioGreaterEqual: 0
     m_inheritFromSkinName: 
     m_inheritFromSameConfig: 0
@@ -205,6 +209,10 @@ MonoBehaviour:
     - rid: 5597920602800521285
     - rid: 5597920602800521286
     - rid: 5597920602800521287
+    - rid: 5597920602800521338
+    - rid: 5597920602800521339
+    - rid: 5597920602800521340
+    - rid: 5597920602800521341
     m_aspectRatioGreaterEqual: 0
     m_inheritFromSkinName: 
     m_inheritFromSameConfig: 0
@@ -16329,6 +16337,758 @@ MonoBehaviour:
       data:
         IsApplicable: 0
         m_value: 0
+    - rid: 5597920602800521334
+      type: {class: UiStyleRectTransform, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_styleConfig: {fileID: 11400000}
+        m_name: ScrollViews/Fade/Top
+        m_alias: 
+        m_anchoredPosition:
+          rid: 5597920602800521342
+        m_anchorMax:
+          rid: 5597920602800521343
+        m_anchorMin:
+          rid: 5597920602800521344
+        m_localEulerAngles:
+          rid: 5597920602800521345
+        m_localPosition:
+          rid: 5597920602800521346
+        m_localRotation:
+          rid: 5597920602800521347
+        m_localScale:
+          rid: 5597920602800521348
+        m_offsetMax:
+          rid: 5597920602800521349
+        m_offsetMin:
+          rid: 5597920602800521350
+        m_pivot:
+          rid: 5597920602800521351
+        m_sizeDelta:
+          rid: 5597920602800521352
+    - rid: 5597920602800521335
+      type: {class: UiStyleRectTransform, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_styleConfig: {fileID: 11400000}
+        m_name: ScrollViews/Fade/Bottom
+        m_alias: 
+        m_anchoredPosition:
+          rid: 5597920602800521353
+        m_anchorMax:
+          rid: 5597920602800521354
+        m_anchorMin:
+          rid: 5597920602800521355
+        m_localEulerAngles:
+          rid: 5597920602800521356
+        m_localPosition:
+          rid: 5597920602800521357
+        m_localRotation:
+          rid: 5597920602800521358
+        m_localScale:
+          rid: 5597920602800521359
+        m_offsetMax:
+          rid: 5597920602800521360
+        m_offsetMin:
+          rid: 5597920602800521361
+        m_pivot:
+          rid: 5597920602800521362
+        m_sizeDelta:
+          rid: 5597920602800521363
+    - rid: 5597920602800521336
+      type: {class: UiStyleRectTransform, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_styleConfig: {fileID: 11400000}
+        m_name: ScrollViews/Fade/Left
+        m_alias: 
+        m_anchoredPosition:
+          rid: 5597920602800521364
+        m_anchorMax:
+          rid: 5597920602800521365
+        m_anchorMin:
+          rid: 5597920602800521366
+        m_localEulerAngles:
+          rid: 5597920602800521367
+        m_localPosition:
+          rid: 5597920602800521368
+        m_localRotation:
+          rid: 5597920602800521369
+        m_localScale:
+          rid: 5597920602800521370
+        m_offsetMax:
+          rid: 5597920602800521371
+        m_offsetMin:
+          rid: 5597920602800521372
+        m_pivot:
+          rid: 5597920602800521373
+        m_sizeDelta:
+          rid: 5597920602800521374
+    - rid: 5597920602800521337
+      type: {class: UiStyleRectTransform, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_styleConfig: {fileID: 11400000}
+        m_name: ScrollViews/Fade/Right
+        m_alias: 
+        m_anchoredPosition:
+          rid: 5597920602800521375
+        m_anchorMax:
+          rid: 5597920602800521376
+        m_anchorMin:
+          rid: 5597920602800521377
+        m_localEulerAngles:
+          rid: 5597920602800521378
+        m_localPosition:
+          rid: 5597920602800521379
+        m_localRotation:
+          rid: 5597920602800521380
+        m_localScale:
+          rid: 5597920602800521381
+        m_offsetMax:
+          rid: 5597920602800521382
+        m_offsetMin:
+          rid: 5597920602800521383
+        m_pivot:
+          rid: 5597920602800521384
+        m_sizeDelta:
+          rid: 5597920602800521385
+    - rid: 5597920602800521338
+      type: {class: UiStyleRectTransform, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_styleConfig: {fileID: 11400000}
+        m_name: ScrollViews/Fade/Top
+        m_alias: 
+        m_anchoredPosition:
+          rid: 5597920602800521386
+        m_anchorMax:
+          rid: 5597920602800521387
+        m_anchorMin:
+          rid: 5597920602800521388
+        m_localEulerAngles:
+          rid: 5597920602800521389
+        m_localPosition:
+          rid: 5597920602800521390
+        m_localRotation:
+          rid: 5597920602800521391
+        m_localScale:
+          rid: 5597920602800521392
+        m_offsetMax:
+          rid: 5597920602800521393
+        m_offsetMin:
+          rid: 5597920602800521394
+        m_pivot:
+          rid: 5597920602800521395
+        m_sizeDelta:
+          rid: 5597920602800521396
+    - rid: 5597920602800521339
+      type: {class: UiStyleRectTransform, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_styleConfig: {fileID: 11400000}
+        m_name: ScrollViews/Fade/Bottom
+        m_alias: 
+        m_anchoredPosition:
+          rid: 5597920602800521397
+        m_anchorMax:
+          rid: 5597920602800521398
+        m_anchorMin:
+          rid: 5597920602800521399
+        m_localEulerAngles:
+          rid: 5597920602800521400
+        m_localPosition:
+          rid: 5597920602800521401
+        m_localRotation:
+          rid: 5597920602800521402
+        m_localScale:
+          rid: 5597920602800521403
+        m_offsetMax:
+          rid: 5597920602800521404
+        m_offsetMin:
+          rid: 5597920602800521405
+        m_pivot:
+          rid: 5597920602800521406
+        m_sizeDelta:
+          rid: 5597920602800521407
+    - rid: 5597920602800521340
+      type: {class: UiStyleRectTransform, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_styleConfig: {fileID: 11400000}
+        m_name: ScrollViews/Fade/Left
+        m_alias: 
+        m_anchoredPosition:
+          rid: 5597920602800521408
+        m_anchorMax:
+          rid: 5597920602800521409
+        m_anchorMin:
+          rid: 5597920602800521410
+        m_localEulerAngles:
+          rid: 5597920602800521411
+        m_localPosition:
+          rid: 5597920602800521412
+        m_localRotation:
+          rid: 5597920602800521413
+        m_localScale:
+          rid: 5597920602800521414
+        m_offsetMax:
+          rid: 5597920602800521415
+        m_offsetMin:
+          rid: 5597920602800521416
+        m_pivot:
+          rid: 5597920602800521417
+        m_sizeDelta:
+          rid: 5597920602800521418
+    - rid: 5597920602800521341
+      type: {class: UiStyleRectTransform, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_styleConfig: {fileID: 11400000}
+        m_name: ScrollViews/Fade/Right
+        m_alias: 
+        m_anchoredPosition:
+          rid: 5597920602800521419
+        m_anchorMax:
+          rid: 5597920602800521420
+        m_anchorMin:
+          rid: 5597920602800521421
+        m_localEulerAngles:
+          rid: 5597920602800521422
+        m_localPosition:
+          rid: 5597920602800521423
+        m_localRotation:
+          rid: 5597920602800521424
+        m_localScale:
+          rid: 5597920602800521425
+        m_offsetMax:
+          rid: 5597920602800521426
+        m_offsetMin:
+          rid: 5597920602800521427
+        m_pivot:
+          rid: 5597920602800521428
+        m_sizeDelta:
+          rid: 5597920602800521429
+    - rid: 5597920602800521342
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 0}
+    - rid: 5597920602800521343
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 1, y: 1}
+    - rid: 5597920602800521344
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 1}
+    - rid: 5597920602800521345
+      type: {class: UiStyleRectTransform/ApplicableValueVector3, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: -0, y: 0, z: 0}
+    - rid: 5597920602800521346
+      type: {class: UiStyleRectTransform/ApplicableValueVector3, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 150, z: 0}
+    - rid: 5597920602800521347
+      type: {class: UiStyleRectTransform/ApplicableValueQuaternion, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 0, z: 0, w: 1}
+    - rid: 5597920602800521348
+      type: {class: UiStyleRectTransform/ApplicableValueVector3, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 1, y: 1, z: 1}
+    - rid: 5597920602800521349
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 0}
+    - rid: 5597920602800521350
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: -48}
+    - rid: 5597920602800521351
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0.5, y: 1}
+    - rid: 5597920602800521352
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {x: 0, y: 48}
+    - rid: 5597920602800521353
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 0}
+    - rid: 5597920602800521354
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 1, y: 0}
+    - rid: 5597920602800521355
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 0}
+    - rid: 5597920602800521356
+      type: {class: UiStyleRectTransform/ApplicableValueVector3, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: -0, y: 0, z: 0}
+    - rid: 5597920602800521357
+      type: {class: UiStyleRectTransform/ApplicableValueVector3, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: -150, z: 0}
+    - rid: 5597920602800521358
+      type: {class: UiStyleRectTransform/ApplicableValueQuaternion, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 0, z: 0, w: 1}
+    - rid: 5597920602800521359
+      type: {class: UiStyleRectTransform/ApplicableValueVector3, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 1, y: 1, z: 1}
+    - rid: 5597920602800521360
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 48}
+    - rid: 5597920602800521361
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 0}
+    - rid: 5597920602800521362
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0.5, y: 0}
+    - rid: 5597920602800521363
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {x: 0, y: 48}
+    - rid: 5597920602800521364
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 0}
+    - rid: 5597920602800521365
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 1}
+    - rid: 5597920602800521366
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 0}
+    - rid: 5597920602800521367
+      type: {class: UiStyleRectTransform/ApplicableValueVector3, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: -0, y: 0, z: 0}
+    - rid: 5597920602800521368
+      type: {class: UiStyleRectTransform/ApplicableValueVector3, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: -200, y: 0, z: 0}
+    - rid: 5597920602800521369
+      type: {class: UiStyleRectTransform/ApplicableValueQuaternion, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 0, z: 0, w: 1}
+    - rid: 5597920602800521370
+      type: {class: UiStyleRectTransform/ApplicableValueVector3, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 1, y: 1, z: 1}
+    - rid: 5597920602800521371
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 48, y: 0}
+    - rid: 5597920602800521372
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 0}
+    - rid: 5597920602800521373
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 0.5}
+    - rid: 5597920602800521374
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {x: 48, y: 0}
+    - rid: 5597920602800521375
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 0}
+    - rid: 5597920602800521376
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 1, y: 1}
+    - rid: 5597920602800521377
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 1, y: 0}
+    - rid: 5597920602800521378
+      type: {class: UiStyleRectTransform/ApplicableValueVector3, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: -0, y: 0, z: 0}
+    - rid: 5597920602800521379
+      type: {class: UiStyleRectTransform/ApplicableValueVector3, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 200, y: 0, z: 0}
+    - rid: 5597920602800521380
+      type: {class: UiStyleRectTransform/ApplicableValueQuaternion, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 0, z: 0, w: 1}
+    - rid: 5597920602800521381
+      type: {class: UiStyleRectTransform/ApplicableValueVector3, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 1, y: 1, z: 1}
+    - rid: 5597920602800521382
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 0}
+    - rid: 5597920602800521383
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: -48, y: 0}
+    - rid: 5597920602800521384
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 1, y: 0.5}
+    - rid: 5597920602800521385
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {x: 48, y: 0}
+    - rid: 5597920602800521386
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 0}
+    - rid: 5597920602800521387
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 1, y: 1}
+    - rid: 5597920602800521388
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 1}
+    - rid: 5597920602800521389
+      type: {class: UiStyleRectTransform/ApplicableValueVector3, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: -0, y: 0, z: 0}
+    - rid: 5597920602800521390
+      type: {class: UiStyleRectTransform/ApplicableValueVector3, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 150, z: 0}
+    - rid: 5597920602800521391
+      type: {class: UiStyleRectTransform/ApplicableValueQuaternion, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 0, z: 0, w: 1}
+    - rid: 5597920602800521392
+      type: {class: UiStyleRectTransform/ApplicableValueVector3, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 1, y: 1, z: 1}
+    - rid: 5597920602800521393
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 0}
+    - rid: 5597920602800521394
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: -48}
+    - rid: 5597920602800521395
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0.5, y: 1}
+    - rid: 5597920602800521396
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {x: 0, y: 48}
+    - rid: 5597920602800521397
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 0}
+    - rid: 5597920602800521398
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 1, y: 0}
+    - rid: 5597920602800521399
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 0}
+    - rid: 5597920602800521400
+      type: {class: UiStyleRectTransform/ApplicableValueVector3, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: -0, y: 0, z: 0}
+    - rid: 5597920602800521401
+      type: {class: UiStyleRectTransform/ApplicableValueVector3, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: -150, z: 0}
+    - rid: 5597920602800521402
+      type: {class: UiStyleRectTransform/ApplicableValueQuaternion, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 0, z: 0, w: 1}
+    - rid: 5597920602800521403
+      type: {class: UiStyleRectTransform/ApplicableValueVector3, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 1, y: 1, z: 1}
+    - rid: 5597920602800521404
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 48}
+    - rid: 5597920602800521405
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 0}
+    - rid: 5597920602800521406
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0.5, y: 0}
+    - rid: 5597920602800521407
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {x: 0, y: 48}
+    - rid: 5597920602800521408
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 0}
+    - rid: 5597920602800521409
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 1}
+    - rid: 5597920602800521410
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 0}
+    - rid: 5597920602800521411
+      type: {class: UiStyleRectTransform/ApplicableValueVector3, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: -0, y: 0, z: 0}
+    - rid: 5597920602800521412
+      type: {class: UiStyleRectTransform/ApplicableValueVector3, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: -200, y: 0, z: 0}
+    - rid: 5597920602800521413
+      type: {class: UiStyleRectTransform/ApplicableValueQuaternion, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 0, z: 0, w: 1}
+    - rid: 5597920602800521414
+      type: {class: UiStyleRectTransform/ApplicableValueVector3, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 1, y: 1, z: 1}
+    - rid: 5597920602800521415
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 48, y: 0}
+    - rid: 5597920602800521416
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 0}
+    - rid: 5597920602800521417
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 0.5}
+    - rid: 5597920602800521418
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {x: 48, y: 0}
+    - rid: 5597920602800521419
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 0}
+    - rid: 5597920602800521420
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 1, y: 1}
+    - rid: 5597920602800521421
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 1, y: 0}
+    - rid: 5597920602800521422
+      type: {class: UiStyleRectTransform/ApplicableValueVector3, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: -0, y: 0, z: 0}
+    - rid: 5597920602800521423
+      type: {class: UiStyleRectTransform/ApplicableValueVector3, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 200, y: 0, z: 0}
+    - rid: 5597920602800521424
+      type: {class: UiStyleRectTransform/ApplicableValueQuaternion, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 0, z: 0, w: 1}
+    - rid: 5597920602800521425
+      type: {class: UiStyleRectTransform/ApplicableValueVector3, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 1, y: 1, z: 1}
+    - rid: 5597920602800521426
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 0}
+    - rid: 5597920602800521427
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: -48, y: 0}
+    - rid: 5597920602800521428
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 1, y: 0.5}
+    - rid: 5597920602800521429
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {x: 48, y: 0}
     - rid: 7311505549952025144
       type: {class: UiStyleRectTransform, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:

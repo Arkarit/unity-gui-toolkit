@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 1168396936449131052}
   - component: {fileID: 7489406587505747249}
   - component: {fileID: 4319839130231029972}
+  - component: {fileID: 6751882681328957178}
   m_Layer: 0
   m_Name: FadeRight
   m_TagString: Untagged
@@ -120,6 +121,31 @@ MonoBehaviour:
   OnAfterApplyStyle:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &6751882681328957178
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1336141001348325370}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57bc3011770ca1346a002a705abd54de, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_isAspectRatioDependent: 0
+  m_optionalStyleConfig: {fileID: 0}
+  m_name: ScrollViews/Fade/Right
+  m_fixedSkinName: 
+  m_tweenable: 1
+  m_rebuildLayoutOnApply: 0
+  m_frameDelay: 0
+  OnBeforeApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
+  OnAfterApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &2161185556593242359
 GameObject:
   m_ObjectHideFlags: 0
@@ -184,6 +210,7 @@ GameObject:
   - component: {fileID: 4168573600090325138}
   - component: {fileID: 8031729696550664967}
   - component: {fileID: 4965487097955856851}
+  - component: {fileID: 6944690398010467778}
   m_Layer: 0
   m_Name: FadeLeft
   m_TagString: Untagged
@@ -276,6 +303,31 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 43b94de32e32a764c9c58ac6ddde2b62, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_isAspectRatioDependent: 0
+  m_optionalStyleConfig: {fileID: 0}
+  m_name: ScrollViews/Fade/Left
+  m_fixedSkinName: 
+  m_tweenable: 1
+  m_rebuildLayoutOnApply: 0
+  m_frameDelay: 0
+  OnBeforeApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
+  OnAfterApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &6944690398010467778
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2169910325518003862}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57bc3011770ca1346a002a705abd54de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_isAspectRatioDependent: 0
@@ -453,6 +505,7 @@ GameObject:
   - component: {fileID: 5547762374495990896}
   - component: {fileID: 4830236140092736307}
   - component: {fileID: 5750764964580973161}
+  - component: {fileID: 8194894702273731685}
   m_Layer: 0
   m_Name: FadeTop
   m_TagString: Untagged
@@ -560,6 +613,31 @@ MonoBehaviour:
   OnAfterApplyStyle:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8194894702273731685
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6364712550789560490}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57bc3011770ca1346a002a705abd54de, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_isAspectRatioDependent: 0
+  m_optionalStyleConfig: {fileID: 0}
+  m_name: ScrollViews/Fade/Top
+  m_fixedSkinName: 
+  m_tweenable: 1
+  m_rebuildLayoutOnApply: 0
+  m_frameDelay: 0
+  OnBeforeApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
+  OnAfterApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &6634123215899663429
 GameObject:
   m_ObjectHideFlags: 0
@@ -650,6 +728,7 @@ GameObject:
   - component: {fileID: 6769679401753087738}
   - component: {fileID: 315601098226007657}
   - component: {fileID: 7771047393479185698}
+  - component: {fileID: 1933139251735673584}
   m_Layer: 0
   m_Name: FadeBottom
   m_TagString: Untagged
@@ -742,6 +821,31 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 43b94de32e32a764c9c58ac6ddde2b62, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_isAspectRatioDependent: 0
+  m_optionalStyleConfig: {fileID: 0}
+  m_name: ScrollViews/Fade/Bottom
+  m_fixedSkinName: 
+  m_tweenable: 1
+  m_rebuildLayoutOnApply: 0
+  m_frameDelay: 0
+  OnBeforeApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
+  OnAfterApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &1933139251735673584
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6864944732685430448}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57bc3011770ca1346a002a705abd54de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_isAspectRatioDependent: 0
