@@ -103,6 +103,10 @@ MonoBehaviour:
     - rid: 1585511825992319493
     - rid: 1585511843874472113
     - rid: 1585511843874472131
+    - rid: 5597920602800521280
+    - rid: 5597920602800521281
+    - rid: 5597920602800521282
+    - rid: 5597920602800521283
     m_aspectRatioGreaterEqual: 0
     m_inheritFromSkinName: 
     m_inheritFromSameConfig: 0
@@ -197,6 +201,10 @@ MonoBehaviour:
     - rid: 1585511825992319495
     - rid: 1585511843874472114
     - rid: 1585511843874472132
+    - rid: 5597920602800521284
+    - rid: 5597920602800521285
+    - rid: 5597920602800521286
+    - rid: 5597920602800521287
     m_aspectRatioGreaterEqual: 0
     m_inheritFromSkinName: 
     m_inheritFromSameConfig: 0
@@ -15949,6 +15957,374 @@ MonoBehaviour:
         m_value: 0
     - rid: 4224637634270986760
       type: {class: UiStyleUiRoundedImage/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 5597920602800521280
+      type: {class: UiStyleUiGradientSimple, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_styleConfig: {fileID: 11400000}
+        m_name: ScrollViews/Fade/Top
+        m_alias: 
+        m_ColorLeftOrTop:
+          rid: 5597920602800521288
+        m_ColorRightOrBottom:
+          rid: 5597920602800521289
+        m_enabled:
+          rid: 5597920602800521290
+        m_Orientation:
+          rid: 5597920602800521291
+        m_Swapped:
+          rid: 5597920602800521292
+    - rid: 5597920602800521281
+      type: {class: UiStyleUiGradientSimple, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_styleConfig: {fileID: 11400000}
+        m_name: ScrollViews/Fade/Bottom
+        m_alias: 
+        m_ColorLeftOrTop:
+          rid: 5597920602800521293
+        m_ColorRightOrBottom:
+          rid: 5597920602800521294
+        m_enabled:
+          rid: 5597920602800521295
+        m_Orientation:
+          rid: 5597920602800521296
+        m_Swapped:
+          rid: 5597920602800521297
+    - rid: 5597920602800521282
+      type: {class: UiStyleUiGradientSimple, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_styleConfig: {fileID: 11400000}
+        m_name: ScrollViews/Fade/Left
+        m_alias: 
+        m_ColorLeftOrTop:
+          rid: 5597920602800521298
+        m_ColorRightOrBottom:
+          rid: 5597920602800521299
+        m_enabled:
+          rid: 5597920602800521300
+        m_Orientation:
+          rid: 5597920602800521301
+        m_Swapped:
+          rid: 5597920602800521302
+    - rid: 5597920602800521283
+      type: {class: UiStyleUiGradientSimple, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_styleConfig: {fileID: 11400000}
+        m_name: ScrollViews/Fade/Right
+        m_alias: 
+        m_ColorLeftOrTop:
+          rid: 5597920602800521303
+        m_ColorRightOrBottom:
+          rid: 5597920602800521304
+        m_enabled:
+          rid: 5597920602800521305
+        m_Orientation:
+          rid: 5597920602800521306
+        m_Swapped:
+          rid: 5597920602800521307
+    - rid: 5597920602800521284
+      type: {class: UiStyleUiGradientSimple, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_styleConfig: {fileID: 11400000}
+        m_name: ScrollViews/Fade/Top
+        m_alias: 
+        m_ColorLeftOrTop:
+          rid: 5597920602800521308
+        m_ColorRightOrBottom:
+          rid: 5597920602800521309
+        m_enabled:
+          rid: 5597920602800521310
+        m_Orientation:
+          rid: 5597920602800521311
+        m_Swapped:
+          rid: 5597920602800521312
+    - rid: 5597920602800521285
+      type: {class: UiStyleUiGradientSimple, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_styleConfig: {fileID: 11400000}
+        m_name: ScrollViews/Fade/Bottom
+        m_alias: 
+        m_ColorLeftOrTop:
+          rid: 5597920602800521313
+        m_ColorRightOrBottom:
+          rid: 5597920602800521314
+        m_enabled:
+          rid: 5597920602800521315
+        m_Orientation:
+          rid: 5597920602800521316
+        m_Swapped:
+          rid: 5597920602800521317
+    - rid: 5597920602800521286
+      type: {class: UiStyleUiGradientSimple, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_styleConfig: {fileID: 11400000}
+        m_name: ScrollViews/Fade/Left
+        m_alias: 
+        m_ColorLeftOrTop:
+          rid: 5597920602800521318
+        m_ColorRightOrBottom:
+          rid: 5597920602800521319
+        m_enabled:
+          rid: 5597920602800521320
+        m_Orientation:
+          rid: 5597920602800521321
+        m_Swapped:
+          rid: 5597920602800521322
+    - rid: 5597920602800521287
+      type: {class: UiStyleUiGradientSimple, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_styleConfig: {fileID: 11400000}
+        m_name: ScrollViews/Fade/Right
+        m_alias: 
+        m_ColorLeftOrTop:
+          rid: 5597920602800521323
+        m_ColorRightOrBottom:
+          rid: 5597920602800521324
+        m_enabled:
+          rid: 5597920602800521325
+        m_Orientation:
+          rid: 5597920602800521326
+        m_Swapped:
+          rid: 5597920602800521327
+    - rid: 5597920602800521288
+      type: {class: UiStyleUiGradientSimple/ApplicableValueColor, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {r: 0, g: 0, b: 0, a: 0.6}
+    - rid: 5597920602800521289
+      type: {class: UiStyleUiGradientSimple/ApplicableValueColor, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {r: 0, g: 0, b: 0, a: 0}
+    - rid: 5597920602800521290
+      type: {class: UiStyleUiGradientSimple/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 1
+    - rid: 5597920602800521291
+      type: {class: UiStyleUiGradientSimple/ApplicableValueEOrientation, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 1
+    - rid: 5597920602800521292
+      type: {class: UiStyleUiGradientSimple/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 5597920602800521293
+      type: {class: UiStyleUiGradientSimple/ApplicableValueColor, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {r: 0, g: 0, b: 0, a: 0}
+    - rid: 5597920602800521294
+      type: {class: UiStyleUiGradientSimple/ApplicableValueColor, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {r: 0, g: 0, b: 0, a: 0.6}
+    - rid: 5597920602800521295
+      type: {class: UiStyleUiGradientSimple/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 1
+    - rid: 5597920602800521296
+      type: {class: UiStyleUiGradientSimple/ApplicableValueEOrientation, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 1
+    - rid: 5597920602800521297
+      type: {class: UiStyleUiGradientSimple/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 5597920602800521298
+      type: {class: UiStyleUiGradientSimple/ApplicableValueColor, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {r: 0, g: 0, b: 0, a: 0.6}
+    - rid: 5597920602800521299
+      type: {class: UiStyleUiGradientSimple/ApplicableValueColor, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {r: 0, g: 0, b: 0, a: 0}
+    - rid: 5597920602800521300
+      type: {class: UiStyleUiGradientSimple/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 1
+    - rid: 5597920602800521301
+      type: {class: UiStyleUiGradientSimple/ApplicableValueEOrientation, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 5597920602800521302
+      type: {class: UiStyleUiGradientSimple/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 5597920602800521303
+      type: {class: UiStyleUiGradientSimple/ApplicableValueColor, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {r: 0, g: 0, b: 0, a: 0}
+    - rid: 5597920602800521304
+      type: {class: UiStyleUiGradientSimple/ApplicableValueColor, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {r: 0, g: 0, b: 0, a: 0.6}
+    - rid: 5597920602800521305
+      type: {class: UiStyleUiGradientSimple/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 1
+    - rid: 5597920602800521306
+      type: {class: UiStyleUiGradientSimple/ApplicableValueEOrientation, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 5597920602800521307
+      type: {class: UiStyleUiGradientSimple/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 5597920602800521308
+      type: {class: UiStyleUiGradientSimple/ApplicableValueColor, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {r: 1, g: 1, b: 1, a: 0.8}
+    - rid: 5597920602800521309
+      type: {class: UiStyleUiGradientSimple/ApplicableValueColor, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {r: 1, g: 1, b: 1, a: 0}
+    - rid: 5597920602800521310
+      type: {class: UiStyleUiGradientSimple/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 1
+    - rid: 5597920602800521311
+      type: {class: UiStyleUiGradientSimple/ApplicableValueEOrientation, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 1
+    - rid: 5597920602800521312
+      type: {class: UiStyleUiGradientSimple/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 5597920602800521313
+      type: {class: UiStyleUiGradientSimple/ApplicableValueColor, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {r: 1, g: 1, b: 1, a: 0}
+    - rid: 5597920602800521314
+      type: {class: UiStyleUiGradientSimple/ApplicableValueColor, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {r: 1, g: 1, b: 1, a: 0.8}
+    - rid: 5597920602800521315
+      type: {class: UiStyleUiGradientSimple/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 1
+    - rid: 5597920602800521316
+      type: {class: UiStyleUiGradientSimple/ApplicableValueEOrientation, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 1
+    - rid: 5597920602800521317
+      type: {class: UiStyleUiGradientSimple/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 5597920602800521318
+      type: {class: UiStyleUiGradientSimple/ApplicableValueColor, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {r: 1, g: 1, b: 1, a: 0.8}
+    - rid: 5597920602800521319
+      type: {class: UiStyleUiGradientSimple/ApplicableValueColor, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {r: 1, g: 1, b: 1, a: 0}
+    - rid: 5597920602800521320
+      type: {class: UiStyleUiGradientSimple/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 1
+    - rid: 5597920602800521321
+      type: {class: UiStyleUiGradientSimple/ApplicableValueEOrientation, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 5597920602800521322
+      type: {class: UiStyleUiGradientSimple/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 5597920602800521323
+      type: {class: UiStyleUiGradientSimple/ApplicableValueColor, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {r: 1, g: 1, b: 1, a: 0}
+    - rid: 5597920602800521324
+      type: {class: UiStyleUiGradientSimple/ApplicableValueColor, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {r: 1, g: 1, b: 1, a: 0.8}
+    - rid: 5597920602800521325
+      type: {class: UiStyleUiGradientSimple/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 1
+    - rid: 5597920602800521326
+      type: {class: UiStyleUiGradientSimple/ApplicableValueEOrientation, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 5597920602800521327
+      type: {class: UiStyleUiGradientSimple/ApplicableValueBoolean, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 0
