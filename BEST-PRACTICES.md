@@ -25,7 +25,7 @@ a different answer depending on which button you point at.
 Create variants of **all** library prefabs in one go, at project setup — and keep the inheritance
 between them, which is the part that is easy to lose.
 
-Of the library's 66 prefabs, **22 are themselves variants**: `OkButton`, `CancelButton`, `CloseButton`
+Of the library's 72 prefabs, **22 are themselves variants**: `OkButton`, `CancelButton`, `CloseButton`
 and `StandardButtonSmall` are all variants of `StandardButton`, `FullScreenSettingsDialog` is one of
 `FullScreenTabDialog`. One variant per prefab, each hanging off its own original, gives the project
 ownership but flattens that shape — the copies end up related to the package rather than to each other,
@@ -40,6 +40,9 @@ rebuilt dependent against its library original property for property.
 **`Create Variant`** → *Select common Path*. That gives you the flat version — every copy owned by the
 project, but the inheritance between them lost. Fine as a starting point, and `mirror_variant_graph`
 with `replaceExisting: "dependents"` upgrades it later without touching roots you have edited.
+
+The bulk run includes the 3D icon prefabs: `StandardIcon3D` and the lighting presets under `Prefabs/Icon3D` and
+`Resources/Icon3D` (see §6 for why the presets matter in particular).
 
 Either way, finish with:
 
@@ -252,3 +255,36 @@ uiButton.EnabledInHierarchy = false;   // not: uiButton.Button.interactable = fa
 dialog: `Hide()` then destroys or pools the view, and it takes the view's own subscriptions with it —
 so whatever was supposed to reopen it has nothing left to talk to. A dialog you open repeatedly turns
 this off on its prefab.
+
+---
+
+## 6. 3D icons: reserve the layer and own the presets at setup
+
+`UiIcon3D` renders objects on a hidden stage, isolated from the scene (guide:
+[Documentation~/3D-Icons.md](Documentation~/3D-Icons.md)). Two things about it are cheap on day one:
+
+**Reserve the layer before the level designers pick it.** The stage camera renders exactly one layer, and
+anything else on that layer shows up in every icon. Create it from the configuration window (*3D Icons → Create
+layer 'Icon3D'*) at setup, while no scene uses it. Six months in, every free layer looks free, and the first sign
+of a clash is a stray wall piece behind every inventory item. *Check scenes for objects on this layer* finds
+the offenders. Scene cameras need no change: icon objects only exist during their own render.
+
+**Own the presets, and make your Neutral the default.** The presets are prefabs in the read-only package, so
+§1 applies: the project's variants are where its lighting moods live. One step is easy to miss. The renderer's
+fallback is the package's *Neutral*, loaded from `Resources`, and no registry turns that into your variant.
+Set `Gui Toolkit → Configuration → 3D Icons → Default Preset` to the project's own Neutral explicitly,
+otherwise every icon without a preset keeps the library's look.
+
+Two rules for authoring presets save a lot of puzzling later:
+
+- **Every preset brings its own reflection cubemap.** Whatever a preset leaves open is neutral rather than the
+  scene's, and the neutral reflection is black. Metal reflects almost nothing but its environment, so a preset
+  without a reflection renders every sword black. The library presets ship one each;
+  `Icon3DEnvironmentUtility.CreateGradientCubemap` makes a quick studio one.
+- **Lights are camera relative.** Author them as if the camera looked along the preset's +Z. A key light then
+  stays top left for every object and every view rotation, which is what makes a set of icons look consistent.
+
+And one rule for the objects: **an icon object is not a gameplay object.** Its scripts run on the stage, so a
+prefab that registers with game systems in `Awake`, or finds `Camera.main`, misbehaves as an icon. Give icons
+their own lean prefab (mesh, materials, Animator) or keep those scripts out of the icon variant. That is also
+the prefab to put a `UiIcon3DBoundsHint` on, where the automatic framing does not fit.

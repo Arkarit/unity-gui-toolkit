@@ -1,0 +1,29 @@
+{
+    "name": "de.phoenixgrafik.ui-toolkit.Editor.TestRunner",
+    "rootNamespace": "GuiToolkit.Editor.AiSupport",
+    "references": [
+        "de.phoenixgrafik.ui-toolkit",
+        "de.phoenixgrafik.ui-toolkit.Editor",
+        "UnityEditor.TestRunner",
+        "UnityEngine.TestRunner"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [
+        "UITK_TEST_FRAMEWORK"
+    ],
+    "versionDefines": [
+        {
+            "name": "com.unity.test-framework",
+            "expression": "1.3.0",
+            "define": "UITK_TEST_FRAMEWORK"
+        }
+    ],
+    "noEngineReferences": false
+}

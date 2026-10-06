@@ -114,6 +114,8 @@ namespace GuiToolkit
 		// is append-only - the position in the list carries the serialized index, not the meaning.
 		StandardChip,
 		StandardCountIndicator,
+		// 3D icons (UiIcon3D).
+		StandardIcon3D,
 	}
 
 	/// <summary>

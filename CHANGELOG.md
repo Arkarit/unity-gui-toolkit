@@ -5,6 +5,66 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **3D icons: `UiIcon3D` shows a 3D object as a UI icon**, rendered with its own lighting preset and
+  isolated from the scene and from every other icon. A scene light on all layers, the scene's ambient,
+  fog and environment reflection do not reach an icon; a pixel test compares each icon with the same
+  render made with a clean scene active (`TestIcon3DRenderer`). The texture follows the rect size.
+  Identical icons share one render and one texture. While a new image is rendered, the old one stays
+  visible. Rendering works in edit mode and in the Prefab Stage, too.
+
+  Ships as the standard element `StandardIcon3D` with the presets *Neutral* (the default, in
+  `Resources/Icon3D`), *Warm* and *Dramatic*. A preset is a prefab with real lights (camera relative),
+  a `UiCameraRenderSettings` and its own reflection cubemap. Without a reflection, metal renders black.
+  `UiIcon3DBoundsHint` corrects the framing where the automatic one fails. The icon layer (`Icon3D`)
+  is created from the configuration window. Plan and findings: `.Dev-App/Planning/3D-Icons.md`.
+
+  The object can also be loaded by canonical id through the `AssetManager` (Resources, Addressables, ...).
+  Each id is loaded once and shared, and a late load never reaches an icon that was reused in the
+  meantime. Visible icons render first.
+
+  Mode `Animated` plays the object's own animation (Animator, particles, scripts) and renders every frame
+  or every n-th frame. Outside its own render the instance is invisible, its lights are off, and its
+  physics are switched off (via `versionDefines` on the physics modules). Switching to `Static` freezes
+  the current frame. In edit mode Animators and particles are advanced at 30 fps.
+
+  **Built-in, URP and HDRP.** The backend is picked by the project's render pipeline and switched when it
+  changes; the URP and HDRP backends are assemblies that exist only where their package is installed.
+  Tested in Built-in, URP 14 and 17, HDRP 14 and 17 (`.Dev-App/SrpProjects/srp-project.mjs` makes and runs
+  the test projects). URP and HDRP ignore `Light.cullingMask`, so the scene's lights are switched off for
+  the batch; HDRP, which has no `RenderSettings` environment, gets an own Volume that only the icon camera
+  sees (the preset's reflection cubemap becomes its sky, fixed exposure, lights converted to lux).
+
+  **More on top of that:**
+  - *Transparent materials* get the right alpha: Built-in's blended shaders square it (a 50% layer
+    ends up at 25%), so such objects are rendered over black and over white and the alpha is derived from the
+    difference (preset `Alpha Mode` Auto / Fast / Exact). URP and HDRP write the right alpha themselves.
+  - *Frame budget in milliseconds* next to the count (`Render Milliseconds per Frame`, at least one icon per
+    tick, CPU time only).
+  - *Shadow catcher* in a preset: an invisible ground that shows only the shadow of the preset's directional
+    light, written into the alpha. Own SubShader per pipeline; the scene's quality level does not decide
+    whether there is a shadow.
+  - *Rewinding*: `UiIcon3D.EMode.Rewinding` runs a running animation back, faster, to the first frame of its
+    loop and stands still there; playing again on the way carries on forward from where it is (hover out, hover in).
+    `Icon3DHoverAnimate` in the demo has an *On Exit* setting for it.
+  - *Preset Studio* (`Gui Toolkit > 3D Icons > Preset Studio...`): a grid of sample objects times presets.
+    *Debug View*: every icon with size, memory, references and state, renders per tick; the same data
+    through `Icon3DDiagnostics` at runtime.
+
+- **`run_tests` in the MCP bridge** runs Unity Test Runner tests (EditMode or PlayMode) in the open editor
+  and returns the result, failures and chosen log lines (`outputContains`) included, so a change can be
+  written, compiled and tested without clicking through the Test Runner window. The result goes through a
+  file under `Library/`, which is how it survives the domain reload of a PlayMode run. Needs
+  `com.unity.test-framework`; the code is an assembly of its own and is not compiled without it.
+
+- **`RenderTextureManager` links cameras and displays by keyword** and creates the render textures on
+  demand, so a camera rendering into the UI needs no `.renderTexture` asset. `UiRenderTextureProducer`
+  goes on the camera, `UiRawImageRenderTextureConsumer` / `UiRendererRenderTextureConsumer` on the display.
+
+- **`UiCameraRenderSettings` overrides global render settings for one camera only** (ambient, fog,
+  skybox, reflection, shadow and quality settings) and restores them after that camera has rendered.
+  It uses typed delegates, so there is no reflection and no boxing. `UiAbstractPerCameraSettings`
+  is the base for further groups.
+
 - **`UiCountIndicator` has a neutral verdict.** `EState.Neutral` is for a plain count with nothing to
   judge, such as "3 / 10 slots used". It wears `CountIndicator/Neutral`, which is new in both skins:
   white in Default and dark grey in Light, otherwise the same as `CountIndicator/Ok`. The derivation
