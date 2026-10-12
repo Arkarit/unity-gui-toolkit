@@ -1,4 +1,5 @@
 using UnityEditor;
+using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
 namespace GuiToolkit.Editor
@@ -45,13 +46,24 @@ namespace GuiToolkit.Editor
 		public override bool RequiresConstantRepaint() => true;
 	}
 
+	/// <summary>
+	/// The bounds of a <see cref="UiIcon3DBoundsHint"/> as a box with drag handles in the scene view (like a
+	/// BoxCollider's), so the framing is set by looking at it instead of by typing numbers. Every change, by handle
+	/// or in the inspector, renders the icons that show this object again at once: an icon showing a scene object
+	/// follows the box live, no save needed.
+	/// </summary>
 	[CustomEditor(typeof(UiIcon3DBoundsHint))]
 	[CanEditMultipleObjects]
 	public class UiIcon3DBoundsHintEditor : UnityEditor.Editor
 	{
+		private static readonly Color s_handleColor = new(1f, 0.6f, 0f, 0.9f);
+		private readonly BoxBoundsHandle m_handle = new();
+
 		public override void OnInspectorGUI()
 		{
+			EditorGUI.BeginChangeCheck();
 			DrawDefaultInspector();
+			bool changed = EditorGUI.EndChangeCheck();
 
 			EditorGUILayout.Space();
 			if (GUILayout.Button(new GUIContent("Fit to Renderers", "Set the bounds to what the renderers below this GameObject cover now (particles, trails and lines excluded)")))
@@ -64,6 +76,55 @@ namespace GuiToolkit.Editor
 						UiLog.LogWarning("No active renderers found below this GameObject", hint);
 					EditorUtility.SetDirty(hint);
 				}
+
+				changed = true;
+			}
+
+			EditorGUILayout.HelpBox("Drag the box's handles in the scene view to frame the icon; icons showing this object follow.", MessageType.None);
+
+			if (changed)
+				foreach (var t in targets)
+					RefreshIconsShowing((UiIcon3DBoundsHint)t);
+		}
+
+		private void OnSceneGUI()
+		{
+			var hint = (UiIcon3DBoundsHint)target;
+			if (hint == null || !hint.isActiveAndEnabled)
+				return;
+
+			using (new Handles.DrawingScope(s_handleColor, hint.transform.localToWorldMatrix))
+			{
+				var bounds = hint.LocalBounds;
+				m_handle.center = bounds.center;
+				m_handle.size = bounds.size;
+
+				EditorGUI.BeginChangeCheck();
+				m_handle.DrawHandle();
+				if (!EditorGUI.EndChangeCheck())
+					return;
+
+				Undo.RecordObject(hint, "Change Icon Bounds");
+				hint.LocalBounds = new Bounds(m_handle.center, m_handle.size);
+				EditorUtility.SetDirty(hint);
+				RefreshIconsShowing(hint);
+			}
+		}
+
+		/// <summary>
+		/// Renders again every icon that shows _hint's object: the icon's object is the hint's GameObject or one of its
+		/// parents (the renderer uses the first hint in the object's hierarchy).
+		/// </summary>
+		public static void RefreshIconsShowing( UiIcon3DBoundsHint _hint )
+		{
+			if (_hint == null)
+				return;
+
+			foreach (var icon in Object.FindObjectsByType<UiIcon3D>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+			{
+				var shown = icon.Prefab;
+				if (shown != null && _hint.transform.IsChildOf(shown.transform))
+					icon.Refresh();
 			}
 		}
 	}
