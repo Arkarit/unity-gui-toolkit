@@ -60,6 +60,10 @@ namespace GuiToolkit
 		[SerializeField] private bool m_overrideViewRotation;
 		[Tooltip("Camera rotation (euler angles); (0,180,0) looks at an object's front")]
 		[SerializeField] private Vector3 m_viewRotation = new(15, 150, 0);
+		[Tooltip("Frame the box below instead of the object's own UiIcon3DBoundsHint or its renderers")]
+		[SerializeField] private bool m_overrideBounds;
+		[Tooltip("Box to frame, in the shown object's local space (its root). Can be tuned while playing and copied into the prefab.")]
+		[SerializeField] private Bounds m_bounds = new(Vector3.zero, Vector3.one);
 		[SerializeField] private EMode m_mode = EMode.Static;
 		[Tooltip("Rewinding mode: how much faster than normal the animation runs back to its first frame")]
 		[SerializeField][Min(0.1f)] private float m_rewindSpeed = 2f;
@@ -159,6 +163,35 @@ namespace GuiToolkit
 			{
 				m_viewRotation = value.eulerAngles;
 				if (m_overrideViewRotation)
+					SetDirty();
+			}
+		}
+
+		/// <summary>Whether <see cref="Bounds"/> is framed instead of the object's own hint or its renderers.</summary>
+		public bool OverrideBounds
+		{
+			get => m_overrideBounds;
+			set
+			{
+				if (m_overrideBounds == value)
+					return;
+
+				m_overrideBounds = value;
+				SetDirty();
+			}
+		}
+
+		/// <summary>The box to frame while <see cref="OverrideBounds"/> is on, in the shown object's local space.</summary>
+		public Bounds Bounds
+		{
+			get => m_bounds;
+			set
+			{
+				if (m_bounds == value)
+					return;
+
+				m_bounds = value;
+				if (m_overrideBounds)
 					SetDirty();
 			}
 		}
@@ -421,9 +454,10 @@ namespace GuiToolkit
 			}
 
 			var rotation = m_overrideViewRotation ? ViewRotation : (Quaternion?)null;
+			var bounds = m_overrideBounds ? m_bounds : (Bounds?)null;
 			var handle = m_mode == EMode.Animated
-				? UiIcon3DRenderer.RenderAnimated(_prefab, m_preset, _size, rotation, m_frameDivider)
-				: UiIcon3DRenderer.RenderStatic(_prefab, m_preset, _size, rotation);
+				? UiIcon3DRenderer.RenderAnimated(_prefab, m_preset, _size, rotation, m_frameDivider, bounds)
+				: UiIcon3DRenderer.RenderStatic(_prefab, m_preset, _size, rotation, bounds);
 
 			// Nothing that matters changed (static icons share by key; animated ones are never equal)
 			if (m_shown != null && handle.Key == m_shown.Key)
@@ -445,8 +479,9 @@ namespace GuiToolkit
 				return string.Empty;
 
 			string rotation = m_overrideViewRotation ? m_viewRotation.ToString("F3") : "preset";
+			string bounds = m_overrideBounds ? $"{m_bounds.center.ToString("F4")};{m_bounds.size.ToString("F4")}" : "object";
 			int presetId = m_preset != null ? m_preset.GetInstanceID() : 0;
-			return $"{_prefab.GetInstanceID()}/{presetId}/{_size.x}x{_size.y}/{rotation}";
+			return $"{_prefab.GetInstanceID()}/{presetId}/{_size.x}x{_size.y}/{rotation}/{bounds}";
 		}
 
 		private Texture LoadingTextureOrPlaceholder => m_loadingTexture != null ? m_loadingTexture : RenderTextureManager.Placeholder;

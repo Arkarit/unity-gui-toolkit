@@ -135,6 +135,8 @@ namespace GuiToolkit
 		public readonly UiIcon3DPreset Preset;
 		public readonly Vector2Int Size;
 		public readonly Quaternion? ViewRotation;
+		/// <summary>The icon's own framing box in the object's local space (its root); null = the object's hint, or its renderers.</summary>
+		public readonly Bounds? LocalBounds;
 		public int RefCount;
 		public int VisibleHandles;
 		public readonly long Sequence;
@@ -168,7 +170,7 @@ namespace GuiToolkit
 		private readonly RenderTextureSpec m_spec;
 		private static long s_sequence;
 
-		public Icon3DRequest( string _key, GameObject _prefab, UiIcon3DPreset _preset, Vector2Int _size, Quaternion? _viewRotation, bool _animated = false )
+		public Icon3DRequest( string _key, GameObject _prefab, UiIcon3DPreset _preset, Vector2Int _size, Quaternion? _viewRotation, bool _animated = false, Bounds? _localBounds = null )
 		{
 			IsAnimated = _animated;
 			IsPlaying = _animated;
@@ -177,6 +179,7 @@ namespace GuiToolkit
 			Preset = _preset;
 			Size = _size;
 			ViewRotation = _viewRotation;
+			LocalBounds = _localBounds;
 			Sequence = ++s_sequence;
 
 			// Storage only: the actual render goes into a shared scratch target with depth and MSAA

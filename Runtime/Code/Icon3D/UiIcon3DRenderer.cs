@@ -239,17 +239,19 @@ namespace GuiToolkit
 		/// <param name="_preset">Lighting preset prefab; null = configured default preset, or a neutral built-in one.</param>
 		/// <param name="_size">Texture size in pixels.</param>
 		/// <param name="_viewRotation">Overrides the preset's view rotation.</param>
-		public static Icon3DHandle RenderStatic( GameObject _prefab, UiIcon3DPreset _preset, Vector2Int _size, Quaternion? _viewRotation = null )
+		/// <param name="_bounds">Box to frame in _prefab's local space; overrides the object's hint and its renderers.</param>
+		public static Icon3DHandle RenderStatic( GameObject _prefab, UiIcon3DPreset _preset, Vector2Int _size, Quaternion? _viewRotation = null,
+			Bounds? _bounds = null )
 		{
 			if (_prefab == null)
 				throw new ArgumentNullException(nameof(_prefab));
 
 			_size = Vector2Int.Max(_size, Vector2Int.one);
-			string key = BuildKey(_prefab, _preset, _size, _viewRotation);
+			string key = BuildKey(_prefab, _preset, _size, _viewRotation, _bounds);
 
 			if (!s_requests.TryGetValue(key, out var request))
 			{
-				request = new Icon3DRequest(key, _prefab, _preset, _size, _viewRotation);
+				request = new Icon3DRequest(key, _prefab, _preset, _size, _viewRotation, false, _bounds);
 				s_requests.Add(key, request);
 				RenderTextureManager.RegisterProducer(key, request);
 				EnsureUpdateHook();
@@ -265,14 +267,14 @@ namespace GuiToolkit
 		/// Release the handle when the icon is no longer needed; <see cref="Icon3DHandle.IsPlaying"/> = false freezes it.
 		/// </summary>
 		public static Icon3DHandle RenderAnimated( GameObject _prefab, UiIcon3DPreset _preset, Vector2Int _size,
-			Quaternion? _viewRotation = null, int _frameDivider = 1 )
+			Quaternion? _viewRotation = null, int _frameDivider = 1, Bounds? _bounds = null )
 		{
 			if (_prefab == null)
 				throw new ArgumentNullException(nameof(_prefab));
 
 			_size = Vector2Int.Max(_size, Vector2Int.one);
 			string key = $"icon3d-animated/{++s_animatedCounter}/{_prefab.GetInstanceID()}";
-			var request = new Icon3DRequest(key, _prefab, _preset, _size, _viewRotation, true)
+			var request = new Icon3DRequest(key, _prefab, _preset, _size, _viewRotation, true, _bounds)
 			{
 				FrameDivider = Mathf.Max(1, _frameDivider)
 			};
@@ -463,13 +465,16 @@ namespace GuiToolkit
 			}
 		}
 
-		private static string BuildKey( GameObject _prefab, UiIcon3DPreset _preset, Vector2Int _size, Quaternion? _viewRotation )
+		private static string BuildKey( GameObject _prefab, UiIcon3DPreset _preset, Vector2Int _size, Quaternion? _viewRotation, Bounds? _bounds )
 		{
 			string rotation = _viewRotation.HasValue
 				? $"{_viewRotation.Value.x:F4},{_viewRotation.Value.y:F4},{_viewRotation.Value.z:F4},{_viewRotation.Value.w:F4}"
 				: "preset";
+			string bounds = _bounds.HasValue
+				? $"{_bounds.Value.center.x:F4},{_bounds.Value.center.y:F4},{_bounds.Value.center.z:F4};{_bounds.Value.size.x:F4},{_bounds.Value.size.y:F4},{_bounds.Value.size.z:F4}"
+				: "object";
 			int presetId = _preset != null ? _preset.GetInstanceID() : 0;
-			return $"icon3d/{_prefab.GetInstanceID()}/{presetId}/{_size.x}x{_size.y}/{rotation}";
+			return $"icon3d/{_prefab.GetInstanceID()}/{presetId}/{_size.x}x{_size.y}/{rotation}/{bounds}";
 		}
 
 		/// <summary>
@@ -929,13 +934,18 @@ namespace GuiToolkit
 			return instance;
 		}
 
-		/// <summary>Priority of the view: the icon's override, the object's own hint, the preset.</summary>
+		/// <summary>
+		/// Priority of the box: the icon's own, the object's hint, its renderers. Of the view: the icon's override, the
+		/// object's hint, the preset.
+		/// </summary>
 		private static void GetFraming( GameObject _instance, Icon3DRequest _request, UiIcon3DPreset _preset, out Bounds _bounds, out Quaternion _rotation )
 		{
 			var hint = _instance.GetComponentInChildren<UiIcon3DBoundsHint>();
 			bool useHint = hint != null && hint.enabled;
 
-			if (useHint)
+			if (_request.LocalBounds.HasValue)
+				_bounds = UiIcon3DBoundsHint.ToWorld(_instance.transform, _request.LocalBounds.Value);
+			else if (useHint)
 				_bounds = hint.WorldBounds;
 			else if (!Icon3DFitter.TryGetBounds(_instance, out _bounds))
 				_bounds = new Bounds(_instance.transform.position, Vector3.one);

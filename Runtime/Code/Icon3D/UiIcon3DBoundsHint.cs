@@ -40,24 +40,24 @@ namespace GuiToolkit
 		public Quaternion WorldViewRotation => transform.rotation * LocalViewRotation;
 
 		/// <summary>Axis aligned world bounds of the local bounds box.</summary>
-		public Bounds WorldBounds
-		{
-			get
-			{
-				var center = m_bounds.center;
-				var extents = m_bounds.extents;
-				var result = new Bounds(transform.TransformPoint(center), Vector3.zero);
-				for (int i = 0; i < 8; i++)
-				{
-					var corner = center + new Vector3(
-						(i & 1) == 0 ? -extents.x : extents.x,
-						(i & 2) == 0 ? -extents.y : extents.y,
-						(i & 4) == 0 ? -extents.z : extents.z);
-					result.Encapsulate(transform.TransformPoint(corner));
-				}
+		public Bounds WorldBounds => ToWorld(transform, m_bounds);
 
-				return result;
+		/// <summary>Axis aligned world bounds of a box given in _space's local space.</summary>
+		public static Bounds ToWorld( Transform _space, Bounds _local )
+		{
+			var center = _local.center;
+			var extents = _local.extents;
+			var result = new Bounds(_space.TransformPoint(center), Vector3.zero);
+			for (int i = 0; i < 8; i++)
+			{
+				var corner = center + new Vector3(
+					(i & 1) == 0 ? -extents.x : extents.x,
+					(i & 2) == 0 ? -extents.y : extents.y,
+					(i & 4) == 0 ? -extents.z : extents.z);
+				result.Encapsulate(_space.TransformPoint(corner));
 			}
+
+			return result;
 		}
 
 		/// <summary>Set the bounds to what the renderers below this GameObject currently cover.</summary>
