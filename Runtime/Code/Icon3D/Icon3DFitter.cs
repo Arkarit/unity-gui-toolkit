@@ -135,10 +135,14 @@ namespace GuiToolkit
 				}
 			}
 
-			// Some slack so the object is never clipped by rounding; near must stay positive for perspective
+			// The box frames the object, but the object can reach beyond it: an override box frames tighter than
+			// the object moves (an athlete bending towards the camera), and an animated object leaves the bounds of
+			// the frame they were taken from. Clipping at the box showed the inside of a head. Only this one object
+			// is on the icon layer, so wide planes cost nothing but a little depth precision. Near stays positive
+			// for perspective; orthographic can start at the camera.
 			float depth = Mathf.Max(far - near, 0.0001f);
-			near = Mathf.Max(near - depth * 0.05f, _camera.orthographic ? 0 : distance * 0.001f);
-			far += depth * 0.05f;
+			near = _camera.orthographic ? 0 : Mathf.Max(Mathf.Min(near - depth * 0.05f, distance * 0.25f), distance * 0.001f);
+			far = Mathf.Max(far + depth * 0.05f, distance * 2);
 
 			_camera.transform.SetPositionAndRotation(center - forward * distance, _viewRotation);
 			_camera.nearClipPlane = Mathf.Max(near, 0.0001f);
