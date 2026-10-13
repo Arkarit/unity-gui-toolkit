@@ -265,9 +265,11 @@ namespace GuiToolkit
 		/// Request an animated icon of _prefab: a persistent instance whose own animation (Animator, particles,
 		/// scripts) plays, rendered every <paramref name="_frameDivider"/>-th frame. Animated icons are never shared.
 		/// Release the handle when the icon is no longer needed; <see cref="Icon3DHandle.IsPlaying"/> = false freezes it.
+		/// <paramref name="_speed"/> scales its Animators, <paramref name="_startTime"/> advances them (seconds) before the
+		/// first frame: several icons of the same animation then don't move in step.
 		/// </summary>
 		public static Icon3DHandle RenderAnimated( GameObject _prefab, UiIcon3DPreset _preset, Vector2Int _size,
-			Quaternion? _viewRotation = null, int _frameDivider = 1, Bounds? _bounds = null )
+			Quaternion? _viewRotation = null, int _frameDivider = 1, Bounds? _bounds = null, float _speed = 1, float _startTime = 0 )
 		{
 			if (_prefab == null)
 				throw new ArgumentNullException(nameof(_prefab));
@@ -276,7 +278,9 @@ namespace GuiToolkit
 			string key = $"icon3d-animated/{++s_animatedCounter}/{_prefab.GetInstanceID()}";
 			var request = new Icon3DRequest(key, _prefab, _preset, _size, _viewRotation, true, _bounds)
 			{
-				FrameDivider = Mathf.Max(1, _frameDivider)
+				FrameDivider = Mathf.Max(1, _frameDivider),
+				AnimationSpeed = Mathf.Max(0.01f, _speed),
+				AnimationStartTime = Mathf.Max(0, _startTime)
 			};
 
 			s_requests.Add(key, request);
@@ -964,6 +968,7 @@ namespace GuiToolkit
 			{
 				animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
 				animator.applyRootMotion = false;
+				animator.speed = _request.AnimationSpeed;
 			}
 			s_animators.Clear();
 
@@ -996,6 +1001,10 @@ namespace GuiToolkit
 
 			// Framing once, from the entry pose - per frame it would pump with the animation
 			GetFraming(instance, _request, _preset, out _request.FitBounds, out _request.FitRotation);
+
+			// Then on to where this icon starts (the Animators run at their speed, so this is animation time)
+			if (_request.AnimationStartTime > 0)
+				UpdateAnimators(instance, _request.AnimationStartTime);
 			_request.LastAnimationTime = Time.realtimeSinceStartupAsDouble;
 			_request.FrameCounter = 0;
 		}

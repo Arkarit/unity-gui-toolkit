@@ -70,6 +70,10 @@ namespace GuiToolkit
 		[SerializeField][Min(0.05f)] private float m_refreshInterval = 1;
 		[Tooltip("Animated mode: render every n-th frame (1 = every frame)")]
 		[SerializeField][Min(1)] private int m_frameDivider = 1;
+		[Tooltip("Animated mode: speed of the object's animation, as multiple of normal. Slightly different speeds keep several icons of the same animation from moving in step.")]
+		[SerializeField][Min(0.01f)] private float m_animationSpeed = 1;
+		[Tooltip("Animated mode: seconds the animation is advanced before its first frame, so icons of the same animation start at different points")]
+		[SerializeField][Min(0)] private float m_animationStartTime;
 		[Tooltip("Multiplier for the texture size, e.g. 2 for supersampling or 0.5 to save memory")]
 		[SerializeField][Min(0.05f)] private float m_resolutionScale = 1;
 		[Tooltip("Pixels per canvas unit for world space canvases, where the canvas scale factor is meaningless")]
@@ -86,6 +90,7 @@ namespace GuiToolkit
 		private float m_nextRefreshTime;
 		private string m_shownSignature;
 		private string m_pendingSignature;
+		private bool m_paused;
 
 		public GameObject Prefab
 		{
@@ -239,6 +244,46 @@ namespace GuiToolkit
 			}
 		}
 
+		/// <summary>Animated mode: speed of the animation, as multiple of normal. A change starts it again.</summary>
+		public float AnimationSpeed
+		{
+			get => m_animationSpeed;
+			set
+			{
+				value = Mathf.Max(0.01f, value);
+				if (Mathf.Approximately(m_animationSpeed, value))
+					return;
+
+				m_animationSpeed = value;
+				SetDirty();
+			}
+		}
+
+		/// <summary>Animated mode: seconds the animation is advanced before its first frame. A change starts it again.</summary>
+		public float AnimationStartTime
+		{
+			get => m_animationStartTime;
+			set
+			{
+				value = Mathf.Max(0, value);
+				if (Mathf.Approximately(m_animationStartTime, value))
+					return;
+
+				m_animationStartTime = value;
+				SetDirty();
+			}
+		}
+
+		/// <summary>
+		/// Animated mode: holds the animation on the frame it shows, without a new render (unlike switching to
+		/// Static, which would show the entry pose). False plays on from there. Not saved: a state, not a setting.
+		/// </summary>
+		public bool Paused
+		{
+			get => m_paused;
+			set => m_paused = value;
+		}
+
 		public float RefreshInterval
 		{
 			get => m_refreshInterval;
@@ -363,6 +408,10 @@ namespace GuiToolkit
 			if (m_shown != null)
 				m_shown.IsVisible = visible;
 
+			// Pausing only holds an animation that plays; the other modes decide themselves
+			if (m_mode == EMode.Animated && m_shown != null && m_shown.IsAnimated)
+				m_shown.IsPlaying = !m_paused;
+
 			if (m_mode == EMode.Periodic && m_shown != null && Time.realtimeSinceStartup >= m_nextRefreshTime)
 			{
 				m_nextRefreshTime = Time.realtimeSinceStartup + m_refreshInterval;
@@ -456,7 +505,7 @@ namespace GuiToolkit
 			var rotation = m_overrideViewRotation ? ViewRotation : (Quaternion?)null;
 			var bounds = m_overrideBounds ? m_bounds : (Bounds?)null;
 			var handle = m_mode == EMode.Animated
-				? UiIcon3DRenderer.RenderAnimated(_prefab, m_preset, _size, rotation, m_frameDivider, bounds)
+				? UiIcon3DRenderer.RenderAnimated(_prefab, m_preset, _size, rotation, m_frameDivider, bounds, m_animationSpeed, m_animationStartTime)
 				: UiIcon3DRenderer.RenderStatic(_prefab, m_preset, _size, rotation, bounds);
 
 			// Nothing that matters changed (static icons share by key; animated ones are never equal)
@@ -481,7 +530,7 @@ namespace GuiToolkit
 			string rotation = m_overrideViewRotation ? m_viewRotation.ToString("F3") : "preset";
 			string bounds = m_overrideBounds ? $"{m_bounds.center.ToString("F4")};{m_bounds.size.ToString("F4")}" : "object";
 			int presetId = m_preset != null ? m_preset.GetInstanceID() : 0;
-			return $"{_prefab.GetInstanceID()}/{presetId}/{_size.x}x{_size.y}/{rotation}/{bounds}";
+			return $"{_prefab.GetInstanceID()}/{presetId}/{_size.x}x{_size.y}/{rotation}/{bounds}/{m_animationSpeed:F3}/{m_animationStartTime:F3}";
 		}
 
 		private Texture LoadingTextureOrPlaceholder => m_loadingTexture != null ? m_loadingTexture : RenderTextureManager.Placeholder;

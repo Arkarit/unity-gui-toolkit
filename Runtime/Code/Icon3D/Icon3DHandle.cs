@@ -151,6 +151,8 @@ namespace GuiToolkit
 		public readonly bool IsAnimated;
 		public bool IsPlaying;
 		public int FrameDivider = 1;
+		public float AnimationSpeed = 1;
+		public float AnimationStartTime;
 
 		// Rewinding (animated icons): the animation runs backwards at RewindSpeed times its speed until it is back at the
 		// start of its loop (or of its clip), and the icon then stands still on that first frame. 0 = not rewinding.
