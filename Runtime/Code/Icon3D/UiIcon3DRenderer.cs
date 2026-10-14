@@ -15,13 +15,16 @@ namespace GuiToolkit
 	/// out of the icon layer. Everything is restored right after. Outside its own render an icon object does not
 	/// exist (static icons) or is invisible, so scene cameras never see it, whatever their culling mask.
 	///
+	/// Objects with LOD groups are always shown at their finest level.
+	///
 	/// <b>Static icons</b> are instantiated, rendered once and destroyed; the result stays in a lean render texture
 	/// (no depth, no MSAA) from <see cref="RenderTextureManager"/>. Identical requests share one render.
 	///
 	/// <b>Animated icons</b> keep a persistent instance on the stage, so its Animator, particles and scripts run; it is
 	/// rendered every frame (or every n-th) after the static icons and is invisible outside its own render
 	/// (<c>forceRenderingOff</c>, own lights off). Framing is computed once, so the image does not pump with the
-	/// animation. In edit mode Animators and particles are advanced manually (30 fps); scripts do not run there.
+	/// animation; after that, its skinned meshes are switched on for its own render only (so they are not skinned in
+	/// every frame). In edit mode Animators and particles are advanced manually (30 fps); scripts do not run there.
 	///
 	/// Rendering happens once per frame after the canvas layout and before the cameras render, limited to
 	/// <see cref="RendersPerFrame"/>. <see cref="Flush"/> renders everything pending immediately.
@@ -43,6 +46,8 @@ namespace GuiToolkit
 		private static readonly List<(Light light, int cullingMask)> s_maskedLights = new();
 		private static readonly List<Animator> s_animators = new();
 		private static readonly List<ParticleSystem> s_particleSystems = new();
+		private static readonly List<SkinnedMeshRenderer> s_skinned = new();
+		private static readonly List<LODGroup> s_lodGroups = new();
 		private static readonly List<Icon3DRequest> s_animated = new();
 		private static readonly List<Icon3DRequest> s_animatedDue = new();
 		private static int s_animatedCounter;
@@ -935,7 +940,36 @@ namespace GuiToolkit
 			var instance = Object.Instantiate(_prefab, s_parking, false);
 			instance.name = _prefab.name;
 			PrepareForStage(instance, Layer);
+			KeepFinestLod(instance);
 			return instance;
+		}
+
+		/// <summary>
+		/// An icon shows its object up close, always: LOD groups keep their finest level, and the renderers of the
+		/// coarser levels are switched off. Otherwise the LOD group would pick a level by the icon's screen size (a
+		/// small icon got a coarse mesh), the framing would include every level, and a skinned object would be skinned
+		/// once per level.
+		/// </summary>
+		private static void KeepFinestLod( GameObject _instance )
+		{
+			_instance.GetComponentsInChildren(true, s_lodGroups);
+			foreach (var lodGroup in s_lodGroups)
+			{
+				var lods = lodGroup.GetLODs();
+				if (lods.Length == 0)
+					continue;
+
+				var finest = new HashSet<Renderer>(lods[0].renderers);
+				for (int i = 1; i < lods.Length; i++)
+				{
+					foreach (var rend in lods[i].renderers)
+						if (rend != null && !finest.Contains(rend))
+							rend.enabled = false;
+				}
+
+				lodGroup.enabled = false;
+			}
+			s_lodGroups.Clear();
 		}
 
 		/// <summary>
@@ -972,7 +1006,8 @@ namespace GuiToolkit
 			}
 			s_animators.Clear();
 
-			foreach (var skinned in instance.GetComponentsInChildren<SkinnedMeshRenderer>(true))
+			instance.GetComponentsInChildren(true, s_skinned);
+			foreach (var skinned in s_skinned)
 				skinned.updateWhenOffscreen = true;
 
 			instance.GetComponentsInChildren(true, s_particleSystems);
@@ -1002,6 +1037,21 @@ namespace GuiToolkit
 			// Framing once, from the entry pose - per frame it would pump with the animation
 			GetFraming(instance, _request, _preset, out _request.FitBounds, out _request.FitRotation);
 
+			// From now on the skinned meshes are switched on for their own render only (SetAnimatedVisible): a renderer
+			// that is off is not skinned. Left on, every skinned mesh of every animated icon was skinned in every
+			// frame - invisible icons, and the frames the frame divider skips; on a phone, a row of six characters spent
+			// 35 ms per frame on skinning alone. Not by updateWhenOffscreen = false: a render right after the Animators
+			// moved (the last step of a rewind) could then show the pose before.
+			foreach (var skinned in s_skinned)
+			{
+				if (skinned != null && skinned.enabled)
+				{
+					_request.Skinned.Add(skinned);
+					skinned.enabled = false;
+				}
+			}
+			s_skinned.Clear();
+
 			// Then on to where this icon starts (the Animators run at their speed, so this is animation time)
 			if (_request.AnimationStartTime > 0)
 				UpdateAnimators(instance, _request.AnimationStartTime);
@@ -1020,6 +1070,7 @@ namespace GuiToolkit
 			_request.Instance = null;
 			_request.RewindSpeed = 0;
 			_request.Renderers.Clear();
+			_request.Skinned.Clear();
 			_request.Lights.Clear();
 		}
 
@@ -1028,6 +1079,10 @@ namespace GuiToolkit
 			foreach (var rend in _request.Renderers)
 				if (rend != null)
 					rend.forceRenderingOff = !_visible;
+
+			foreach (var skinned in _request.Skinned)
+				if (skinned != null)
+					skinned.enabled = _visible;
 
 			foreach (var light in _request.Lights)
 				if (light != null)

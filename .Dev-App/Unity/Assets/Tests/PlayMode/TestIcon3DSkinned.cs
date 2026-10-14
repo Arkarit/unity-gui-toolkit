@@ -158,6 +158,52 @@ namespace GuiToolkit.Test
 			Assert.Greater(images.Count, 2, "image does not change - the clip does not reach the skinned mesh in the icon");
 		}
 
+		// Kept on, every animated icon's meshes were skinned in every frame, rendered or not (35 ms per frame on a phone)
+		[Test]
+		public void Animated_Icon_Skins_Only_When_It_Renders()
+		{
+			var icon = CreateIcon(Load(Icon3DTestModels.TentaclePath));
+			icon.Mode = UiIcon3D.EMode.Animated;
+			UiIcon3DRenderer.Flush();
+			Assert.IsTrue(icon.IsRendered);
+
+			var skinned = StageRenderers<SkinnedMeshRenderer>();
+			Assert.IsNotEmpty(skinned, "no animated instance on the stage");
+			foreach (var rend in skinned)
+				Assert.IsFalse(rend.enabled, $"'{rend.name}' is on between renders - it is skinned in every frame");
+		}
+
+		[Test]
+		public void Lod_Group_Shows_Its_Finest_Level_Only()
+		{
+			var root = Track(new GameObject("LodObject"));
+			var fine = GameObject.CreatePrimitive(PrimitiveType.Cube);
+			fine.name = "Fine";
+			fine.transform.SetParent(root.transform, false);
+			var coarse = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+			coarse.name = "Coarse";
+			coarse.transform.SetParent(root.transform, false);
+			var lodGroup = root.AddComponent<LODGroup>();
+			lodGroup.SetLODs(new[]
+			{
+				new LOD(0.5f, new Renderer[] { fine.GetComponent<Renderer>() }),
+				new LOD(0.01f, new Renderer[] { coarse.GetComponent<Renderer>() }),
+			});
+
+			var icon = CreateIcon(root);
+			icon.Mode = UiIcon3D.EMode.Animated;
+			UiIcon3DRenderer.Flush();
+			Assert.IsTrue(icon.IsRendered);
+
+			var renderers = StageRenderers<MeshRenderer>();
+			var stageFine = renderers.Find(r => r.name == "Fine");
+			var stageCoarse = renderers.Find(r => r.name == "Coarse");
+			Assert.IsNotNull(stageFine, "no instance on the stage");
+			Assert.IsTrue(stageFine.enabled, "the finest level is off");
+			Assert.IsFalse(stageCoarse.enabled, "a coarser level is still on");
+			Assert.IsFalse(stageFine.GetComponentInParent<LODGroup>().enabled, "the LOD group still switches levels by screen size");
+		}
+
 		[Test]
 		public void Transparent_Bowl_And_Opaque_Stem_Render()
 		{
@@ -246,6 +292,16 @@ namespace GuiToolkit.Test
 			icon.Preset = m_preset;
 			icon.Prefab = _prefab;
 			return icon;
+		}
+
+		// The renderer's own copies: hidden and unsaved, unlike the test's objects
+		private static List<T> StageRenderers<T>() where T : Renderer
+		{
+			var result = new List<T>();
+			foreach (var rend in Resources.FindObjectsOfTypeAll<T>())
+				if (rend.gameObject.scene.IsValid() && (rend.gameObject.hideFlags & HideFlags.HideAndDontSave) == HideFlags.HideAndDontSave)
+					result.Add(rend);
+			return result;
 		}
 
 		private Color[] Read( UiIcon3D _icon )

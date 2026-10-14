@@ -167,6 +167,7 @@ namespace GuiToolkit
 		public Quaternion FitRotation;
 		public double LastAnimationTime;
 		public readonly List<Renderer> Renderers = new();
+		public readonly List<SkinnedMeshRenderer> Skinned = new();   // switched on for the icon's own render only
 		public readonly List<Light> Lights = new();
 
 		private readonly RenderTextureSpec m_spec;
