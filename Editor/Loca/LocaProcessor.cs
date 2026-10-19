@@ -374,7 +374,9 @@ namespace GuiToolkit.Editor
 			string searchTerm = "\"" + keyStart;
 			foreach (string line in _lines)
 			{
-				string trimmed = line.TrimStart();
+				// The lines come from a split at '\n' only, so a CRLF source keeps its '\r'.
+				// It must not reach the #: reference, where it would end up as a raw CR in the POT.
+				string trimmed = line.Trim();
 				if (trimmed.Contains(searchTerm))
 				{
 					string snippet = trimmed.Length > 30 ? trimmed.Substring(0, 30) : trimmed;

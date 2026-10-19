@@ -40,7 +40,7 @@ namespace GuiToolkit.Editor
 			if (string.IsNullOrEmpty(_content))
 				return result;
 
-			var lines = _content.Replace("\r\n", "\n").Replace("\r", "\n").Split('\n');
+			var lines = NormalizeLineEndings(_content).Split('\n');
 			var blocks = SplitIntoBlocks(lines);
 
 			bool headerFound = false;
@@ -65,9 +65,35 @@ namespace GuiToolkit.Editor
 				var regular = ParseEntryBlock(block);
 				if (regular != null)
 					result.Entries.Add(regular);
+				else if (ContainsMsgId(block))
+					UiLog.LogWarning($"PoFile: dropped an unparseable entry:\n{string.Join("\n", block)}");
 			}
 
 			return result;
+		}
+
+		/// <summary>
+		/// Converts CRLF and old-Mac CR line endings to LF. A lone CR inside a file that otherwise uses
+		/// LF or CRLF is not a line break but a stray character (for example copied from a CRLF source line
+		/// into a <c>#:</c> reference) and is removed; treating it as a line break would split the line
+		/// and make the whole entry unparseable.
+		/// </summary>
+		private static string NormalizeLineEndings(string _content)
+		{
+			string content = _content.Replace("\r\n", "\n");
+			if (content.IndexOf('\n') < 0)
+				return content.Replace("\r", "\n");
+			return content.Replace("\r", string.Empty);
+		}
+
+		private static bool ContainsMsgId(List<string> _block)
+		{
+			foreach (var line in _block)
+			{
+				if (line.TrimStart().StartsWith("msgid"))
+					return true;
+			}
+			return false;
 		}
 
 		/// <summary>

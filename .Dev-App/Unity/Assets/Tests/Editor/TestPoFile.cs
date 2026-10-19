@@ -168,5 +168,33 @@ namespace GuiToolkit.Test
 			Assert.That(lookup.ContainsKey(expectedKey), Is.True);
 			Assert.That(lookup[expectedKey].MsgStr, Is.EqualTo("Geldinstitut"));
 		}
+
+		[Test]
+		public void StrayCarriageReturnInReferenceKeepsEntry()
+		{
+			// A #: reference with a source snippet copied from a CRLF file, as the loca processor wrote it.
+			// The CR used to be read as a line break, which left a lone ")" line and dropped the entry.
+			const string po =
+				"#: Assets/Foo.cs (Text = __(\"Cancel\"),\r)\r\n"
+				+ "msgid \"Cancel\"\r\n"
+				+ "msgstr \"\"\r\n"
+				+ "\r\n"
+				+ "msgid \"OK\"\r\n"
+				+ "msgstr \"\"\r\n";
+			var file = PoFile.Parse(po);
+			Assert.That(file.Entries.Count, Is.EqualTo(2));
+			Assert.That(file.Entries[0].MsgId, Is.EqualTo("Cancel"));
+			Assert.That(file.Entries[0].SourceReferences[0], Is.EqualTo("Assets/Foo.cs (Text = __(\"Cancel\"),)"));
+			Assert.That(PoFile.Parse(file.Serialize()).Entries.Count, Is.EqualTo(2));
+		}
+
+		[Test]
+		public void ParseOldMacLineEndings()
+		{
+			const string po = "msgid \"Hello\"\rmsgstr \"Hallo\"\r\rmsgid \"World\"\rmsgstr \"Welt\"\r";
+			var file = PoFile.Parse(po);
+			Assert.That(file.Entries.Count, Is.EqualTo(2));
+			Assert.That(file.Entries[1].MsgStr, Is.EqualTo("Welt"));
+		}
 	}
 }
