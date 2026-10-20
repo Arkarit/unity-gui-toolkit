@@ -1,6 +1,6 @@
 {
     "version": 1,
-    "generatedAtUtc": "2026-10-06T07:44:36.1935453Z",
+    "generatedAtUtc": "2026-10-20T08:46:13.2365447Z",
     "toolkitAssembly": "de.phoenixgrafik.ui-toolkit",
     "skins": [
         "Landscape",
@@ -4367,6 +4367,40 @@
                     "tooltip": "Camera rotation (euler angles); (0,180,0) looks at an object's front"
                 },
                 {
+                    "name": "overrideBounds",
+                    "field": "m_overrideBounds",
+                    "member": "field",
+                    "kind": "bool",
+                    "valueType": "System.Boolean",
+                    "elementKind": "",
+                    "refType": "",
+                    "enumValues": [],
+                    "optional": false,
+                    "mandatory": false,
+                    "mandatoryExternal": false,
+                    "hasRange": false,
+                    "rangeMin": 0.0,
+                    "rangeMax": 0.0,
+                    "tooltip": "Frame the box below instead of the object's own UiIcon3DBoundsHint or its renderers"
+                },
+                {
+                    "name": "bounds",
+                    "field": "m_bounds",
+                    "member": "field",
+                    "kind": "unknown",
+                    "valueType": "UnityEngine.Bounds",
+                    "elementKind": "",
+                    "refType": "",
+                    "enumValues": [],
+                    "optional": false,
+                    "mandatory": false,
+                    "mandatoryExternal": false,
+                    "hasRange": false,
+                    "rangeMin": 0.0,
+                    "rangeMax": 0.0,
+                    "tooltip": "Box to frame, in the shown object's local space (its root). Can be tuned while playing and copied into the prefab."
+                },
+                {
                     "name": "mode",
                     "field": "m_mode",
                     "member": "field",
@@ -4438,6 +4472,40 @@
                     "rangeMin": 0.0,
                     "rangeMax": 0.0,
                     "tooltip": "Animated mode: render every n-th frame (1 = every frame)"
+                },
+                {
+                    "name": "animationSpeed",
+                    "field": "m_animationSpeed",
+                    "member": "field",
+                    "kind": "float",
+                    "valueType": "System.Single",
+                    "elementKind": "",
+                    "refType": "",
+                    "enumValues": [],
+                    "optional": false,
+                    "mandatory": false,
+                    "mandatoryExternal": false,
+                    "hasRange": false,
+                    "rangeMin": 0.0,
+                    "rangeMax": 0.0,
+                    "tooltip": "Animated mode: speed of the object's animation, as multiple of normal. Slightly different speeds keep several icons of the same animation from moving in step."
+                },
+                {
+                    "name": "animationStartTime",
+                    "field": "m_animationStartTime",
+                    "member": "field",
+                    "kind": "float",
+                    "valueType": "System.Single",
+                    "elementKind": "",
+                    "refType": "",
+                    "enumValues": [],
+                    "optional": false,
+                    "mandatory": false,
+                    "mandatoryExternal": false,
+                    "hasRange": false,
+                    "rangeMin": 0.0,
+                    "rangeMax": 0.0,
+                    "tooltip": "Animated mode: seconds the animation is advanced before its first frame, so icons of the same animation start at different points"
                 },
                 {
                     "name": "resolutionScale",
@@ -4701,6 +4769,41 @@
                     "rangeMin": 0.0,
                     "rangeMax": 0.0,
                     "tooltip": ""
+                }
+            ],
+            "events": []
+        },
+        {
+            "type": "UiIcon3DShadow",
+            "fullName": "GuiToolkit.UiIcon3DShadow",
+            "assembly": "de.phoenixgrafik.ui-toolkit",
+            "unityType": "",
+            "prefer": "",
+            "category": "Graphic",
+            "description": "A fake shadow for a 3D icon: the icon's own image drawn again, tinted. With the UI_Icon3D material (premultiplied alpha) a colour of (0, 0, 0, 0.2) turns the image into a black silhouette at 20% - a drop shadow that costs one more UI draw and no 3D render. It follows the icon's image every frame, so an animated icon's shadow moves along. Put it on a RawImage with the UI_Icon3D material, a sibling placed BEFORE the icon (so it is drawn behind it), and offset it with its RectTransform. The tint is the RawImage's colour. Edges are as hard as the image's: for a soft shadow the image would need a blur pass.",
+            "isRoot": false,
+            "contentField": "",
+            "requiresComponents": [
+                "RawImage"
+            ],
+            "styles": [],
+            "props": [
+                {
+                    "name": "icon",
+                    "field": "m_icon",
+                    "member": "field",
+                    "kind": "componentRef",
+                    "valueType": "GuiToolkit.UiIcon3D",
+                    "elementKind": "",
+                    "refType": "UiIcon3D",
+                    "enumValues": [],
+                    "optional": false,
+                    "mandatory": true,
+                    "mandatoryExternal": false,
+                    "hasRange": false,
+                    "rangeMin": 0.0,
+                    "rangeMax": 0.0,
+                    "tooltip": "The icon whose image is the shadow's shape"
                 }
             ],
             "events": []
@@ -22812,6 +22915,42 @@
             "events": []
         },
         {
+            "type": "UiRecyclingList",
+            "fullName": "GuiToolkit.UiRecyclingList",
+            "assembly": "de.phoenixgrafik.ui-toolkit",
+            "unityType": "",
+            "prefer": "",
+            "category": "Widget",
+            "description": "A scroll list that only has items for what is in view. A ScrollRect with many expensive items (3D icons, animations, nested canvases) costs for every item, seen or not; this list keeps the visible items plus a few on either side, and when one scrolls out, it is reused for the one scrolling in: same GameObject, same components, only fed with another index. Items not needed any more go back to the UiPool. Usage: put it next to the ScrollRect. Author the content with a HorizontalLayoutGroup, VerticalLayoutGroup or UiHorizontalOrVerticalLayoutGroup as usual - it is what you see in the editor, and the list takes its direction, padding, spacing, child alignment and child size control from it. At runtime call SetData(prefab, count, bind); the list switches the layout group (and a ContentSizeFitter) off, sizes the content and positions the items itself. Rules: - All items have the same size: the prefab's (or its preferred size, where the layout group controls it). - The bind callback sets EVERYTHING an item shows, including state like selected or locked: an item comes in with what its previous index showed. State that has to survive scrolling belongs to the data, not to the item. - The content holds the list's items only. Reverse order and grids are not supported.",
+            "isRoot": false,
+            "contentField": "",
+            "requiresComponents": [
+                "ScrollRect",
+                "RectTransform"
+            ],
+            "styles": [],
+            "props": [
+                {
+                    "name": "buffer",
+                    "field": "m_buffer",
+                    "member": "field",
+                    "kind": "int",
+                    "valueType": "System.Int32",
+                    "elementKind": "",
+                    "refType": "",
+                    "enumValues": [],
+                    "optional": false,
+                    "mandatory": false,
+                    "mandatoryExternal": false,
+                    "hasRange": false,
+                    "rangeMin": 0.0,
+                    "rangeMax": 0.0,
+                    "tooltip": "Items kept beyond each end of the view, so a fast scroll doesn't show a gap for a frame"
+                }
+            ],
+            "events": []
+        },
+        {
             "type": "UiReferencedSizeFitter",
             "fullName": "GuiToolkit.UiReferencedSizeFitter",
             "assembly": "de.phoenixgrafik.ui-toolkit",
@@ -24051,7 +24190,8 @@
                         "WiggleAnimation",
                         "StandardChip",
                         "StandardCountIndicator",
-                        "StandardIcon3D"
+                        "StandardIcon3D",
+                        "StandardIconToggle"
                     ],
                     "optional": false,
                     "mandatory": false,
@@ -25397,15 +25537,15 @@
             ],
             "parts": [
                 {
-                    "path": "Background",
+                    "path": "Animated/Background",
                     "type": "Image",
                     "element": "",
                     "text": false,
                     "shipsInactive": false
                 },
                 {
-                    "path": "Icon",
-                    "type": "Image",
+                    "path": "Animated/Icon",
+                    "type": "UiImage",
                     "element": "",
                     "text": false,
                     "shipsInactive": false
@@ -25584,15 +25724,15 @@
             ],
             "parts": [
                 {
-                    "path": "Background",
+                    "path": "Animated/Background",
                     "type": "Image",
                     "element": "",
                     "text": false,
                     "shipsInactive": false
                 },
                 {
-                    "path": "Icon",
-                    "type": "Image",
+                    "path": "Animated/Icon",
+                    "type": "UiImage",
                     "element": "",
                     "text": false,
                     "shipsInactive": false
@@ -25957,15 +26097,15 @@
             ],
             "parts": [
                 {
-                    "path": "Background",
+                    "path": "Animated/Background",
                     "type": "Image",
                     "element": "",
                     "text": false,
                     "shipsInactive": false
                 },
                 {
-                    "path": "Icon",
-                    "type": "Image",
+                    "path": "Animated/Icon",
+                    "type": "UiImage",
                     "element": "",
                     "text": false,
                     "shipsInactive": false
@@ -26120,15 +26260,54 @@
             ],
             "parts": [
                 {
-                    "path": "Background",
+                    "path": "Animated/Background",
                     "type": "Image",
                     "element": "",
                     "text": false,
                     "shipsInactive": false
                 },
                 {
-                    "path": "Icon",
+                    "path": "Animated/Icon",
+                    "type": "UiImage",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                }
+            ],
+            "partsTruncated": false
+        },
+        {
+            "name": "StandardIconToggle",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/StandardElements/Buttons/StandardIconToggle.prefab",
+            "prefabGuid": "d72d262904ab22f4180ba1dde259aa4d",
+            "kind": "UiToggle",
+            "category": "Input",
+            "description": "Square toggle showing an icon instead of a text label. Variant of StandardIconButton with a Toggle instead of a Button.",
+            "standardElement": "StandardIconToggle",
+            "isInternal": false,
+            "slots": [
+                {
+                    "name": "onClick",
+                    "kind": "event",
+                    "note": "Click handler (wired later)."
+                },
+                {
+                    "name": "onValueChanged",
+                    "kind": "event",
+                    "note": "Toggle change handler (wired later)."
+                }
+            ],
+            "parts": [
+                {
+                    "path": "Animated/Background",
                     "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Animated/Icon",
+                    "type": "UiImage",
                     "element": "",
                     "text": false,
                     "shipsInactive": false
@@ -26510,15 +26689,15 @@
             ],
             "parts": [
                 {
-                    "path": "Background",
+                    "path": "Animated/Background",
                     "type": "Image",
                     "element": "",
                     "text": false,
                     "shipsInactive": false
                 },
                 {
-                    "path": "Icon",
-                    "type": "Image",
+                    "path": "Animated/Icon",
+                    "type": "UiImage",
                     "element": "",
                     "text": false,
                     "shipsInactive": false
@@ -26544,15 +26723,15 @@
             ],
             "parts": [
                 {
-                    "path": "Background",
+                    "path": "Animated/Background",
                     "type": "Image",
                     "element": "",
                     "text": false,
                     "shipsInactive": false
                 },
                 {
-                    "path": "Icon",
-                    "type": "Image",
+                    "path": "Animated/Icon",
+                    "type": "UiImage",
                     "element": "",
                     "text": false,
                     "shipsInactive": false

@@ -116,6 +116,8 @@ namespace GuiToolkit
 		StandardCountIndicator,
 		// 3D icons (UiIcon3D).
 		StandardIcon3D,
+		// Variant of StandardIconButton with a Toggle instead of a Button.
+		StandardIconToggle,
 	}
 
 	/// <summary>

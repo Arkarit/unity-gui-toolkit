@@ -294,9 +294,21 @@ MonoBehaviour:
       type: 3}
     fromLibrary: 1
     isInternal: 0
+  - element: 70
+    customId: 
+    prefab: {fileID: 3550116674828548676, guid: 2bb7fab4ea9f8554ea3cc573f9ad69fd,
+      type: 3}
+    fromLibrary: 1
+    isInternal: 0
   - element: 7
     customId: 
     prefab: {fileID: 5270523796987331484, guid: 54842dad725d4fd40b556224ec94438d,
+      type: 3}
+    fromLibrary: 1
+    isInternal: 0
+  - element: 71
+    customId: 
+    prefab: {fileID: 3275777903862680199, guid: d72d262904ab22f4180ba1dde259aa4d,
       type: 3}
     fromLibrary: 1
     isInternal: 0
