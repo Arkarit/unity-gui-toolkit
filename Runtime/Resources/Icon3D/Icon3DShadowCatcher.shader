@@ -18,10 +18,16 @@ Shader "Hidden/UIToolkit/Icon3DShadowCatcher"
 		_ShadowColor ("Shadow Colour", Color) = (0, 0, 0, 1)
 	}
 
-	// Universal Render Pipeline. Listed first: the pipeline tag keeps Built-in (and HDRP) from ever compiling it, so
-	// a project without URP does not choke on the package includes.
+	// Universal Render Pipeline. The pipeline tag alone does NOT keep a project without URP from choking on the
+	// package includes: they are resolved for every SubShader on import. The PackageRequirements block does; a
+	// SubShader whose package is missing is dropped before its includes are read.
 	SubShader
 	{
+		PackageRequirements
+		{
+			"com.unity.render-pipelines.universal"
+		}
+
 		Tags { "RenderPipeline" = "UniversalPipeline" "Queue" = "Geometry+10" "RenderType" = "Opaque" "IgnoreProjector" = "True" }
 
 		Pass
@@ -86,10 +92,15 @@ Shader "Hidden/UIToolkit/Icon3DShadowCatcher"
 
 	// High Definition Render Pipeline. Same trick as the Shader Graph "Shadow Matte" of HDRP's unlit target: the shadow of
 	// the main directional light from HDRP's own shadow loop, written as colour and alpha. Hand written because a Shader
-	// Graph asset can not ship in a package that also serves projects without Shader Graph. The pipeline tag keeps it
-	// from being compiled anywhere else.
+	// Graph asset can not ship in a package that also serves projects without Shader Graph. PackageRequirements keeps
+	// projects without HDRP from resolving its includes (see the URP SubShader).
 	SubShader
 	{
+		PackageRequirements
+		{
+			"com.unity.render-pipelines.high-definition"
+		}
+
 		Tags { "RenderPipeline" = "HDRenderPipeline" "Queue" = "Transparent" "RenderType" = "Transparent" }
 
 		Pass
