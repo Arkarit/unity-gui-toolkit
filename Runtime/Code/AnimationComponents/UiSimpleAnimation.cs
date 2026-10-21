@@ -29,6 +29,7 @@ namespace GuiToolkit
 			ScaleY			= 0x00002000,
 			Alpha			= 0x00010000,
 			Skew			= 0x00020000,
+			LayoutElement	= 0x00040000,
 		}
 
 		[SerializeField]
@@ -317,7 +318,84 @@ namespace GuiToolkit
 		[SerializeField]
 		protected AnimationCurve m_skewCurveVertical;
 		#endregion
-		
+
+		#region Layout Element
+		// Unlike scale, the preferred size of a LayoutElement is respected by a surrounding layout group,
+		// so the siblings make room (or close the gap) while it animates.
+		[SerializeField]
+		protected LayoutElement m_layoutElement;
+		[SerializeField]
+		protected bool m_animatePreferredWidth;
+		[SerializeField]
+		protected float m_preferredWidthStart;
+		[SerializeField]
+		protected float m_preferredWidthEnd;
+		[SerializeField]
+		protected AnimationCurve m_preferredWidthCurve;
+		[SerializeField]
+		protected bool m_animatePreferredHeight;
+		[SerializeField]
+		protected float m_preferredHeightStart;
+		[SerializeField]
+		protected float m_preferredHeightEnd;
+		[SerializeField]
+		protected AnimationCurve m_preferredHeightCurve;
+
+		public LayoutElement LayoutElement
+		{
+			get => m_layoutElement;
+			set { Stop(); m_layoutElement = value; }
+		}
+
+		public bool AnimatePreferredWidth
+		{
+			get => m_animatePreferredWidth;
+			set { Stop(); m_animatePreferredWidth = value; }
+		}
+
+		public float PreferredWidthStart
+		{
+			get => m_preferredWidthStart;
+			set { Stop(); m_preferredWidthStart = value; }
+		}
+
+		public float PreferredWidthEnd
+		{
+			get => m_preferredWidthEnd;
+			set { Stop(); m_preferredWidthEnd = value; }
+		}
+
+		public AnimationCurve PreferredWidthCurve
+		{
+			get => m_preferredWidthCurve;
+			set { Stop(); m_preferredWidthCurve = value; }
+		}
+
+		public bool AnimatePreferredHeight
+		{
+			get => m_animatePreferredHeight;
+			set { Stop(); m_animatePreferredHeight = value; }
+		}
+
+		public float PreferredHeightStart
+		{
+			get => m_preferredHeightStart;
+			set { Stop(); m_preferredHeightStart = value; }
+		}
+
+		public float PreferredHeightEnd
+		{
+			get => m_preferredHeightEnd;
+			set { Stop(); m_preferredHeightEnd = value; }
+		}
+
+		public AnimationCurve PreferredHeightCurve
+		{
+			get => m_preferredHeightCurve;
+			set { Stop(); m_preferredHeightCurve = value; }
+		}
+		#endregion
+
 		// TODO: sound
 
 		// TODO: animator
@@ -378,6 +456,12 @@ namespace GuiToolkit
 		#endif
 		#endregion
 		private bool m_animateSkew;
+		#region debug serialize member
+		#if DEBUG_SIMPLE_ANIMATION
+			[SerializeField]
+		#endif
+		#endregion
+		private bool m_animateLayoutElement;
 		#region debug serialize member
 		#if DEBUG_SIMPLE_ANIMATION
 			[SerializeField]
@@ -456,6 +540,7 @@ namespace GuiToolkit
 			m_animateScale = m_animateScaleX || m_animateScaleY;
 			m_animateAlpha = m_support.HasFlags(ESupport.Alpha);
 			m_animateSkew = m_support.HasFlags(ESupport.Skew);
+			m_animateLayoutElement = m_support.HasFlags(ESupport.LayoutElement);
 			m_flagsSet = true;
 			Log( "InitFlags() done: "
 				+ $"m_animatePositionX: {m_animatePositionX}, "
@@ -467,6 +552,7 @@ namespace GuiToolkit
 				+ $"m_animateScale: {m_animateScale}, "
 				+ $"m_animateAlpha: {m_animateAlpha}, "
 				+ $"m_animateSkew: {m_animateSkew}, "
+				+ $"m_animateLayoutElement: {m_animateLayoutElement}, "
 				+ $"m_flagsSet: {m_flagsSet}"
 			);
 		}
@@ -483,6 +569,8 @@ namespace GuiToolkit
 			m_animateScaleY = false;
 			m_animateScale = false;
 			m_animateAlpha = false;
+			m_animateSkew = false;
+			m_animateLayoutElement = false;
 			m_flagsSet = false;
 		}
 
@@ -618,6 +706,9 @@ namespace GuiToolkit
 			if (m_animateSkew)
 				AnimateSkew(_normalizedTime);
 
+			if (m_animateLayoutElement)
+				AnimateLayoutElement(_normalizedTime);
+
 			if (m_markTargetForLayoutRebuild && hasTarget)
 				LayoutRebuilder.MarkLayoutForRebuild(m_target);
 		}
@@ -627,7 +718,7 @@ namespace GuiToolkit
 			bool animateX = m_skewCurveHorizontal != null && m_skewCurveHorizontal.length > 1;
 			bool animateY = m_skewCurveVertical != null && m_skewCurveVertical.length > 1;
 			var x = animateX ? Mathf.LerpUnclamped(m_skewMinHorizontal, m_skewMaxHorizontal, m_skewCurveHorizontal.Evaluate(_normalizedTime)) : 0;
-			var y = animateX ? Mathf.LerpUnclamped(m_skewMinVertical, m_skewMaxVertical, m_skewCurveVertical.Evaluate(_normalizedTime)) : 0;
+			var y = animateY ? Mathf.LerpUnclamped(m_skewMinVertical, m_skewMaxVertical, m_skewCurveVertical.Evaluate(_normalizedTime)) : 0;
 			
 			if (animateX && animateY)
 			{
@@ -642,7 +733,23 @@ namespace GuiToolkit
 			}
 			
 			if (animateY)
-				m_uiSkew.AngleVertical = x;
+				m_uiSkew.AngleVertical = y;
+		}
+
+		// Holds its own reference like alpha and skew, so it runs without a target. Setting the preferred size
+		// marks the layout dirty by itself.
+		private void AnimateLayoutElement( float _normalizedTime )
+		{
+			if (m_layoutElement == null)
+				return;
+
+			if (m_animatePreferredWidth && m_preferredWidthCurve != null)
+				m_layoutElement.preferredWidth = Mathf.LerpUnclamped(m_preferredWidthStart, m_preferredWidthEnd, m_preferredWidthCurve.Evaluate(_normalizedTime));
+
+			if (m_animatePreferredHeight && m_preferredHeightCurve != null)
+				m_layoutElement.preferredHeight = Mathf.LerpUnclamped(m_preferredHeightStart, m_preferredHeightEnd, m_preferredHeightCurve.Evaluate(_normalizedTime));
+
+			Log($"AnimateLayoutElement({_normalizedTime}), preferred:{m_layoutElement.preferredWidth}x{m_layoutElement.preferredHeight}");
 		}
 
 		private void AnimatePosition( float _normalizedTime )

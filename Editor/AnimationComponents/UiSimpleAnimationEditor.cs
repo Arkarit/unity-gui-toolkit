@@ -39,8 +39,17 @@ namespace GuiToolkit.Editor
 		protected SerializedProperty m_skewMaxVerticalProp;
 		protected SerializedProperty m_skewCurveHorizontalProp;
 		protected SerializedProperty m_skewCurveVerticalProp;
+		protected SerializedProperty m_layoutElementProp;
+		protected SerializedProperty m_animatePreferredWidthProp;
+		protected SerializedProperty m_preferredWidthStartProp;
+		protected SerializedProperty m_preferredWidthEndProp;
+		protected SerializedProperty m_preferredWidthCurveProp;
+		protected SerializedProperty m_animatePreferredHeightProp;
+		protected SerializedProperty m_preferredHeightStartProp;
+		protected SerializedProperty m_preferredHeightEndProp;
+		protected SerializedProperty m_preferredHeightCurveProp;
 
-		
+
 		protected SerializedProperty m_optionalMouseOverSlaveAnimationResetProp;
 		
 		protected SerializedProperty m_optionalMouseOverSlaveAnimationProp;
@@ -82,7 +91,16 @@ namespace GuiToolkit.Editor
 			m_skewMaxVerticalProp = serializedObject.FindProperty("m_skewMaxVertical");
 			m_skewCurveHorizontalProp = serializedObject.FindProperty("m_skewCurveHorizontal");
 			m_skewCurveVerticalProp = serializedObject.FindProperty("m_skewCurveVertical");
-			
+			m_layoutElementProp = serializedObject.FindProperty("m_layoutElement");
+			m_animatePreferredWidthProp = serializedObject.FindProperty("m_animatePreferredWidth");
+			m_preferredWidthStartProp = serializedObject.FindProperty("m_preferredWidthStart");
+			m_preferredWidthEndProp = serializedObject.FindProperty("m_preferredWidthEnd");
+			m_preferredWidthCurveProp = serializedObject.FindProperty("m_preferredWidthCurve");
+			m_animatePreferredHeightProp = serializedObject.FindProperty("m_animatePreferredHeight");
+			m_preferredHeightStartProp = serializedObject.FindProperty("m_preferredHeightStart");
+			m_preferredHeightEndProp = serializedObject.FindProperty("m_preferredHeightEnd");
+			m_preferredHeightCurveProp = serializedObject.FindProperty("m_preferredHeightCurve");
+
 			m_optionalMouseOverSlaveAnimationProp = serializedObject.FindProperty("m_optionalMouseOverSlaveAnimation");
 			m_optionalMouseOverSlaveAnimationResetProp = serializedObject.FindProperty("m_optionalMouseOverSlaveAnimationReset");
 		}
@@ -212,6 +230,36 @@ namespace GuiToolkit.Editor
 				EditorGUILayout.PropertyField(m_skewMaxVerticalProp);
 				EditorGUILayout.PropertyField(m_skewCurveHorizontalProp);
 				EditorGUILayout.PropertyField(m_skewCurveVerticalProp);
+				EditorGUILayout.Space();
+			}
+
+			if (support.HasFlags(UiSimpleAnimation.ESupport.LayoutElement))
+			{
+				GUILayout.Label("Layout Element:", EditorStyles.boldLabel);
+				EditorGUILayout.PropertyField(m_layoutElementProp);
+				if (m_layoutElementProp.objectReferenceValue == null)
+					m_layoutElementProp.objectReferenceValue = thisUiSimpleAnimation.GetComponent<UnityEngine.UI.LayoutElement>();
+
+				EditorGUILayout.PropertyField(m_animatePreferredWidthProp, new GUIContent("Preferred Width"));
+				if (m_animatePreferredWidthProp.boolValue)
+				{
+					EditorGUI.indentLevel++;
+					EditorGUILayout.PropertyField(m_preferredWidthStartProp, new GUIContent("Start"));
+					EditorGUILayout.PropertyField(m_preferredWidthEndProp, new GUIContent("End"));
+					EditorGUILayout.PropertyField(m_preferredWidthCurveProp, new GUIContent("Norm. Curve"));
+					EditorGUI.indentLevel--;
+				}
+
+				EditorGUILayout.PropertyField(m_animatePreferredHeightProp, new GUIContent("Preferred Height"));
+				if (m_animatePreferredHeightProp.boolValue)
+				{
+					EditorGUI.indentLevel++;
+					EditorGUILayout.PropertyField(m_preferredHeightStartProp, new GUIContent("Start"));
+					EditorGUILayout.PropertyField(m_preferredHeightEndProp, new GUIContent("End"));
+					EditorGUILayout.PropertyField(m_preferredHeightCurveProp, new GUIContent("Norm. Curve"));
+					EditorGUI.indentLevel--;
+				}
+
 				EditorGUILayout.Space();
 			}
 
