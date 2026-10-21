@@ -238,7 +238,9 @@ namespace GuiToolkit
 			// Timed out: the panel never reported done and is likely still on screen. Force it away
 			// so it doesn't linger — instant Hide first, then a hard SetActive(false) as a backstop
 			// in case Hide() itself misbehaves.
-			UiLog.LogError($"[UiStartupOverlayView] '{_panel.name}' did not raise EvOnEndHide within {m_overlayTimeoutSeconds}s — forcing it closed and advancing");
+			// A warning, not an error: the timeout is a recovery path that works, and a player who simply
+			// leaves an overlay open longer than the timeout triggers it too.
+			UiLog.LogWarning($"[UiStartupOverlayView] '{_panel.name}' did not raise EvOnEndHide within {m_overlayTimeoutSeconds}s — forcing it closed and advancing");
 			try
 			{
 				_panel.Hide(true);
