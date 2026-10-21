@@ -750,6 +750,16 @@ namespace GuiToolkit
 				m_layoutElement.preferredHeight = Mathf.LerpUnclamped(m_preferredHeightStart, m_preferredHeightEnd, m_preferredHeightCurve.Evaluate(_normalizedTime));
 
 			Log($"AnimateLayoutElement({_normalizedTime}), preferred:{m_layoutElement.preferredWidth}x{m_layoutElement.preferredHeight}");
+
+#if UNITY_EDITOR
+			// The new size only marks the layout dirty; it is rebuilt when a canvas renders, which outside play mode
+			// nothing triggers. Without this, the editor preview of the animation shows no movement at all.
+			if (!Application.isPlaying)
+			{
+				Canvas.ForceUpdateCanvases();
+				UnityEditor.EditorApplication.QueuePlayerLoopUpdate();
+			}
+#endif
 		}
 
 		private void AnimatePosition( float _normalizedTime )
