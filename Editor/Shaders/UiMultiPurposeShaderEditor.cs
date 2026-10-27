@@ -59,6 +59,15 @@ namespace GuiToolkit.Editor
 				});
 
 				SmallSpace();
+				KeywordToggle("_Pulse", () =>
+				{
+					DisplayProperty("_PulseColor", "The colour the graphic pulses towards; its alpha is how far (0 = no colour change).");
+					DisplayProperty("_PulseFrequency", "Pulses per second.");
+					DisplayProperty("_PulseAlphaMin", "The alpha at the low point of the pulse; 1 keeps the alpha steady.");
+					DisplayProperty("_PulsePhaseOffset", "Shifts the pulse in time, in seconds, so several graphics don't pulse in step.");
+				});
+
+				SmallSpace();
 				KeywordToggle("_NoVertexColor");
 				
 				SmallSpace();

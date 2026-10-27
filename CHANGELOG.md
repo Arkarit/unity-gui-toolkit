@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **`UI_MultiPurpose`: new feature "Pulse".** The graphic pulses over time in a soft cosine wave: its colour
+  moves towards Pulse Color (whose alpha is the strength) and its alpha between Pulse Alpha Min and full,
+  Pulse Frequency times per second; Pulse Phase Offset shifts it in time. Runs in the shader, no script; a
+  shader feature, so materials without it get no extra variant. Meant e.g. for a pulsing frame or glow
+  marking an active state.
 - **`UI_AngleGradient` shader (material `Materials/UI_AngleGradient.mat`): a frame with an animated angle
   gradient.** Put the material on a `UiRoundedImage` with a Frame Size (no sprite): the colour runs from
   Base to Highlight and back around the rect's centre, Count times per turn, and rotates at Speed degrees

@@ -49,6 +49,12 @@ Shader "UIToolkit/UI_MultiPurpose"
 		_ScrollingSpeedU("Speed U", Range(-1,1)) = .2
 		_ScrollingSpeedV("Speed V", Range(-1,1)) = .2
 
+		[Toggle(Pulse)] _Pulse("Pulse", Float) = 0
+		_PulseColor("Pulse Color (A = Strength)", color) = (1,1,1,0.5)
+		_PulseFrequency("Pulse Frequency (1/s)", Range(0,10)) = 1
+		_PulseAlphaMin("Pulse Alpha Min", Range(0,1)) = 1
+		_PulsePhaseOffset("Pulse Phase Offset (s)", Float) = 0
+
 		[Toggle(Adjustments)] _Adjustments("Adjustments", Float) = 0
 		_Brightness("Brightness", Range(-1,1)) = 0
 		_Contrast("Contrast", Range(0,5)) = 1
@@ -119,6 +125,7 @@ Shader "UIToolkit/UI_MultiPurpose"
 			#pragma multi_compile __ CSharpHandledFeatures
 			#pragma shader_feature_local __ _TEXTUREBLENDMODE_TRANSPARENT _TEXTUREBLENDMODE_TRANSPARENTPREMULTIPLIED _TEXTUREBLENDMODE_ADDITIVE _TEXTUREBLENDMODE_MULTIPLICATIVE
 			#pragma shader_feature_local __ Adjustments
+			#pragma shader_feature_local __ Pulse
 			#pragma shader_feature_local __ UseAdditionalTransformation
 			#pragma shader_feature_local __ SecondaryUseAdditionalTransformation
 			#pragma shader_feature_local __ UnscaledTime
@@ -180,6 +187,13 @@ Shader "UIToolkit/UI_MultiPurpose"
 			#ifdef UVRotation
 				float _RotationSpeed;
 				float _ManualRotationPhaseOffset;
+			#endif
+
+			#ifdef Pulse
+				half4 _PulseColor;
+				float _PulseFrequency;
+				float _PulseAlphaMin;
+				float _PulsePhaseOffset;
 			#endif
 
 			#ifdef Adjustments
@@ -361,6 +375,14 @@ Shader "UIToolkit/UI_MultiPurpose"
 					#ifdef _SECONDARYTEXTUREBLENDMODE_MULTIPLICATIVE
 						color.rgb *= lerp(fixed3(1,1,1), colorSecondary.rgb, alphaSecondary);
 					#endif
+				#endif
+
+				#ifdef Pulse
+					// 0 at the start of a period, 1 halfway: the colour moves towards the pulse colour (by its alpha)
+					// and the alpha between Alpha Min and full.
+					float pulse = 0.5 - 0.5 * cos(UNITY_TWO_PI * _PulseFrequency * (GetTime() + _PulsePhaseOffset));
+					color.rgb = lerp(color.rgb, _PulseColor.rgb, _PulseColor.a * pulse);
+					color.a *= lerp(_PulseAlphaMin, 1, pulse);
 				#endif
 
 				#ifdef Disabled
