@@ -21,6 +21,7 @@ Shader "UIToolkit/UI_AngleGradient"
 		_Rotation ("Rotation (deg)", Float) = 0
 		_Speed ("Rotation Speed (deg/s)", Float) = 30
 
+		_FoldoutStencil ("Stencil", Float) = 0
 		_StencilComp ("Stencil Comparison", Float) = 8
 		_Stencil ("Stencil ID", Float) = 0
 		_StencilOp ("Stencil Operation", Float) = 0
@@ -28,6 +29,11 @@ Shader "UIToolkit/UI_AngleGradient"
 		_StencilReadMask ("Stencil Read Mask", Float) = 255
 		_ColorMask ("Color Mask", Float) = 15
 		[Toggle(UNITY_UI_ALPHACLIP)] _UseUIAlphaClip ("Use Alpha Clip", Float) = 0
+
+		_FoldoutBlendMode ("Blend Mode, Culling", Float) = 0
+		[Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend ("BlendSource", Float) = 5
+		[Enum(UnityEngine.Rendering.BlendMode)] _DstBlend ("BlendDestination", Float) = 10
+		[Enum(UnityEngine.Rendering.CullMode)] _Cull ("Cull", Float) = 0
 	}
 
 	SubShader
@@ -50,11 +56,11 @@ Shader "UIToolkit/UI_AngleGradient"
 			WriteMask [_StencilWriteMask]
 		}
 
-		Cull Off
+		Cull [_Cull]
 		Lighting Off
 		ZWrite Off
 		ZTest [unity_GUIZTestMode]
-		Blend SrcAlpha OneMinusSrcAlpha
+		Blend [_SrcBlend] [_DstBlend]
 		ColorMask [_ColorMask]
 
 		Pass
@@ -138,4 +144,5 @@ Shader "UIToolkit/UI_AngleGradient"
 	}
 
 	FallBack "UI/Default"
+	CustomEditor "GuiToolkit.Editor.UiAngleGradientShaderEditor"
 }

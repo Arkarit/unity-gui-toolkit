@@ -17,6 +17,12 @@ All notable changes to this project will be documented in this file.
   sharpness, rotation and speed on the component, settable from a style (`UiApplyStyleUiAngleGradient`).
   It hands the graphic a material with these values (`IMaterialModifier`); graphics with the same values
   share one material and keep batching, and a mask's stencil is carried over.
+
+  **Material inspector** (`UiAngleGradientShaderEditor`): a live preview of the frame (animation can be
+  switched off), colours with a swap button, shape with "Highlights on Sides"/"Highlights between" buttons
+  and a warning for a count that is not a whole number, the speed as seconds per turn, and stencil and
+  blending folded away. The shader now exposes blend mode and culling (`_SrcBlend`, `_DstBlend`, `_Cull`;
+  the defaults are the previous fixed values).
 - `UiShapeImage` (and so `UiRoundedImage`): without a sprite the UVs span the rect from 0 to 1 instead of
   all being 0. The look doesn't change (the texture is plain white), but a shader drawing across the shape
   now gets usable coordinates.
