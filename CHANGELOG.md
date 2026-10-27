@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **`UI_AngleGradient` shader (material `Materials/UI_AngleGradient.mat`): a frame with an animated angle
+  gradient.** Put the material on a `UiRoundedImage` with a Frame Size (no sprite): the colour runs from
+  Base to Highlight and back around the rect's centre, Count times per turn, and rotates at Speed degrees
+  per second (in the shader, no script). With Count 4 the highlights sit in the middle of the sides and the
+  corners are darkest, for any aspect ratio and with rounded corners too. Sharpness narrows the highlights.
+  Both colours carry alpha; the graphic's colour tints the result. Clip rect, stencil and alpha clip as in
+  the other UI shaders.
+
+  **`UiAngleGradient`** sets the values per graphic instead of per material asset: colours, count,
+  sharpness, rotation and speed on the component, settable from a style (`UiApplyStyleUiAngleGradient`).
+  It hands the graphic a material with these values (`IMaterialModifier`); graphics with the same values
+  share one material and keep batching, and a mask's stencil is carried over.
+- `UiShapeImage` (and so `UiRoundedImage`): without a sprite the UVs span the rect from 0 to 1 instead of
+  all being 0. The look doesn't change (the texture is plain white), but a shader drawing across the shape
+  now gets usable coordinates.
 - **3D icons: `UiIcon3D` shows a 3D object as a UI icon**, rendered with its own lighting preset and
   isolated from the scene and from every other icon. A scene light on all layers, the scene's ambient,
   fog and environment reflection do not reach an icon; a pixel test compares each icon with the same

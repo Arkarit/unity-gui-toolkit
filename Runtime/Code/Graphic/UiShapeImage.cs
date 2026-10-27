@@ -534,10 +534,12 @@ namespace GuiToolkit
 
 		protected Vector2 GetUv( float _x, float _y )
 		{
-			if (sprite == null)
-				return Vector2.zero;
-
 			Rect r = Rect;
+
+			// Without a sprite the texture is plain white, so the UVs don't change the look; they span the rect
+			// from 0 to 1 instead, which is what a shader drawing across the shape needs (UI_AngleGradient).
+			if (sprite == null)
+				return new Vector2(r.width > 0 ? (_x - r.xMin) / r.width : 0, r.height > 0 ? (_y - r.yMin) / r.height : 0);
 
 			Rect uvRect = sprite.textureRect;
 			Rect fullTex = sprite.textureRect;
