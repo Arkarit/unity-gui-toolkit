@@ -26,6 +26,10 @@ namespace GuiToolkit
 	/// outline is interrupted. Typical use is a border broken by a heading, or a frame that has to let
 	/// something through. Gaps interrupt the FRAME; a filled shape has no outline to interrupt, so they are
 	/// ignored when FrameSize is 0.
+	///
+	/// The radius applies to the corners in Corners only; the others stay square. A corner in Chamfered
+	/// Corners is cut straight instead of rounded - the "one corner bevelled" look that otherwise needs a
+	/// sprite per variant. A chamfered frame keeps its thickness across the cut.
 	/// </summary>
 	[ExecuteAlways]
 	[RequireComponent(typeof(CanvasRenderer))]
@@ -36,6 +40,16 @@ namespace GuiToolkit
 
 		public const float MinRadius = 0;
 		public const float MaxRadius = 200;
+
+		public const CornerFlags AllCorners = CornerFlags.TopLeft | CornerFlags.TopRight | CornerFlags.BottomRight | CornerFlags.BottomLeft;
+
+		// A frame ring of thickness f moves a chamfer's cut inwards by f, measured square to the cut. Along
+		// the sides of the ring's inner rect that leaves the chamfer f * (2 - sqrt 2) shorter, not f shorter
+		// as with an arc.
+		private static readonly float ChamferShrink = 2f - Mathf.Sqrt(2f);
+
+		// Where the inner end of a chamfer of a frame f thick lies along a side, past the outer one.
+		private static readonly float ChamferReach = Mathf.Sqrt(2f) - 1f;
 
 		/// <summary>
 		/// An interruption in one side of the frame.
@@ -116,6 +130,12 @@ namespace GuiToolkit
 		[UnityEngine.Range(MinRadius, MaxRadius)]
 		[SerializeField] protected float m_radius = 10;
 
+		[Tooltip("The corners the radius applies to. The others stay square.")]
+		[SerializeField] protected CornerFlags m_corners = AllCorners;
+
+		[Tooltip("Of the corners above, the ones cut straight (a chamfer) instead of rounded.")]
+		[SerializeField] protected CornerFlags m_chamferedCorners;
+
 		[Tooltip("Whether gap sizes and offsets are fractions of the side, or pixels.")]
 		[SerializeField] protected EGapUnit m_gapUnit = EGapUnit.Normalized;
 
@@ -145,6 +165,15 @@ namespace GuiToolkit
 		private static readonly float[] s_xPieces = new float[4];
 		private static readonly float[] s_yPieces = new float[4];
 
+		// Scratch for the shaped corners, indexed by Corner: radii, how far each corner piece reaches along
+		// its sides, the cuts of the filled body, and one corner piece's outer and inner boundary.
+		private static readonly float[] s_radii = new float[4];
+		private static readonly float[] s_insets = new float[4];
+		private static readonly float[] s_cutsX = new float[6];
+		private static readonly float[] s_cutsY = new float[6];
+		private static readonly System.Collections.Generic.List<Vector2> s_outer = new();
+		private static readonly System.Collections.Generic.List<Vector2> s_inner = new();
+
 		public int CornerSegments
 		{
 			get => m_cornerSegments;
@@ -171,6 +200,34 @@ namespace GuiToolkit
 					return;
 
 				m_radius = value;
+				SetVerticesDirty();
+			}
+		}
+
+		/// <summary>The corners the radius applies to. The others stay square.</summary>
+		public CornerFlags Corners
+		{
+			get => m_corners;
+			set
+			{
+				if (m_corners == value)
+					return;
+
+				m_corners = value;
+				SetVerticesDirty();
+			}
+		}
+
+		/// <summary>The corners cut straight instead of rounded. Only those also in <see cref="Corners"/> count.</summary>
+		public CornerFlags ChamferedCorners
+		{
+			get => m_chamferedCorners;
+			set
+			{
+				if (m_chamferedCorners == value)
+					return;
+
+				m_chamferedCorners = value;
 				SetVerticesDirty();
 			}
 		}
@@ -310,7 +367,7 @@ namespace GuiToolkit
 		{
 			ResolveGapSpans();
 
-			if (Mathf.Approximately(0, m_radius))
+			if (!HasShapedCorner)
 			{
 				GenerateFrameRect();
 				return;
@@ -319,13 +376,46 @@ namespace GuiToolkit
 			GenerateFrameRounded();
 		}
 
+		/// <summary>True when at least one corner is rounded or chamfered, so the shape is not a plain rectangle.</summary>
+		public bool HasShapedCorner => m_radius > 0f && (m_corners & AllCorners) != 0;
+
+		private bool HasCorner( Corner _corner ) => (m_corners & Flag(_corner)) != 0;
+
+		private bool IsChamfered( Corner _corner ) => (m_chamferedCorners & Flag(_corner)) != 0;
+
+		private static CornerFlags Flag( Corner _corner ) => _corner switch
+		{
+			Corner.TopLeft => CornerFlags.TopLeft,
+			Corner.TopRight => CornerFlags.TopRight,
+			Corner.BottomRight => CornerFlags.BottomRight,
+			Corner.BottomLeft => CornerFlags.BottomLeft,
+			_ => throw new ArgumentOutOfRangeException(nameof(_corner), _corner, null),
+		};
+
+		/// <summary>The radius of each corner, indexed by <see cref="Corner"/>: the radius where it applies, else 0.</summary>
+		private void CornerRadii( float[] _radii )
+		{
+			float r = Mathf.Max(0f, m_radius);
+			for (int i = 0; i < 4; i++)
+				_radii[i] = HasCorner((Corner)i) ? r : 0f;
+		}
+
+		/// <summary>The radii of the next ring inwards, after one of thickness _frameSize.</summary>
+		private void ShrinkRadii( float[] _radii, float _frameSize )
+		{
+			for (int i = 0; i < 4; i++)
+				_radii[i] = Mathf.Max(0f, _radii[i] - _frameSize * (IsChamfered((Corner)i) ? ChamferShrink : 1f));
+		}
+
+		private static bool AnyRadius( float[] _radii ) => _radii[0] > 0f || _radii[1] > 0f || _radii[2] > 0f || _radii[3] > 0f;
+
 		protected override void GenerateFilled()
 		{
 			// Filled, a gap cannot interrupt an outline -- there is none. It cuts straight through instead,
 			// which needs no depth: one band horizontally, one vertically, both together leave the corners.
 			ResolveBandSpans();
 
-			if (Mathf.Approximately(0, m_radius))
+			if (!HasShapedCorner)
 			{
 				GenerateFilledRect();
 				return;
@@ -368,10 +458,17 @@ namespace GuiToolkit
 			ClearGapSpans();
 
 			var rect = Rect;
-			float r = Mathf.Max(0f, m_radius);
+			CornerRadii(s_radii);
+			float tl = s_radii[(int)Corner.TopLeft];
+			float tr = s_radii[(int)Corner.TopRight];
+			float br = s_radii[(int)Corner.BottomRight];
+			float bl = s_radii[(int)Corner.BottomLeft];
 
-			m_bandY = ClampSpan(Resolve(m_gapHorizontal, rect.center.y, rect.height), rect.yMin + r, rect.yMax - r);
-			m_bandX = ClampSpan(Resolve(m_gapVertical, rect.center.x, rect.width), rect.xMin + r, rect.xMax - r);
+			// Each band stays clear of the larger corner at either of its ends.
+			m_bandY = ClampSpan(Resolve(m_gapHorizontal, rect.center.y, rect.height),
+				rect.yMin + Mathf.Max(bl, br), rect.yMax - Mathf.Max(tl, tr));
+			m_bandX = ClampSpan(Resolve(m_gapVertical, rect.center.x, rect.width),
+				rect.xMin + Mathf.Max(tl, bl), rect.xMax - Mathf.Max(tr, br));
 
 			// A horizontal band crosses the LEFT and RIGHT sides of a ring, a vertical one TOP and BOTTOM.
 			// Saying it that way lets the existing side machinery cut the fade ring for free.
@@ -601,38 +698,43 @@ namespace GuiToolkit
 			AddRectMinusBands(Deflate(rect, m_fadeSize));
 		}
 
-		// ------------------------------------------------------------------------------- rounded corners
+		// -------------------------------------------------------------------------------- shaped corners
+		//
+		// Every corner is built in its own frame of reference: p runs along one side away from the corner,
+		// q along the other (see ToWorld). In it all four corners are the same shape, so one routine draws a
+		// round, a chamfered and a square corner for any of them.
 
 		private void GenerateFrameRounded()
 		{
+			var rect = Rect;
+			CornerRadii(s_radii);
+
 			if (Mathf.Approximately(0, m_fadeSize))
 			{
-				GenerateFrameRounded(Rect, m_radius, m_frameSize, Fade.None);
+				GenerateRing(rect, s_radii, m_frameSize, Fade.None);
 				return;
 			}
 
-			var rect = Rect;
-			var radius = m_radius;
-			GenerateFrameRounded(ref rect, ref radius, m_fadeSize, Fade.Outer);
-			GenerateFrameRounded(ref rect, ref radius, m_frameSize - m_fadeSize * 2, Fade.None);
-			GenerateFrameRounded(rect, radius, m_fadeSize, Fade.Inner);
+			GenerateRing(ref rect, s_radii, m_fadeSize, Fade.Outer);
+			GenerateRing(ref rect, s_radii, m_frameSize - m_fadeSize * 2, Fade.None);
+			GenerateRing(rect, s_radii, m_fadeSize, Fade.Inner);
 		}
 
-		private void GenerateFrameRounded( ref Rect _rect, ref float _radius, float _frameSize, Fade _fade )
+		private void GenerateRing( ref Rect _rect, float[] _radii, float _frameSize, Fade _fade )
 		{
-			GenerateFrameRounded(_rect, _radius, _frameSize, _fade);
+			GenerateRing(_rect, _radii, _frameSize, _fade);
 			_rect = Deflate(_rect, _frameSize);
 
-			// A ring thicker than the radius leaves nothing rounded behind it. Letting the radius go
+			// A ring thicker than a corner leaves nothing shaped behind it there. Letting the radius go
 			// negative is what made the next ring fold through its own corners.
-			_radius = Mathf.Max(0f, _radius - _frameSize);
+			ShrinkRadii(_radii, _frameSize);
 		}
 
-		private void GenerateFrameRounded( Rect _rect, float _radius, float _frameSize, Fade _fade )
+		private void GenerateRing( Rect _rect, float[] _radii, float _frameSize, Fade _fade )
 		{
-			// An earlier ring already used the radius up, so this one has square corners and the plain
-			// rectangular ring draws it exactly.
-			if (_radius <= 0f)
+			// Earlier rings used every corner up, so this one is a plain rectangular ring, which the square
+			// code draws exactly.
+			if (!AnyRadius(_radii))
 			{
 				int startIndex = GenerateFrameRectSimple(_rect, _frameSize);
 				FadeFrameRect(startIndex, _rect, _fade);
@@ -642,20 +744,25 @@ namespace GuiToolkit
 			// A frame thicker than half the shape would have its two inner corners cross each other.
 			float inner = Mathf.Min(_frameSize, Mathf.Min(_rect.width, _rect.height) * 0.5f);
 
-			// The straight sides stop where the corner piece starts: at the radius while the frame fits
-			// inside it, and at the frame itself once it does not -- because then the inner boundary is a
-			// plain rectangle inset by the frame.
-			float inset = Mathf.Max(_radius, inner);
+			// Each corner piece reports how far along its two sides it reaches; the straight sides fill
+			// the rest.
+			for (int i = 0; i < 4; i++)
+				s_insets[i] = AddFrameCorner(_rect, (Corner)i, _radii[i], inner, _fade);
+
+			float tl = s_insets[(int)Corner.TopLeft];
+			float tr = s_insets[(int)Corner.TopRight];
+			float br = s_insets[(int)Corner.BottomRight];
+			float bl = s_insets[(int)Corner.BottomLeft];
 
 			var x = _rect.x;
 			var y = _rect.y;
 			var w = _rect.width;
 			var h = _rect.height;
 
-			var left = new Rect(x, y + inset, _frameSize, h - inset * 2);
-			var right = new Rect(w + x - _frameSize, y + inset, _frameSize, h - inset * 2);
-			var top = new Rect(x + inset, h + y - _frameSize, w - inset * 2, _frameSize);
-			var bottom = new Rect(x + inset, y, w - inset * 2, _frameSize);
+			var left = new Rect(x, y + bl, _frameSize, h - bl - tl);
+			var right = new Rect(w + x - _frameSize, y + br, _frameSize, h - br - tr);
+			var top = new Rect(x + tl, h + y - _frameSize, w - tl - tr, _frameSize);
+			var bottom = new Rect(x + bl, y, w - bl - br, _frameSize);
 
 			var (fadeLeft, fadeRight, fadeTop, fadeBottom) = EdgeFades(_fade);
 
@@ -663,83 +770,145 @@ namespace GuiToolkit
 			AddEdgeQuad(right, ESide2D.Right, fadeRight);
 			AddEdgeQuad(top, ESide2D.Top, fadeTop);
 			AddEdgeQuad(bottom, ESide2D.Bottom, fadeBottom);
-
-			// Past the radius the inner arc would have a NEGATIVE radius and fold through the corner's own
-			// centre -- the overlapping fan of triangles this used to draw. Then the inner boundary is the
-			// corner of the inset rectangle, and the corner piece fans onto that single point.
-			bool collapsed = inner >= _radius;
-
-			AddCorner(_rect, Corner.TopLeft, inner, _radius, _fade, collapsed);
-			AddCorner(_rect, Corner.TopRight, inner, _radius, _fade, collapsed);
-			AddCorner(_rect, Corner.BottomLeft, inner, _radius, _fade, collapsed);
-			AddCorner(_rect, Corner.BottomRight, inner, _radius, _fade, collapsed);
-		}
-
-		private void AddCorner( Rect _rect, Corner _corner, float _frameSize, float _radius, Fade _fade, bool _collapsed )
-		{
-			if (_collapsed)
-				AddCollapsedCorner(_rect, _corner, _frameSize, _radius, _fade);
-			else
-				AddFrameSegment(_rect, _corner, _frameSize, _radius, _fade);
 		}
 
 		/// <summary>
-		/// The corner piece for a frame thicker than the radius: a triangle fan from the corner of the
-		/// inset rectangle out to the rounded outer boundary.
-		///
-		/// The fan runs over the arc AND over the straight bit of each side between the arc's tangent
-		/// point and the inset rectangle. Without those two extra points the piece would stop at the
-		/// tangent and leave a notch where it meets the straight sides.
+		/// One corner piece of a frame ring: a strip between the ring's outer and inner boundary in that
+		/// corner. Returns how far along both sides the piece reaches, which is where the straight sides start.
 		/// </summary>
-		private void AddCollapsedCorner( Rect _rect, Corner _corner, float _frameSize, float _radius, Fade _fade )
+		private float AddFrameCorner( Rect _rect, Corner _corner, float _radius, float _frameSize, Fade _fade )
 		{
-			// CornerOrigin with the frame size is precisely the corner of the inset rectangle.
-			var apex = CornerOrigin(_rect, _corner, _frameSize);
-			var origin = CornerOrigin(_rect, _corner, _radius);
-			var (angle, increment) = CornerSweep(_corner);
+			s_outer.Clear();
+			s_inner.Clear();
 
-			s_perimA.Clear();
-			for (int i = 0; i <= m_cornerSegments; i++)
+			float r = _radius;
+			float f = _frameSize;
+			float reach;
+
+			// The corner of the ring's inner rectangle. Where the frame is thicker than the corner is
+			// deep, the inner boundary IS that corner, and the piece fans onto it.
+			var apex = new Vector2(f, f);
+
+			if (r <= 0f)
 			{
-				s_perimA.Add(new Vector2(Mathf.Sin(angle) * _radius + origin.x,
-					Mathf.Cos(angle) * _radius + origin.y));
-				angle += increment;
+				reach = f;
+				s_outer.Add(new Vector2(f, 0f));
+				s_outer.Add(Vector2.zero);
+				s_outer.Add(new Vector2(0f, f));
+				Repeat(s_inner, apex, 3);
+			}
+			else if (IsChamfered(_corner))
+			{
+				// The cut moved inwards by f, square to itself, meets the inner sides further from the
+				// corner than the outer cut meets the outer ones. Taking the inner cut as the outer one
+				// moved along the sides by f instead is what thins a chamfered frame on the diagonal.
+				float innerEnd = r + f * ChamferReach;
+				reach = Mathf.Max(innerEnd, f);
+
+				s_outer.Add(new Vector2(reach, 0f));
+				s_outer.Add(new Vector2(r, 0f));
+				s_outer.Add(new Vector2(0f, r));
+				s_outer.Add(new Vector2(0f, reach));
+
+				if (innerEnd > f)
+				{
+					s_inner.Add(new Vector2(reach, f));
+					s_inner.Add(new Vector2(reach, f));
+					s_inner.Add(new Vector2(f, reach));
+					s_inner.Add(new Vector2(f, reach));
+				}
+				else
+				{
+					Repeat(s_inner, apex, 4);
+				}
+			}
+			else if (f < r)
+			{
+				reach = r;
+				for (int i = 0; i <= m_cornerSegments; i++)
+				{
+					s_outer.Add(ArcPoint(r, r, i, m_cornerSegments));
+					s_inner.Add(ArcPoint(r, r - f, i, m_cornerSegments));
+				}
+			}
+			else
+			{
+				// Past the radius the inner arc would have a NEGATIVE radius and fold through the corner's
+				// own centre. The piece runs over the arc AND over the straight bit of each side between
+				// the arc's end and the inset corner; without those two points it would stop at the arc
+				// and leave a notch where it meets the straight sides.
+				reach = f;
+				s_outer.Add(new Vector2(f, 0f));
+				for (int i = 0; i <= m_cornerSegments; i++)
+					s_outer.Add(ArcPoint(r, r, i, m_cornerSegments));
+				s_outer.Add(new Vector2(0f, f));
+				Repeat(s_inner, apex, s_outer.Count);
 			}
 
-			// Exactly AT the radius the apex is the arc's own centre, so the extension points land on the
-			// arc's ends and would only add triangles of zero area -- whose winding is then decided by
-			// rounding error. Add them only where they are actually somewhere else.
-			AddIfDistinct(s_perimA, 0, ExtendAlongSide(s_perimA[0], apex, _rect));
-			AddIfDistinct(s_perimA, s_perimA.Count, ExtendAlongSide(s_perimA[s_perimA.Count - 1], apex, _rect));
-
 			var outerColor = _fade == Fade.Outer ? m_fadeColor : color;
-			var apexColor = _fade == Fade.Inner ? m_fadeColor : color;
+			var innerColor = _fade == Fade.Inner ? m_fadeColor : color;
 
-			// Winding matches AddCornerDisc: later point, apex, earlier point.
-			for (int i = 0; i < s_perimA.Count - 1; i++)
-				AddTriangle(s_perimA[i + 1], apex, s_perimA[i], outerColor, apexColor, outerColor);
+			for (int i = 0; i < s_outer.Count - 1; i++)
+			{
+				var o0 = ToWorld(_rect, _corner, s_outer[i]);
+				var o1 = ToWorld(_rect, _corner, s_outer[i + 1]);
+				var i0 = ToWorld(_rect, _corner, s_inner[i]);
+				var i1 = ToWorld(_rect, _corner, s_inner[i + 1]);
+
+				AddTriangleClockwise(o0, o1, i1, outerColor, outerColor, innerColor);
+				AddTriangleClockwise(o0, i1, i0, outerColor, innerColor, innerColor);
+			}
+
+			return reach;
 		}
 
-		private static void AddIfDistinct( System.Collections.Generic.List<Vector2> _list, int _index, Vector2 _point )
+		private static void Repeat( System.Collections.Generic.List<Vector2> _list, Vector2 _point, int _count )
 		{
-			int neighbour = _index == 0 ? 0 : _list.Count - 1;
-			if ((_list[neighbour] - _point).sqrMagnitude < 0.000001f)
-				return;
-
-			_list.Insert(_index, _point);
+			for (int i = 0; i < _count; i++)
+				_list.Add(_point);
 		}
 
 		/// <summary>
-		/// Slides a point that sits on one of the rect's sides along that side until it is level with the
-		/// inset corner.
+		/// Point _index of _segments on a quarter arc of _arcRadius around the corner's centre, which sits
+		/// at (_cornerRadius, _cornerRadius). Index 0 lies on the p side, the last on the q side.
 		/// </summary>
-		private static Vector2 ExtendAlongSide( Vector2 _onSide, Vector2 _apex, Rect _rect )
+		private static Vector2 ArcPoint( float _cornerRadius, float _arcRadius, int _index, int _segments )
 		{
-			const float epsilon = 0.001f;
-			bool onVerticalSide = Mathf.Abs(_onSide.x - _rect.xMin) < epsilon
-			                      || Mathf.Abs(_onSide.x - _rect.xMax) < epsilon;
+			float angle = 0.5f * Mathf.PI * _index / _segments;
+			return new Vector2(_cornerRadius - _arcRadius * Mathf.Sin(angle), _cornerRadius - _arcRadius * Mathf.Cos(angle));
+		}
 
-			return onVerticalSide ? new Vector2(_onSide.x, _apex.y) : new Vector2(_apex.x, _onSide.y);
+		/// <summary>
+		/// A corner's own coordinates in the shape's: p along one of its sides away from the corner, q along
+		/// the other, both into the shape.
+		/// </summary>
+		private static Vector2 ToWorld( Rect _rect, Corner _corner, Vector2 _pq ) => _corner switch
+		{
+			Corner.TopLeft => new Vector2(_rect.xMin + _pq.y, _rect.yMax - _pq.x),
+			Corner.TopRight => new Vector2(_rect.xMax - _pq.x, _rect.yMax - _pq.y),
+			Corner.BottomRight => new Vector2(_rect.xMax - _pq.y, _rect.yMin + _pq.x),
+			Corner.BottomLeft => new Vector2(_rect.xMin + _pq.x, _rect.yMin + _pq.y),
+			_ => throw new ArgumentOutOfRangeException(nameof(_corner), _corner, null),
+		};
+
+		/// <summary>
+		/// A triangle wound clockwise like every other in the mesh, whatever order the points come in.
+		/// Triangles of no area are dropped: the strips repeat inner points on purpose, and a degenerate
+		/// triangle's winding would be decided by rounding error.
+		/// </summary>
+		private void AddTriangleClockwise( Vector2 _a, Vector2 _b, Vector2 _c, Color _colorA, Color _colorB, Color _colorC )
+		{
+			float cross = (_b.x - _a.x) * (_c.y - _a.y) - (_b.y - _a.y) * (_c.x - _a.x);
+			if (Mathf.Abs(cross) < 0.0001f)
+				return;
+
+			if (cross > 0f)
+			{
+				AddTriangle(_a, _c, _b, _colorA, _colorC, _colorB);
+				return;
+			}
+
+			AddTriangle(_a, _b, _c, _colorA, _colorB, _colorC);
 		}
 
 		private void AddTriangle( Vector2 _a, Vector2 _b, Vector2 _c, Color _colorA, Color _colorB, Color _colorC )
@@ -766,83 +935,115 @@ namespace GuiToolkit
 		private void GenerateFilledRounded()
 		{
 			Rect rect = Rect;
-			float radius = m_radius;
+			CornerRadii(s_radii);
 			if (!Mathf.Approximately(0, m_fadeSize))
-				GenerateFrameRounded(ref rect, ref radius, m_fadeSize, Fade.Outer);
+				GenerateRing(ref rect, s_radii, m_fadeSize, Fade.Outer);
 
-			float r = Mathf.Max(0f, radius);
+			// A filled shape tiles exactly as rectangles plus one fan per shaped corner. Rectangles split
+			// against a band trivially, and the fans sit in the corners, which the bands are clamped away
+			// from. (One fan from the centre, as this once was, cannot be cut at all.)
+			AddFilledBody(rect, s_radii);
 
-			// A filled rounded rect tiles exactly as three rectangles plus four quarter discs. This used to
-			// be one fan from the centre, which cannot be cut -- a band through the middle would have to
-			// split every single triangle. Rectangles split against a band trivially, and the discs sit in
-			// the corners, which the bands are clamped away from.
-			AddRectMinusBands(new Rect(rect.x, rect.y + r, rect.width, rect.height - r * 2));
-			AddRectMinusBands(new Rect(rect.x + r, rect.yMax - r, rect.width - r * 2, r));
-			AddRectMinusBands(new Rect(rect.x + r, rect.y, rect.width - r * 2, r));
-
-			AddCornerDisc(rect, Corner.TopLeft, r);
-			AddCornerDisc(rect, Corner.TopRight, r);
-			AddCornerDisc(rect, Corner.BottomLeft, r);
-			AddCornerDisc(rect, Corner.BottomRight, r);
+			for (int i = 0; i < 4; i++)
+				AddCornerFan(rect, (Corner)i, s_radii[i]);
 		}
 
-		/// <summary>Centre of the arc that rounds this corner.</summary>
-		private static Vector2 CornerOrigin( Rect _rect, Corner _corner, float _radius ) => _corner switch
+		/// <summary>
+		/// Everything of a filled shape but its shaped corners, as rectangles.
+		///
+		/// The rect is cut along every corner square's edges. A cell inside a corner square is the fan's;
+		/// the cells left in a row are merged, so equal corners still come out as the three rectangles
+		/// they always were.
+		/// </summary>
+		private void AddFilledBody( Rect _rect, float[] _radii )
 		{
-			Corner.TopLeft => new Vector2(_rect.x + _radius, _rect.yMax - _radius),
-			Corner.TopRight => new Vector2(_rect.xMax - _radius, _rect.yMax - _radius),
-			Corner.BottomRight => new Vector2(_rect.xMax - _radius, _rect.y + _radius),
-			Corner.BottomLeft => new Vector2(_rect.x + _radius, _rect.y + _radius),
-			_ => throw new ArgumentOutOfRangeException(nameof(_corner), _corner, null),
-		};
+			float tl = _radii[(int)Corner.TopLeft];
+			float tr = _radii[(int)Corner.TopRight];
+			float br = _radii[(int)Corner.BottomRight];
+			float bl = _radii[(int)Corner.BottomLeft];
 
-		/// <summary>Angle at which a corner's arc starts, and the step per segment.</summary>
-		private (float angle, float increment) CornerSweep( Corner _corner ) =>
-			(((int)_corner + 3) * 90 * Mathf.Deg2Rad, 90f / m_cornerSegments * Mathf.Deg2Rad);
+			int nx = Cuts(s_cutsX, _rect.xMin, _rect.xMax, _rect.xMin + tl, _rect.xMin + bl, _rect.xMax - tr, _rect.xMax - br);
+			int ny = Cuts(s_cutsY, _rect.yMin, _rect.yMax, _rect.yMin + bl, _rect.yMin + br, _rect.yMax - tl, _rect.yMax - tr);
 
-		private void AddFrameSegment( Rect _rect, Corner _corner, float _frameSize, float _radius, Fade _fade )
-		{
-			var origin = CornerOrigin(_rect, _corner, _radius);
-			var (angle, increment) = CornerSweep(_corner);
-
-			float radiusInner = _radius - _frameSize;
-			for (int i = 0; i < m_cornerSegments; i++)
+			for (int j = 0; j < ny - 1; j++)
 			{
-				float x1 = Mathf.Sin(angle) * _radius + origin.x;
-				float y1 = Mathf.Cos(angle) * _radius + origin.y;
-				float x3 = Mathf.Sin(angle) * radiusInner + origin.x;
-				float y3 = Mathf.Cos(angle) * radiusInner + origin.y;
-				angle += increment;
-				float x0 = Mathf.Sin(angle) * _radius + origin.x;
-				float y0 = Mathf.Cos(angle) * _radius + origin.y;
-				float x2 = Mathf.Sin(angle) * radiusInner + origin.x;
-				float y2 = Mathf.Cos(angle) * radiusInner + origin.y;
-				AddIrregularQuad(x0, y0, x1, y1, x2, y2, x3, y3, _fade);
+				float y0 = s_cutsY[j];
+				float y1 = s_cutsY[j + 1];
+				float cy = (y0 + y1) * 0.5f;
+				int start = -1;
+
+				// One step past the last cell, to flush the run that reaches the right side.
+				for (int i = 0; i < nx; i++)
+				{
+					bool inBody = i < nx - 1 && !InCornerSquare(_rect, _radii, (s_cutsX[i] + s_cutsX[i + 1]) * 0.5f, cy);
+
+					if (inBody && start < 0)
+					{
+						start = i;
+					}
+					else if (!inBody && start >= 0)
+					{
+						AddRectMinusBands(new Rect(s_cutsX[start], y0, s_cutsX[i] - s_cutsX[start], y1 - y0));
+						start = -1;
+					}
+				}
 			}
 		}
 
 		/// <summary>
-		/// One rounded corner as a quarter disc, fanned from the ARC's centre rather than the rect's.
-		///
-		/// Fanning from the rect centre, as before, made every corner triangle reach across the whole
-		/// shape -- which is exactly what made the filled mesh impossible to cut.
+		/// _min, _max and the four cuts between them, sorted and without duplicates. Returns the count.
 		/// </summary>
-		private void AddCornerDisc( Rect _rect, Corner _corner, float _radius )
+		private static int Cuts( float[] _out, float _min, float _max, float _a, float _b, float _c, float _d )
+		{
+			_out[0] = _min;
+			_out[1] = _max;
+			_out[2] = Mathf.Clamp(_a, _min, _max);
+			_out[3] = Mathf.Clamp(_b, _min, _max);
+			_out[4] = Mathf.Clamp(_c, _min, _max);
+			_out[5] = Mathf.Clamp(_d, _min, _max);
+			Array.Sort(_out, 0, 6);
+
+			int count = 1;
+			for (int i = 1; i < 6; i++)
+			{
+				if (_out[i] - _out[count - 1] > 0.0001f)
+					_out[count++] = _out[i];
+			}
+
+			return count;
+		}
+
+		private static bool InCornerSquare( Rect _rect, float[] _radii, float _x, float _y )
+		{
+			float tl = _radii[(int)Corner.TopLeft];
+			float tr = _radii[(int)Corner.TopRight];
+			float br = _radii[(int)Corner.BottomRight];
+			float bl = _radii[(int)Corner.BottomLeft];
+
+			return (_x < _rect.xMin + tl && _y > _rect.yMax - tl)
+			       || (_x > _rect.xMax - tr && _y > _rect.yMax - tr)
+			       || (_x > _rect.xMax - br && _y < _rect.yMin + br)
+			       || (_x < _rect.xMin + bl && _y < _rect.yMin + bl);
+		}
+
+		/// <summary>
+		/// A shaped corner of a filled shape, fanned from the centre of its arc. A chamfer is the same fan
+		/// with a single segment: one triangle that leaves the cut-off tip out.
+		/// </summary>
+		private void AddCornerFan( Rect _rect, Corner _corner, float _radius )
 		{
 			if (_radius <= 0f)
 				return;
 
-			var origin = CornerOrigin(_rect, _corner, _radius);
-			var (angle, increment) = CornerSweep(_corner);
+			int segments = IsChamfered(_corner) ? 1 : m_cornerSegments;
+			var centre = ToWorld(_rect, _corner, new Vector2(_radius, _radius));
+			var previous = ToWorld(_rect, _corner, ArcPoint(_radius, _radius, 0, segments));
 
-			for (int i = 0; i < m_cornerSegments; i++)
+			for (int i = 1; i <= segments; i++)
 			{
-				float x1 = Mathf.Sin(angle) * _radius + origin.x;
-				float y1 = Mathf.Cos(angle) * _radius + origin.y;
-				angle += increment;
-				float x0 = Mathf.Sin(angle) * _radius + origin.x;
-				float y0 = Mathf.Cos(angle) * _radius + origin.y;
-				AddTriangle(x0, y0, origin.x, origin.y, x1, y1);
+				var next = ToWorld(_rect, _corner, ArcPoint(_radius, _radius, i, segments));
+				AddTriangleClockwise(previous, centre, next, color, color, color);
+				previous = next;
 			}
 		}
 

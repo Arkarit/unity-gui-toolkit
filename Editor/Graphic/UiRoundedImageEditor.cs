@@ -11,6 +11,8 @@ namespace GuiToolkit.Editor
 
 		protected SerializedProperty m_cornerSegmentsProp;
 		protected SerializedProperty m_radiusProp;
+		protected SerializedProperty m_cornersProp;
+		protected SerializedProperty m_chamferedCornersProp;
 
 		protected SerializedProperty m_gapUnitProp;
 		protected SerializedProperty m_gapLeftProp;
@@ -25,6 +27,8 @@ namespace GuiToolkit.Editor
 			base.OnEnable();
 			m_cornerSegmentsProp = serializedObject.FindProperty("m_cornerSegments");
 			m_radiusProp = serializedObject.FindProperty("m_radius");
+			m_cornersProp = serializedObject.FindProperty("m_corners");
+			m_chamferedCornersProp = serializedObject.FindProperty("m_chamferedCorners");
 
 			m_gapUnitProp = serializedObject.FindProperty("m_gapUnit");
 			m_gapLeftProp = serializedObject.FindProperty("m_gapLeft");
@@ -45,6 +49,8 @@ namespace GuiToolkit.Editor
 			GUILayout.Label("Rounded Image Properties", EditorStyles.boldLabel);
 			EditorGUILayout.PropertyField(m_cornerSegmentsProp);
 			EditorGUILayout.PropertyField(m_radiusProp);
+			EditorGUILayout.PropertyField(m_cornersProp);
+			EditorGUILayout.PropertyField(m_chamferedCornersProp);
 			DrawSharedShapeProperties(thisUiRoundedImage);
 
 			DrawGaps();

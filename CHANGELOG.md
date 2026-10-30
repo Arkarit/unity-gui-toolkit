@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **`UiRoundedImage`: choose which corners are rounded, and cut corners straight.** `Corners` names the
+  corners the radius applies to (default all); the others stay square. `Chamfered Corners` cuts the chosen
+  ones straight instead of rounding them - the "one corner bevelled" look that otherwise needs a sprite per
+  variant. Any mix works, filled or as a frame, with fade and gaps; a chamfered frame keeps its thickness
+  across the cut. Both are settable from a style (`UiApplyStyleUiRoundedImage`). Existing images keep their
+  look: all corners round is the default. The style no longer carries `FillCenter` and
+  `PixelsPerUnitMultiplier`, which the type json had already switched off (nothing to act on here).
 - **`UI_MultiPurpose`: new feature "Pulse".** The graphic pulses over time in a soft cosine wave: its colour
   moves towards Pulse Color (whose alpha is the strength) and its alpha between Pulse Alpha Min and full,
   Pulse Frequency times per second; Pulse Phase Offset shifts it in time. Runs in the shader, no script; a

@@ -11,9 +11,21 @@
         },
         {
             "Used": true,
+            "Name": "ChamferedCorners",
+            "QualifiedTypeName": "GuiToolkit.CornerFlags",
+            "TypeName": "CornerFlags"
+        },
+        {
+            "Used": true,
             "Name": "color",
             "QualifiedTypeName": "UnityEngine.Color",
             "TypeName": "Color"
+        },
+        {
+            "Used": true,
+            "Name": "Corners",
+            "QualifiedTypeName": "GuiToolkit.CornerFlags",
+            "TypeName": "CornerFlags"
         },
         {
             "Used": true,

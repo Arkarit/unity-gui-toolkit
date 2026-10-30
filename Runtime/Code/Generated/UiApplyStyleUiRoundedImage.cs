@@ -14,8 +14,12 @@ namespace GuiToolkit.Style
 			if (!SpecificComponent || SpecificStyle == null)
 				return;
 
+			if (SpecificStyle.ChamferedCorners.IsApplicable)
+				try { SpecificComponent.ChamferedCorners = Tweenable ? SpecificStyle.ChamferedCorners.Value : SpecificStyle.ChamferedCorners.RawValue; } catch {}
 			if (SpecificStyle.Color.IsApplicable)
 				try { SpecificComponent.color = Tweenable ? SpecificStyle.Color.Value : SpecificStyle.Color.RawValue; } catch {}
+			if (SpecificStyle.Corners.IsApplicable)
+				try { SpecificComponent.Corners = Tweenable ? SpecificStyle.Corners.Value : SpecificStyle.Corners.RawValue; } catch {}
 			if (SpecificStyle.CornerSegments.IsApplicable)
 				try { SpecificComponent.CornerSegments = Tweenable ? SpecificStyle.CornerSegments.Value : SpecificStyle.CornerSegments.RawValue; } catch {}
 			if (SpecificStyle.DisabledMaterial.IsApplicable)
@@ -30,8 +34,6 @@ namespace GuiToolkit.Style
 				try { SpecificComponent.FadeSize = Tweenable ? SpecificStyle.FadeSize.Value : SpecificStyle.FadeSize.RawValue; } catch {}
 			if (SpecificStyle.FillAmount.IsApplicable)
 				try { SpecificComponent.fillAmount = Tweenable ? SpecificStyle.FillAmount.Value : SpecificStyle.FillAmount.RawValue; } catch {}
-			if (SpecificStyle.FillCenter.IsApplicable)
-				try { SpecificComponent.fillCenter = Tweenable ? SpecificStyle.FillCenter.Value : SpecificStyle.FillCenter.RawValue; } catch {}
 			if (SpecificStyle.FillClockwise.IsApplicable)
 				try { SpecificComponent.fillClockwise = Tweenable ? SpecificStyle.FillClockwise.Value : SpecificStyle.FillClockwise.RawValue; } catch {}
 			if (SpecificStyle.FillMethod.IsApplicable)
@@ -66,8 +68,6 @@ namespace GuiToolkit.Style
 				try { SpecificComponent.material = Tweenable ? SpecificStyle.Material.Value : SpecificStyle.Material.RawValue; } catch {}
 			if (SpecificStyle.Padding.IsApplicable)
 				try { SpecificComponent.Padding = Tweenable ? SpecificStyle.Padding.Value : SpecificStyle.Padding.RawValue; } catch {}
-			if (SpecificStyle.PixelsPerUnitMultiplier.IsApplicable)
-				try { SpecificComponent.pixelsPerUnitMultiplier = Tweenable ? SpecificStyle.PixelsPerUnitMultiplier.Value : SpecificStyle.PixelsPerUnitMultiplier.RawValue; } catch {}
 			if (SpecificStyle.PositionOffset.IsApplicable)
 				try { SpecificComponent.PositionOffset = Tweenable ? SpecificStyle.PositionOffset.Value : SpecificStyle.PositionOffset.RawValue; } catch {}
 			if (SpecificStyle.Radius.IsApplicable)
@@ -89,8 +89,12 @@ namespace GuiToolkit.Style
 			if (!SpecificComponent || SpecificStyle == null)
 				return;
 
+			if (SpecificStyle.ChamferedCorners.IsApplicable)
+				try { SpecificStyle.ChamferedCorners.RawValue = SpecificComponent.ChamferedCorners; } catch {}
 			if (SpecificStyle.Color.IsApplicable)
 				try { SpecificStyle.Color.RawValue = SpecificComponent.color; } catch {}
+			if (SpecificStyle.Corners.IsApplicable)
+				try { SpecificStyle.Corners.RawValue = SpecificComponent.Corners; } catch {}
 			if (SpecificStyle.CornerSegments.IsApplicable)
 				try { SpecificStyle.CornerSegments.RawValue = SpecificComponent.CornerSegments; } catch {}
 			if (SpecificStyle.DisabledMaterial.IsApplicable)
@@ -105,8 +109,6 @@ namespace GuiToolkit.Style
 				try { SpecificStyle.FadeSize.RawValue = SpecificComponent.FadeSize; } catch {}
 			if (SpecificStyle.FillAmount.IsApplicable)
 				try { SpecificStyle.FillAmount.RawValue = SpecificComponent.fillAmount; } catch {}
-			if (SpecificStyle.FillCenter.IsApplicable)
-				try { SpecificStyle.FillCenter.RawValue = SpecificComponent.fillCenter; } catch {}
 			if (SpecificStyle.FillClockwise.IsApplicable)
 				try { SpecificStyle.FillClockwise.RawValue = SpecificComponent.fillClockwise; } catch {}
 			if (SpecificStyle.FillMethod.IsApplicable)
@@ -141,8 +143,6 @@ namespace GuiToolkit.Style
 				try { SpecificStyle.Material.RawValue = SpecificComponent.material; } catch {}
 			if (SpecificStyle.Padding.IsApplicable)
 				try { SpecificStyle.Padding.RawValue = SpecificComponent.Padding; } catch {}
-			if (SpecificStyle.PixelsPerUnitMultiplier.IsApplicable)
-				try { SpecificStyle.PixelsPerUnitMultiplier.RawValue = SpecificComponent.pixelsPerUnitMultiplier; } catch {}
 			if (SpecificStyle.PositionOffset.IsApplicable)
 				try { SpecificStyle.PositionOffset.RawValue = SpecificComponent.PositionOffset; } catch {}
 			if (SpecificStyle.Radius.IsApplicable)
@@ -170,8 +170,12 @@ namespace GuiToolkit.Style
 			{
 				var specificTemplate = (UiStyleUiRoundedImage) _template;
 
+				result.ChamferedCorners.Value = specificTemplate.ChamferedCorners.Value;
+				result.ChamferedCorners.IsApplicable = specificTemplate.ChamferedCorners.IsApplicable;
 				result.Color.Value = specificTemplate.Color.Value;
 				result.Color.IsApplicable = specificTemplate.Color.IsApplicable;
+				result.Corners.Value = specificTemplate.Corners.Value;
+				result.Corners.IsApplicable = specificTemplate.Corners.IsApplicable;
 				result.CornerSegments.Value = specificTemplate.CornerSegments.Value;
 				result.CornerSegments.IsApplicable = specificTemplate.CornerSegments.IsApplicable;
 				result.DisabledMaterial.Value = specificTemplate.DisabledMaterial.Value;
@@ -186,8 +190,6 @@ namespace GuiToolkit.Style
 				result.FadeSize.IsApplicable = specificTemplate.FadeSize.IsApplicable;
 				result.FillAmount.Value = specificTemplate.FillAmount.Value;
 				result.FillAmount.IsApplicable = specificTemplate.FillAmount.IsApplicable;
-				result.FillCenter.Value = specificTemplate.FillCenter.Value;
-				result.FillCenter.IsApplicable = specificTemplate.FillCenter.IsApplicable;
 				result.FillClockwise.Value = specificTemplate.FillClockwise.Value;
 				result.FillClockwise.IsApplicable = specificTemplate.FillClockwise.IsApplicable;
 				result.FillMethod.Value = specificTemplate.FillMethod.Value;
@@ -222,8 +224,6 @@ namespace GuiToolkit.Style
 				result.Material.IsApplicable = specificTemplate.Material.IsApplicable;
 				result.Padding.Value = specificTemplate.Padding.Value;
 				result.Padding.IsApplicable = specificTemplate.Padding.IsApplicable;
-				result.PixelsPerUnitMultiplier.Value = specificTemplate.PixelsPerUnitMultiplier.Value;
-				result.PixelsPerUnitMultiplier.IsApplicable = specificTemplate.PixelsPerUnitMultiplier.IsApplicable;
 				result.PositionOffset.Value = specificTemplate.PositionOffset.Value;
 				result.PositionOffset.IsApplicable = specificTemplate.PositionOffset.IsApplicable;
 				result.Radius.Value = specificTemplate.Radius.Value;
@@ -242,7 +242,9 @@ namespace GuiToolkit.Style
 				return result;
 			}
 
+			try { result.ChamferedCorners.Value = SpecificComponent.ChamferedCorners; } catch {}
 			try { result.Color.Value = SpecificComponent.color; } catch {}
+			try { result.Corners.Value = SpecificComponent.Corners; } catch {}
 			try { result.CornerSegments.Value = SpecificComponent.CornerSegments; } catch {}
 			try { result.DisabledMaterial.Value = SpecificComponent.DisabledMaterial; } catch {}
 			try { result.Enabled.Value = SpecificComponent.enabled; } catch {}
@@ -250,7 +252,6 @@ namespace GuiToolkit.Style
 			try { result.FadeColor.Value = SpecificComponent.FadeColor; } catch {}
 			try { result.FadeSize.Value = SpecificComponent.FadeSize; } catch {}
 			try { result.FillAmount.Value = SpecificComponent.fillAmount; } catch {}
-			try { result.FillCenter.Value = SpecificComponent.fillCenter; } catch {}
 			try { result.FillClockwise.Value = SpecificComponent.fillClockwise; } catch {}
 			try { result.FillMethod.Value = SpecificComponent.fillMethod; } catch {}
 			try { result.FillOrigin.Value = SpecificComponent.fillOrigin; } catch {}
@@ -268,7 +269,6 @@ namespace GuiToolkit.Style
 			try { result.Maskable.Value = SpecificComponent.maskable; } catch {}
 			try { result.Material.Value = SpecificComponent.material; } catch {}
 			try { result.Padding.Value = SpecificComponent.Padding; } catch {}
-			try { result.PixelsPerUnitMultiplier.Value = SpecificComponent.pixelsPerUnitMultiplier; } catch {}
 			try { result.PositionOffset.Value = SpecificComponent.PositionOffset; } catch {}
 			try { result.Radius.Value = SpecificComponent.Radius; } catch {}
 			try { result.SizeOffset.Value = SpecificComponent.SizeOffset; } catch {}

@@ -15,6 +15,7 @@ namespace GuiToolkit.Style
 			Name = _name;
 		}
 
+		private class ApplicableValueCornerFlags : ApplicableValue<GuiToolkit.CornerFlags> {}
 		private class ApplicableValueColor : ApplicableValue<UnityEngine.Color> {}
 		private class ApplicableValueInt32 : ApplicableValue<System.Int32> {}
 		private class ApplicableValueMaterial : ApplicableValue<UnityEngine.Material> {}
@@ -32,7 +33,9 @@ namespace GuiToolkit.Style
 		{
 			return new ApplicableValueBase[]
 			{
+				ChamferedCorners,
 				Color,
+				Corners,
 				CornerSegments,
 				DisabledMaterial,
 				Enabled,
@@ -40,7 +43,6 @@ namespace GuiToolkit.Style
 				FadeColor,
 				FadeSize,
 				FillAmount,
-				FillCenter,
 				FillClockwise,
 				FillMethod,
 				FillOrigin,
@@ -58,7 +60,6 @@ namespace GuiToolkit.Style
 				Maskable,
 				Material,
 				Padding,
-				PixelsPerUnitMultiplier,
 				PositionOffset,
 				Radius,
 				SizeOffset,
@@ -69,7 +70,9 @@ namespace GuiToolkit.Style
 			};
 		}
 
+		[SerializeReference] private ApplicableValueCornerFlags m_ChamferedCorners = new();
 		[SerializeReference] private ApplicableValueColor m_color = new();
+		[SerializeReference] private ApplicableValueCornerFlags m_Corners = new();
 		[SerializeReference] private ApplicableValueInt32 m_CornerSegments = new();
 		[SerializeReference] private ApplicableValueMaterial m_DisabledMaterial = new();
 		[SerializeReference] private ApplicableValueBoolean m_enabled = new();
@@ -77,7 +80,6 @@ namespace GuiToolkit.Style
 		[SerializeReference] private ApplicableValueColor m_FadeColor = new();
 		[SerializeReference] private ApplicableValueSingle m_FadeSize = new();
 		[SerializeReference] private ApplicableValueSingle m_fillAmount = new();
-		[SerializeReference] private ApplicableValueBoolean m_fillCenter = new();
 		[SerializeReference] private ApplicableValueBoolean m_fillClockwise = new();
 		[SerializeReference] private ApplicableValueFillMethod m_fillMethod = new();
 		[SerializeReference] private ApplicableValueInt32 m_fillOrigin = new();
@@ -95,7 +97,6 @@ namespace GuiToolkit.Style
 		[SerializeReference] private ApplicableValueBoolean m_maskable = new();
 		[SerializeReference] private ApplicableValueMaterial m_material = new();
 		[SerializeReference] private ApplicableValueRectOffset m_Padding = new();
-		[SerializeReference] private ApplicableValueSingle m_pixelsPerUnitMultiplier = new();
 		[SerializeReference] private ApplicableValueVector2 m_PositionOffset = new();
 		[SerializeReference] private ApplicableValueSingle m_Radius = new();
 		[SerializeReference] private ApplicableValueVector2 m_SizeOffset = new();
@@ -103,6 +104,18 @@ namespace GuiToolkit.Style
 		[SerializeReference] private ApplicableValueBoolean m_UniformSizeOffset = new();
 		[SerializeReference] private ApplicableValueBoolean m_UseFixedSize = new();
 		[SerializeReference] private ApplicableValueBoolean m_UsePadding = new();
+
+		public ApplicableValue<GuiToolkit.CornerFlags> ChamferedCorners
+		{
+			get
+			{
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_ChamferedCorners == null)
+						m_ChamferedCorners = new ApplicableValueCornerFlags();
+				#endif
+				return m_ChamferedCorners;
+			}
+		}
 
 		public ApplicableValue<UnityEngine.Color> Color
 		{
@@ -113,6 +126,18 @@ namespace GuiToolkit.Style
 						m_color = new ApplicableValueColor();
 				#endif
 				return m_color;
+			}
+		}
+
+		public ApplicableValue<GuiToolkit.CornerFlags> Corners
+		{
+			get
+			{
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_Corners == null)
+						m_Corners = new ApplicableValueCornerFlags();
+				#endif
+				return m_Corners;
 			}
 		}
 
@@ -197,18 +222,6 @@ namespace GuiToolkit.Style
 						m_fillAmount = new ApplicableValueSingle();
 				#endif
 				return m_fillAmount;
-			}
-		}
-
-		public ApplicableValue<System.Boolean> FillCenter
-		{
-			get
-			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_fillCenter == null)
-						m_fillCenter = new ApplicableValueBoolean();
-				#endif
-				return m_fillCenter;
 			}
 		}
 
@@ -413,18 +426,6 @@ namespace GuiToolkit.Style
 						m_Padding = new ApplicableValueRectOffset();
 				#endif
 				return m_Padding;
-			}
-		}
-
-		public ApplicableValue<System.Single> PixelsPerUnitMultiplier
-		{
-			get
-			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_pixelsPerUnitMultiplier == null)
-						m_pixelsPerUnitMultiplier = new ApplicableValueSingle();
-				#endif
-				return m_pixelsPerUnitMultiplier;
 			}
 		}
 
