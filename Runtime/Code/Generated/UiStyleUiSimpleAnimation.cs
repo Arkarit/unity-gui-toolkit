@@ -97,10 +97,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_AlphaCanvasGroup == null)
-						m_AlphaCanvasGroup = new ApplicableValueCanvasGroup();
-				#endif
+				if (m_AlphaCanvasGroup == null)
+					m_AlphaCanvasGroup = new ApplicableValueCanvasGroup();
 				return m_AlphaCanvasGroup;
 			}
 		}
@@ -109,10 +107,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_AlphaCurve == null)
-						m_AlphaCurve = new ApplicableValueAnimationCurve();
-				#endif
+				if (m_AlphaCurve == null)
+					m_AlphaCurve = new ApplicableValueAnimationCurve();
 				return m_AlphaCurve;
 			}
 		}
@@ -121,10 +117,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_AlphaGraphic == null)
-						m_AlphaGraphic = new ApplicableValueGraphic();
-				#endif
+				if (m_AlphaGraphic == null)
+					m_AlphaGraphic = new ApplicableValueGraphic();
 				return m_AlphaGraphic;
 			}
 		}
@@ -133,10 +127,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_BackwardsAnimation == null)
-						m_BackwardsAnimation = new ApplicableValueUiSimpleAnimationBase();
-				#endif
+				if (m_BackwardsAnimation == null)
+					m_BackwardsAnimation = new ApplicableValueUiSimpleAnimationBase();
 				return m_BackwardsAnimation;
 			}
 		}
@@ -145,10 +137,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_CanvasRectTransform == null)
-						m_CanvasRectTransform = new ApplicableValueRectTransform();
-				#endif
+				if (m_CanvasRectTransform == null)
+					m_CanvasRectTransform = new ApplicableValueRectTransform();
 				return m_CanvasRectTransform;
 			}
 		}
@@ -157,10 +147,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_CanvasScaler == null)
-						m_CanvasScaler = new ApplicableValueCanvasScaler();
-				#endif
+				if (m_CanvasScaler == null)
+					m_CanvasScaler = new ApplicableValueCanvasScaler();
 				return m_CanvasScaler;
 			}
 		}
@@ -169,10 +157,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_Delay == null)
-						m_Delay = new ApplicableValueSingle();
-				#endif
+				if (m_Delay == null)
+					m_Delay = new ApplicableValueSingle();
 				return m_Delay;
 			}
 		}
@@ -181,10 +167,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_Duration == null)
-						m_Duration = new ApplicableValueSingle();
-				#endif
+				if (m_Duration == null)
+					m_Duration = new ApplicableValueSingle();
 				return m_Duration;
 			}
 		}
@@ -193,10 +177,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_enabled == null)
-						m_enabled = new ApplicableValueBoolean();
-				#endif
+				if (m_enabled == null)
+					m_enabled = new ApplicableValueBoolean();
 				return m_enabled;
 			}
 		}
@@ -205,10 +187,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_EnabledInHierarchy == null)
-						m_EnabledInHierarchy = new ApplicableValueBoolean();
-				#endif
+				if (m_EnabledInHierarchy == null)
+					m_EnabledInHierarchy = new ApplicableValueBoolean();
 				return m_EnabledInHierarchy;
 			}
 		}
@@ -217,10 +197,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_MarkTargetForLayoutRebuild == null)
-						m_MarkTargetForLayoutRebuild = new ApplicableValueBoolean();
-				#endif
+				if (m_MarkTargetForLayoutRebuild == null)
+					m_MarkTargetForLayoutRebuild = new ApplicableValueBoolean();
 				return m_MarkTargetForLayoutRebuild;
 			}
 		}
@@ -229,10 +207,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_PosXCurve == null)
-						m_PosXCurve = new ApplicableValueAnimationCurve();
-				#endif
+				if (m_PosXCurve == null)
+					m_PosXCurve = new ApplicableValueAnimationCurve();
 				return m_PosXCurve;
 			}
 		}
@@ -241,10 +217,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_PosXEnd == null)
-						m_PosXEnd = new ApplicableValueSingle();
-				#endif
+				if (m_PosXEnd == null)
+					m_PosXEnd = new ApplicableValueSingle();
 				return m_PosXEnd;
 			}
 		}
@@ -253,10 +227,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_PosXStart == null)
-						m_PosXStart = new ApplicableValueSingle();
-				#endif
+				if (m_PosXStart == null)
+					m_PosXStart = new ApplicableValueSingle();
 				return m_PosXStart;
 			}
 		}
@@ -265,10 +237,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_PosYCurve == null)
-						m_PosYCurve = new ApplicableValueAnimationCurve();
-				#endif
+				if (m_PosYCurve == null)
+					m_PosYCurve = new ApplicableValueAnimationCurve();
 				return m_PosYCurve;
 			}
 		}
@@ -277,10 +247,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_PosYEnd == null)
-						m_PosYEnd = new ApplicableValueSingle();
-				#endif
+				if (m_PosYEnd == null)
+					m_PosYEnd = new ApplicableValueSingle();
 				return m_PosYEnd;
 			}
 		}
@@ -289,10 +257,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_PosYStart == null)
-						m_PosYStart = new ApplicableValueSingle();
-				#endif
+				if (m_PosYStart == null)
+					m_PosYStart = new ApplicableValueSingle();
 				return m_PosYStart;
 			}
 		}
@@ -301,10 +267,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_RotZCurve == null)
-						m_RotZCurve = new ApplicableValueAnimationCurve();
-				#endif
+				if (m_RotZCurve == null)
+					m_RotZCurve = new ApplicableValueAnimationCurve();
 				return m_RotZCurve;
 			}
 		}
@@ -313,10 +277,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_RotZEnd == null)
-						m_RotZEnd = new ApplicableValueSingle();
-				#endif
+				if (m_RotZEnd == null)
+					m_RotZEnd = new ApplicableValueSingle();
 				return m_RotZEnd;
 			}
 		}
@@ -325,10 +287,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_RotZStart == null)
-						m_RotZStart = new ApplicableValueSingle();
-				#endif
+				if (m_RotZStart == null)
+					m_RotZStart = new ApplicableValueSingle();
 				return m_RotZStart;
 			}
 		}
@@ -337,10 +297,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_ScaleByCanvasScaler == null)
-						m_ScaleByCanvasScaler = new ApplicableValueBoolean();
-				#endif
+				if (m_ScaleByCanvasScaler == null)
+					m_ScaleByCanvasScaler = new ApplicableValueBoolean();
 				return m_ScaleByCanvasScaler;
 			}
 		}
@@ -349,10 +307,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_ScaleLocked == null)
-						m_ScaleLocked = new ApplicableValueBoolean();
-				#endif
+				if (m_ScaleLocked == null)
+					m_ScaleLocked = new ApplicableValueBoolean();
 				return m_ScaleLocked;
 			}
 		}
@@ -361,10 +317,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_ScaleXCurve == null)
-						m_ScaleXCurve = new ApplicableValueAnimationCurve();
-				#endif
+				if (m_ScaleXCurve == null)
+					m_ScaleXCurve = new ApplicableValueAnimationCurve();
 				return m_ScaleXCurve;
 			}
 		}
@@ -373,10 +327,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_ScaleXEnd == null)
-						m_ScaleXEnd = new ApplicableValueSingle();
-				#endif
+				if (m_ScaleXEnd == null)
+					m_ScaleXEnd = new ApplicableValueSingle();
 				return m_ScaleXEnd;
 			}
 		}
@@ -385,10 +337,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_ScaleXStart == null)
-						m_ScaleXStart = new ApplicableValueSingle();
-				#endif
+				if (m_ScaleXStart == null)
+					m_ScaleXStart = new ApplicableValueSingle();
 				return m_ScaleXStart;
 			}
 		}
@@ -397,10 +347,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_ScaleYCurve == null)
-						m_ScaleYCurve = new ApplicableValueAnimationCurve();
-				#endif
+				if (m_ScaleYCurve == null)
+					m_ScaleYCurve = new ApplicableValueAnimationCurve();
 				return m_ScaleYCurve;
 			}
 		}
@@ -409,10 +357,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_ScaleYEnd == null)
-						m_ScaleYEnd = new ApplicableValueSingle();
-				#endif
+				if (m_ScaleYEnd == null)
+					m_ScaleYEnd = new ApplicableValueSingle();
 				return m_ScaleYEnd;
 			}
 		}
@@ -421,10 +367,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_ScaleYStart == null)
-						m_ScaleYStart = new ApplicableValueSingle();
-				#endif
+				if (m_ScaleYStart == null)
+					m_ScaleYStart = new ApplicableValueSingle();
 				return m_ScaleYStart;
 			}
 		}
@@ -433,10 +377,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_Support == null)
-						m_Support = new ApplicableValueESupport();
-				#endif
+				if (m_Support == null)
+					m_Support = new ApplicableValueESupport();
 				return m_Support;
 			}
 		}
@@ -445,10 +387,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_Target == null)
-						m_Target = new ApplicableValueRectTransform();
-				#endif
+				if (m_Target == null)
+					m_Target = new ApplicableValueRectTransform();
 				return m_Target;
 			}
 		}

@@ -83,10 +83,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_alignByGeometry == null)
-						m_alignByGeometry = new ApplicableValueBoolean();
-				#endif
+				if (m_alignByGeometry == null)
+					m_alignByGeometry = new ApplicableValueBoolean();
 				return m_alignByGeometry;
 			}
 		}
@@ -95,10 +93,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_alignment == null)
-						m_alignment = new ApplicableValueTextAnchor();
-				#endif
+				if (m_alignment == null)
+					m_alignment = new ApplicableValueTextAnchor();
 				return m_alignment;
 			}
 		}
@@ -107,10 +103,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_color == null)
-						m_color = new ApplicableValueColor();
-				#endif
+				if (m_color == null)
+					m_color = new ApplicableValueColor();
 				return m_color;
 			}
 		}
@@ -119,10 +113,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_enabled == null)
-						m_enabled = new ApplicableValueBoolean();
-				#endif
+				if (m_enabled == null)
+					m_enabled = new ApplicableValueBoolean();
 				return m_enabled;
 			}
 		}
@@ -131,10 +123,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_font == null)
-						m_font = new ApplicableValueFont();
-				#endif
+				if (m_font == null)
+					m_font = new ApplicableValueFont();
 				return m_font;
 			}
 		}
@@ -143,10 +133,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_fontSize == null)
-						m_fontSize = new ApplicableValueInt32();
-				#endif
+				if (m_fontSize == null)
+					m_fontSize = new ApplicableValueInt32();
 				return m_fontSize;
 			}
 		}
@@ -155,10 +143,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_fontStyle == null)
-						m_fontStyle = new ApplicableValueFontStyle();
-				#endif
+				if (m_fontStyle == null)
+					m_fontStyle = new ApplicableValueFontStyle();
 				return m_fontStyle;
 			}
 		}
@@ -167,10 +153,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_horizontalOverflow == null)
-						m_horizontalOverflow = new ApplicableValueHorizontalWrapMode();
-				#endif
+				if (m_horizontalOverflow == null)
+					m_horizontalOverflow = new ApplicableValueHorizontalWrapMode();
 				return m_horizontalOverflow;
 			}
 		}
@@ -179,10 +163,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_isMaskingGraphic == null)
-						m_isMaskingGraphic = new ApplicableValueBoolean();
-				#endif
+				if (m_isMaskingGraphic == null)
+					m_isMaskingGraphic = new ApplicableValueBoolean();
 				return m_isMaskingGraphic;
 			}
 		}
@@ -191,10 +173,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_lineSpacing == null)
-						m_lineSpacing = new ApplicableValueSingle();
-				#endif
+				if (m_lineSpacing == null)
+					m_lineSpacing = new ApplicableValueSingle();
 				return m_lineSpacing;
 			}
 		}
@@ -203,10 +183,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_maskable == null)
-						m_maskable = new ApplicableValueBoolean();
-				#endif
+				if (m_maskable == null)
+					m_maskable = new ApplicableValueBoolean();
 				return m_maskable;
 			}
 		}
@@ -215,10 +193,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_material == null)
-						m_material = new ApplicableValueMaterial();
-				#endif
+				if (m_material == null)
+					m_material = new ApplicableValueMaterial();
 				return m_material;
 			}
 		}
@@ -227,10 +203,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_onCullStateChanged == null)
-						m_onCullStateChanged = new ApplicableValueCullStateChangedEvent();
-				#endif
+				if (m_onCullStateChanged == null)
+					m_onCullStateChanged = new ApplicableValueCullStateChangedEvent();
 				return m_onCullStateChanged;
 			}
 		}
@@ -239,10 +213,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_raycastPadding == null)
-						m_raycastPadding = new ApplicableValueVector4();
-				#endif
+				if (m_raycastPadding == null)
+					m_raycastPadding = new ApplicableValueVector4();
 				return m_raycastPadding;
 			}
 		}
@@ -251,10 +223,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_raycastTarget == null)
-						m_raycastTarget = new ApplicableValueBoolean();
-				#endif
+				if (m_raycastTarget == null)
+					m_raycastTarget = new ApplicableValueBoolean();
 				return m_raycastTarget;
 			}
 		}
@@ -263,10 +233,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_resizeTextForBestFit == null)
-						m_resizeTextForBestFit = new ApplicableValueBoolean();
-				#endif
+				if (m_resizeTextForBestFit == null)
+					m_resizeTextForBestFit = new ApplicableValueBoolean();
 				return m_resizeTextForBestFit;
 			}
 		}
@@ -275,10 +243,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_resizeTextMaxSize == null)
-						m_resizeTextMaxSize = new ApplicableValueInt32();
-				#endif
+				if (m_resizeTextMaxSize == null)
+					m_resizeTextMaxSize = new ApplicableValueInt32();
 				return m_resizeTextMaxSize;
 			}
 		}
@@ -287,10 +253,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_resizeTextMinSize == null)
-						m_resizeTextMinSize = new ApplicableValueInt32();
-				#endif
+				if (m_resizeTextMinSize == null)
+					m_resizeTextMinSize = new ApplicableValueInt32();
 				return m_resizeTextMinSize;
 			}
 		}
@@ -299,10 +263,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_supportRichText == null)
-						m_supportRichText = new ApplicableValueBoolean();
-				#endif
+				if (m_supportRichText == null)
+					m_supportRichText = new ApplicableValueBoolean();
 				return m_supportRichText;
 			}
 		}
@@ -311,10 +273,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_text == null)
-						m_text = new ApplicableValueString();
-				#endif
+				if (m_text == null)
+					m_text = new ApplicableValueString();
 				return m_text;
 			}
 		}
@@ -323,10 +283,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_verticalOverflow == null)
-						m_verticalOverflow = new ApplicableValueVerticalWrapMode();
-				#endif
+				if (m_verticalOverflow == null)
+					m_verticalOverflow = new ApplicableValueVerticalWrapMode();
 				return m_verticalOverflow;
 			}
 		}

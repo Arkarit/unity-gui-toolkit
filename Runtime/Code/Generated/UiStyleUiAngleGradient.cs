@@ -45,10 +45,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_ColorBase == null)
-						m_ColorBase = new ApplicableValueColor();
-				#endif
+				if (m_ColorBase == null)
+					m_ColorBase = new ApplicableValueColor();
 				return m_ColorBase;
 			}
 		}
@@ -57,10 +55,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_ColorHighlight == null)
-						m_ColorHighlight = new ApplicableValueColor();
-				#endif
+				if (m_ColorHighlight == null)
+					m_ColorHighlight = new ApplicableValueColor();
 				return m_ColorHighlight;
 			}
 		}
@@ -69,10 +65,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_Count == null)
-						m_Count = new ApplicableValueSingle();
-				#endif
+				if (m_Count == null)
+					m_Count = new ApplicableValueSingle();
 				return m_Count;
 			}
 		}
@@ -81,10 +75,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_enabled == null)
-						m_enabled = new ApplicableValueBoolean();
-				#endif
+				if (m_enabled == null)
+					m_enabled = new ApplicableValueBoolean();
 				return m_enabled;
 			}
 		}
@@ -93,10 +85,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_Rotation == null)
-						m_Rotation = new ApplicableValueSingle();
-				#endif
+				if (m_Rotation == null)
+					m_Rotation = new ApplicableValueSingle();
 				return m_Rotation;
 			}
 		}
@@ -105,10 +95,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_Sharpness == null)
-						m_Sharpness = new ApplicableValueSingle();
-				#endif
+				if (m_Sharpness == null)
+					m_Sharpness = new ApplicableValueSingle();
 				return m_Sharpness;
 			}
 		}
@@ -117,10 +105,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_Speed == null)
-						m_Speed = new ApplicableValueSingle();
-				#endif
+				if (m_Speed == null)
+					m_Speed = new ApplicableValueSingle();
 				return m_Speed;
 			}
 		}

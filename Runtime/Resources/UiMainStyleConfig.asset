@@ -11433,8 +11433,12 @@ MonoBehaviour:
         m_styleConfig: {fileID: 11400000}
         m_name: Chip/Default
         m_alias: 
+        m_ChamferedCorners:
+          rid: 5597921181227810893
         m_color:
           rid: 4224637585093558627
+        m_Corners:
+          rid: 5597921181227810894
         m_CornerSegments:
           rid: 4224637585093558628
         m_DisabledMaterial:
@@ -11449,8 +11453,6 @@ MonoBehaviour:
           rid: 4224637585093558630
         m_fillAmount:
           rid: 4224637634270986680
-        m_fillCenter:
-          rid: 4224637634270986681
         m_fillClockwise:
           rid: 4224637634270986682
         m_fillMethod:
@@ -11485,8 +11487,6 @@ MonoBehaviour:
           rid: 4224637585093558635
         m_Padding:
           rid: 4224637585093558636
-        m_pixelsPerUnitMultiplier:
-          rid: 4224637585093558637
         m_PositionOffset:
           rid: 4224637634270986693
         m_Radius:
@@ -11612,8 +11612,12 @@ MonoBehaviour:
         m_styleConfig: {fileID: 11400000}
         m_name: Chip/Small
         m_alias: 
+        m_ChamferedCorners:
+          rid: 5597921181227810895
         m_color:
           rid: 4224637585093558686
+        m_Corners:
+          rid: 5597921181227810896
         m_CornerSegments:
           rid: 4224637585093558687
         m_DisabledMaterial:
@@ -11628,8 +11632,6 @@ MonoBehaviour:
           rid: 4224637585093558689
         m_fillAmount:
           rid: 4224637634270986701
-        m_fillCenter:
-          rid: 4224637634270986702
         m_fillClockwise:
           rid: 4224637634270986703
         m_fillMethod:
@@ -11664,8 +11666,6 @@ MonoBehaviour:
           rid: 4224637585093558694
         m_Padding:
           rid: 4224637585093558695
-        m_pixelsPerUnitMultiplier:
-          rid: 4224637585093558696
         m_PositionOffset:
           rid: 4224637634270986714
         m_Radius:
@@ -12043,8 +12043,12 @@ MonoBehaviour:
         m_styleConfig: {fileID: 11400000}
         m_name: Chip/Default
         m_alias: 
+        m_ChamferedCorners:
+          rid: 5597921181227810897
         m_color:
           rid: 4224637585093558853
+        m_Corners:
+          rid: 5597921181227810898
         m_CornerSegments:
           rid: 4224637585093558854
         m_DisabledMaterial:
@@ -12059,8 +12063,6 @@ MonoBehaviour:
           rid: 4224637585093558856
         m_fillAmount:
           rid: 4224637634270986722
-        m_fillCenter:
-          rid: 4224637634270986723
         m_fillClockwise:
           rid: 4224637634270986724
         m_fillMethod:
@@ -12095,8 +12097,6 @@ MonoBehaviour:
           rid: 4224637585093558861
         m_Padding:
           rid: 4224637585093558862
-        m_pixelsPerUnitMultiplier:
-          rid: 4224637585093558863
         m_PositionOffset:
           rid: 4224637634270986735
         m_Radius:
@@ -12222,8 +12222,12 @@ MonoBehaviour:
         m_styleConfig: {fileID: 11400000}
         m_name: Chip/Small
         m_alias: 
+        m_ChamferedCorners:
+          rid: 5597921181227810899
         m_color:
           rid: 4224637585093558912
+        m_Corners:
+          rid: 5597921181227810900
         m_CornerSegments:
           rid: 4224637585093558913
         m_DisabledMaterial:
@@ -12238,8 +12242,6 @@ MonoBehaviour:
           rid: 4224637585093558915
         m_fillAmount:
           rid: 4224637634270986743
-        m_fillCenter:
-          rid: 4224637634270986744
         m_fillClockwise:
           rid: 4224637634270986745
         m_fillMethod:
@@ -12274,8 +12276,6 @@ MonoBehaviour:
           rid: 4224637585093558920
         m_Padding:
           rid: 4224637585093558921
-        m_pixelsPerUnitMultiplier:
-          rid: 4224637585093558922
         m_PositionOffset:
           rid: 4224637634270986756
         m_Radius:
@@ -12711,12 +12711,6 @@ MonoBehaviour:
           m_Right: 0
           m_Top: 0
           m_Bottom: 0
-    - rid: 4224637585093558637
-      type: {class: UiStyleUiRoundedImage/ApplicableValueSingle, ns: GuiToolkit.Style,
-        asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 0
-        m_value: 0
     - rid: 4224637585093558638
       type: {class: UiStyleUiRoundedImage/ApplicableValueSingle, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
@@ -13073,12 +13067,6 @@ MonoBehaviour:
           m_Right: 0
           m_Top: 0
           m_Bottom: 0
-    - rid: 4224637585093558696
-      type: {class: UiStyleUiRoundedImage/ApplicableValueSingle, ns: GuiToolkit.Style,
-        asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 0
-        m_value: 0
     - rid: 4224637585093558697
       type: {class: UiStyleUiRoundedImage/ApplicableValueSingle, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
@@ -14074,12 +14062,6 @@ MonoBehaviour:
           m_Right: 0
           m_Top: 0
           m_Bottom: 0
-    - rid: 4224637585093558863
-      type: {class: UiStyleUiRoundedImage/ApplicableValueSingle, ns: GuiToolkit.Style,
-        asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 0
-        m_value: 0
     - rid: 4224637585093558864
       type: {class: UiStyleUiRoundedImage/ApplicableValueSingle, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
@@ -14436,12 +14418,6 @@ MonoBehaviour:
           m_Right: 0
           m_Top: 0
           m_Bottom: 0
-    - rid: 4224637585093558922
-      type: {class: UiStyleUiRoundedImage/ApplicableValueSingle, ns: GuiToolkit.Style,
-        asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 0
-        m_value: 0
     - rid: 4224637585093558923
       type: {class: UiStyleUiRoundedImage/ApplicableValueSingle, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
@@ -15397,12 +15373,6 @@ MonoBehaviour:
       data:
         IsApplicable: 0
         m_value: 0
-    - rid: 4224637634270986681
-      type: {class: UiStyleUiRoundedImage/ApplicableValueBoolean, ns: GuiToolkit.Style,
-        asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 0
-        m_value: 0
     - rid: 4224637634270986682
       type: {class: UiStyleUiRoundedImage/ApplicableValueBoolean, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
@@ -15542,12 +15512,6 @@ MonoBehaviour:
         m_value: {r: 0, g: 0, b: 0, a: 0}
     - rid: 4224637634270986701
       type: {class: UiStyleUiRoundedImage/ApplicableValueSingle, ns: GuiToolkit.Style,
-        asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 0
-        m_value: 0
-    - rid: 4224637634270986702
-      type: {class: UiStyleUiRoundedImage/ApplicableValueBoolean, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 0
@@ -15695,12 +15659,6 @@ MonoBehaviour:
       data:
         IsApplicable: 0
         m_value: 0
-    - rid: 4224637634270986723
-      type: {class: UiStyleUiRoundedImage/ApplicableValueBoolean, ns: GuiToolkit.Style,
-        asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 0
-        m_value: 0
     - rid: 4224637634270986724
       type: {class: UiStyleUiRoundedImage/ApplicableValueBoolean, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
@@ -15840,12 +15798,6 @@ MonoBehaviour:
         m_value: {r: 0, g: 0, b: 0, a: 0}
     - rid: 4224637634270986743
       type: {class: UiStyleUiRoundedImage/ApplicableValueSingle, ns: GuiToolkit.Style,
-        asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 0
-        m_value: 0
-    - rid: 4224637634270986744
-      type: {class: UiStyleUiRoundedImage/ApplicableValueBoolean, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 0
@@ -17089,6 +17041,54 @@ MonoBehaviour:
       data:
         IsApplicable: 1
         m_value: {x: 48, y: 0}
+    - rid: 5597921181227810893
+      type: {class: UiStyleUiRoundedImage/ApplicableValueCornerFlags, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 5597921181227810894
+      type: {class: UiStyleUiRoundedImage/ApplicableValueCornerFlags, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 5597921181227810895
+      type: {class: UiStyleUiRoundedImage/ApplicableValueCornerFlags, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 5597921181227810896
+      type: {class: UiStyleUiRoundedImage/ApplicableValueCornerFlags, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 5597921181227810897
+      type: {class: UiStyleUiRoundedImage/ApplicableValueCornerFlags, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 5597921181227810898
+      type: {class: UiStyleUiRoundedImage/ApplicableValueCornerFlags, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 5597921181227810899
+      type: {class: UiStyleUiRoundedImage/ApplicableValueCornerFlags, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 5597921181227810900
+      type: {class: UiStyleUiRoundedImage/ApplicableValueCornerFlags, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
     - rid: 7311505549952025144
       type: {class: UiStyleRectTransform, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:

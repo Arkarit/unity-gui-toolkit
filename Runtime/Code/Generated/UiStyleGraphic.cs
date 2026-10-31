@@ -42,10 +42,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_color == null)
-						m_color = new ApplicableValueColor();
-				#endif
+				if (m_color == null)
+					m_color = new ApplicableValueColor();
 				return m_color;
 			}
 		}
@@ -54,10 +52,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_enabled == null)
-						m_enabled = new ApplicableValueBoolean();
-				#endif
+				if (m_enabled == null)
+					m_enabled = new ApplicableValueBoolean();
 				return m_enabled;
 			}
 		}
@@ -66,10 +62,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_material == null)
-						m_material = new ApplicableValueMaterial();
-				#endif
+				if (m_material == null)
+					m_material = new ApplicableValueMaterial();
 				return m_material;
 			}
 		}
@@ -78,10 +72,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_raycastPadding == null)
-						m_raycastPadding = new ApplicableValueVector4();
-				#endif
+				if (m_raycastPadding == null)
+					m_raycastPadding = new ApplicableValueVector4();
 				return m_raycastPadding;
 			}
 		}
@@ -90,10 +82,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_raycastTarget == null)
-						m_raycastTarget = new ApplicableValueBoolean();
-				#endif
+				if (m_raycastTarget == null)
+					m_raycastTarget = new ApplicableValueBoolean();
 				return m_raycastTarget;
 			}
 		}

@@ -92,10 +92,8 @@ namespace GuiToolkit.Style.Editor
 			"		{{\n" +
 			"			get\n" +
 			"			{{\n" +
-			"				#if UNITY_EDITOR\n" +
-			"					if (!Application.isPlaying && m_{2} == null)\n" +
-			"						m_{2} = new {3}();\n" +
-			"				#endif\n" +
+			"				if (m_{2} == null)\n" +
+			"					m_{2} = new {3}();\n" +
 			"				return m_{2};\n" +
 			"			}}\n" +
 			"		}}\n\n";

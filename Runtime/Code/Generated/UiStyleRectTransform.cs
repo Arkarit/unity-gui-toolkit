@@ -53,10 +53,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_anchoredPosition == null)
-						m_anchoredPosition = new ApplicableValueVector2();
-				#endif
+				if (m_anchoredPosition == null)
+					m_anchoredPosition = new ApplicableValueVector2();
 				return m_anchoredPosition;
 			}
 		}
@@ -65,10 +63,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_anchorMax == null)
-						m_anchorMax = new ApplicableValueVector2();
-				#endif
+				if (m_anchorMax == null)
+					m_anchorMax = new ApplicableValueVector2();
 				return m_anchorMax;
 			}
 		}
@@ -77,10 +73,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_anchorMin == null)
-						m_anchorMin = new ApplicableValueVector2();
-				#endif
+				if (m_anchorMin == null)
+					m_anchorMin = new ApplicableValueVector2();
 				return m_anchorMin;
 			}
 		}
@@ -89,10 +83,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_localEulerAngles == null)
-						m_localEulerAngles = new ApplicableValueVector3();
-				#endif
+				if (m_localEulerAngles == null)
+					m_localEulerAngles = new ApplicableValueVector3();
 				return m_localEulerAngles;
 			}
 		}
@@ -101,10 +93,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_localPosition == null)
-						m_localPosition = new ApplicableValueVector3();
-				#endif
+				if (m_localPosition == null)
+					m_localPosition = new ApplicableValueVector3();
 				return m_localPosition;
 			}
 		}
@@ -113,10 +103,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_localRotation == null)
-						m_localRotation = new ApplicableValueQuaternion();
-				#endif
+				if (m_localRotation == null)
+					m_localRotation = new ApplicableValueQuaternion();
 				return m_localRotation;
 			}
 		}
@@ -125,10 +113,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_localScale == null)
-						m_localScale = new ApplicableValueVector3();
-				#endif
+				if (m_localScale == null)
+					m_localScale = new ApplicableValueVector3();
 				return m_localScale;
 			}
 		}
@@ -137,10 +123,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_offsetMax == null)
-						m_offsetMax = new ApplicableValueVector2();
-				#endif
+				if (m_offsetMax == null)
+					m_offsetMax = new ApplicableValueVector2();
 				return m_offsetMax;
 			}
 		}
@@ -149,10 +133,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_offsetMin == null)
-						m_offsetMin = new ApplicableValueVector2();
-				#endif
+				if (m_offsetMin == null)
+					m_offsetMin = new ApplicableValueVector2();
 				return m_offsetMin;
 			}
 		}
@@ -161,10 +143,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_pivot == null)
-						m_pivot = new ApplicableValueVector2();
-				#endif
+				if (m_pivot == null)
+					m_pivot = new ApplicableValueVector2();
 				return m_pivot;
 			}
 		}
@@ -173,10 +153,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_sizeDelta == null)
-						m_sizeDelta = new ApplicableValueVector2();
-				#endif
+				if (m_sizeDelta == null)
+					m_sizeDelta = new ApplicableValueVector2();
 				return m_sizeDelta;
 			}
 		}

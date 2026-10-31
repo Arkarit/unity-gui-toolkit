@@ -109,10 +109,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_ChamferedCorners == null)
-						m_ChamferedCorners = new ApplicableValueCornerFlags();
-				#endif
+				if (m_ChamferedCorners == null)
+					m_ChamferedCorners = new ApplicableValueCornerFlags();
 				return m_ChamferedCorners;
 			}
 		}
@@ -121,10 +119,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_color == null)
-						m_color = new ApplicableValueColor();
-				#endif
+				if (m_color == null)
+					m_color = new ApplicableValueColor();
 				return m_color;
 			}
 		}
@@ -133,10 +129,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_Corners == null)
-						m_Corners = new ApplicableValueCornerFlags();
-				#endif
+				if (m_Corners == null)
+					m_Corners = new ApplicableValueCornerFlags();
 				return m_Corners;
 			}
 		}
@@ -145,10 +139,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_CornerSegments == null)
-						m_CornerSegments = new ApplicableValueInt32();
-				#endif
+				if (m_CornerSegments == null)
+					m_CornerSegments = new ApplicableValueInt32();
 				return m_CornerSegments;
 			}
 		}
@@ -157,10 +149,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_DisabledMaterial == null)
-						m_DisabledMaterial = new ApplicableValueMaterial();
-				#endif
+				if (m_DisabledMaterial == null)
+					m_DisabledMaterial = new ApplicableValueMaterial();
 				return m_DisabledMaterial;
 			}
 		}
@@ -169,10 +159,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_enabled == null)
-						m_enabled = new ApplicableValueBoolean();
-				#endif
+				if (m_enabled == null)
+					m_enabled = new ApplicableValueBoolean();
 				return m_enabled;
 			}
 		}
@@ -181,10 +169,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_EnabledInHierarchy == null)
-						m_EnabledInHierarchy = new ApplicableValueBoolean();
-				#endif
+				if (m_EnabledInHierarchy == null)
+					m_EnabledInHierarchy = new ApplicableValueBoolean();
 				return m_EnabledInHierarchy;
 			}
 		}
@@ -193,10 +179,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_FadeColor == null)
-						m_FadeColor = new ApplicableValueColor();
-				#endif
+				if (m_FadeColor == null)
+					m_FadeColor = new ApplicableValueColor();
 				return m_FadeColor;
 			}
 		}
@@ -205,10 +189,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_FadeSize == null)
-						m_FadeSize = new ApplicableValueSingle();
-				#endif
+				if (m_FadeSize == null)
+					m_FadeSize = new ApplicableValueSingle();
 				return m_FadeSize;
 			}
 		}
@@ -217,10 +199,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_fillAmount == null)
-						m_fillAmount = new ApplicableValueSingle();
-				#endif
+				if (m_fillAmount == null)
+					m_fillAmount = new ApplicableValueSingle();
 				return m_fillAmount;
 			}
 		}
@@ -229,10 +209,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_fillClockwise == null)
-						m_fillClockwise = new ApplicableValueBoolean();
-				#endif
+				if (m_fillClockwise == null)
+					m_fillClockwise = new ApplicableValueBoolean();
 				return m_fillClockwise;
 			}
 		}
@@ -241,10 +219,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_fillMethod == null)
-						m_fillMethod = new ApplicableValueFillMethod();
-				#endif
+				if (m_fillMethod == null)
+					m_fillMethod = new ApplicableValueFillMethod();
 				return m_fillMethod;
 			}
 		}
@@ -253,10 +229,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_fillOrigin == null)
-						m_fillOrigin = new ApplicableValueInt32();
-				#endif
+				if (m_fillOrigin == null)
+					m_fillOrigin = new ApplicableValueInt32();
 				return m_fillOrigin;
 			}
 		}
@@ -265,10 +239,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_FixedSize == null)
-						m_FixedSize = new ApplicableValueRect();
-				#endif
+				if (m_FixedSize == null)
+					m_FixedSize = new ApplicableValueRect();
 				return m_FixedSize;
 			}
 		}
@@ -277,10 +249,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_FrameSize == null)
-						m_FrameSize = new ApplicableValueSingle();
-				#endif
+				if (m_FrameSize == null)
+					m_FrameSize = new ApplicableValueSingle();
 				return m_FrameSize;
 			}
 		}
@@ -289,10 +259,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_GapBottom == null)
-						m_GapBottom = new ApplicableValueEdgeGap();
-				#endif
+				if (m_GapBottom == null)
+					m_GapBottom = new ApplicableValueEdgeGap();
 				return m_GapBottom;
 			}
 		}
@@ -301,10 +269,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_GapHorizontal == null)
-						m_GapHorizontal = new ApplicableValueEdgeGap();
-				#endif
+				if (m_GapHorizontal == null)
+					m_GapHorizontal = new ApplicableValueEdgeGap();
 				return m_GapHorizontal;
 			}
 		}
@@ -313,10 +279,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_GapLeft == null)
-						m_GapLeft = new ApplicableValueEdgeGap();
-				#endif
+				if (m_GapLeft == null)
+					m_GapLeft = new ApplicableValueEdgeGap();
 				return m_GapLeft;
 			}
 		}
@@ -325,10 +289,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_GapRight == null)
-						m_GapRight = new ApplicableValueEdgeGap();
-				#endif
+				if (m_GapRight == null)
+					m_GapRight = new ApplicableValueEdgeGap();
 				return m_GapRight;
 			}
 		}
@@ -337,10 +299,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_GapTop == null)
-						m_GapTop = new ApplicableValueEdgeGap();
-				#endif
+				if (m_GapTop == null)
+					m_GapTop = new ApplicableValueEdgeGap();
 				return m_GapTop;
 			}
 		}
@@ -349,10 +309,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_GapUnit == null)
-						m_GapUnit = new ApplicableValueEGapUnit();
-				#endif
+				if (m_GapUnit == null)
+					m_GapUnit = new ApplicableValueEGapUnit();
 				return m_GapUnit;
 			}
 		}
@@ -361,10 +319,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_GapVertical == null)
-						m_GapVertical = new ApplicableValueEdgeGap();
-				#endif
+				if (m_GapVertical == null)
+					m_GapVertical = new ApplicableValueEdgeGap();
 				return m_GapVertical;
 			}
 		}
@@ -373,10 +329,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_InvertMask == null)
-						m_InvertMask = new ApplicableValueBoolean();
-				#endif
+				if (m_InvertMask == null)
+					m_InvertMask = new ApplicableValueBoolean();
 				return m_InvertMask;
 			}
 		}
@@ -385,10 +339,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_isMaskingGraphic == null)
-						m_isMaskingGraphic = new ApplicableValueBoolean();
-				#endif
+				if (m_isMaskingGraphic == null)
+					m_isMaskingGraphic = new ApplicableValueBoolean();
 				return m_isMaskingGraphic;
 			}
 		}
@@ -397,10 +349,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_maskable == null)
-						m_maskable = new ApplicableValueBoolean();
-				#endif
+				if (m_maskable == null)
+					m_maskable = new ApplicableValueBoolean();
 				return m_maskable;
 			}
 		}
@@ -409,10 +359,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_material == null)
-						m_material = new ApplicableValueMaterial();
-				#endif
+				if (m_material == null)
+					m_material = new ApplicableValueMaterial();
 				return m_material;
 			}
 		}
@@ -421,10 +369,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_Padding == null)
-						m_Padding = new ApplicableValueRectOffset();
-				#endif
+				if (m_Padding == null)
+					m_Padding = new ApplicableValueRectOffset();
 				return m_Padding;
 			}
 		}
@@ -433,10 +379,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_PositionOffset == null)
-						m_PositionOffset = new ApplicableValueVector2();
-				#endif
+				if (m_PositionOffset == null)
+					m_PositionOffset = new ApplicableValueVector2();
 				return m_PositionOffset;
 			}
 		}
@@ -445,10 +389,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_Radius == null)
-						m_Radius = new ApplicableValueSingle();
-				#endif
+				if (m_Radius == null)
+					m_Radius = new ApplicableValueSingle();
 				return m_Radius;
 			}
 		}
@@ -457,10 +399,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_SizeOffset == null)
-						m_SizeOffset = new ApplicableValueVector2();
-				#endif
+				if (m_SizeOffset == null)
+					m_SizeOffset = new ApplicableValueVector2();
 				return m_SizeOffset;
 			}
 		}
@@ -469,10 +409,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_sprite == null)
-						m_sprite = new ApplicableValueSprite();
-				#endif
+				if (m_sprite == null)
+					m_sprite = new ApplicableValueSprite();
 				return m_sprite;
 			}
 		}
@@ -481,10 +419,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_UniformSizeOffset == null)
-						m_UniformSizeOffset = new ApplicableValueBoolean();
-				#endif
+				if (m_UniformSizeOffset == null)
+					m_UniformSizeOffset = new ApplicableValueBoolean();
 				return m_UniformSizeOffset;
 			}
 		}
@@ -493,10 +429,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_UseFixedSize == null)
-						m_UseFixedSize = new ApplicableValueBoolean();
-				#endif
+				if (m_UseFixedSize == null)
+					m_UseFixedSize = new ApplicableValueBoolean();
 				return m_UseFixedSize;
 			}
 		}
@@ -505,10 +439,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_UsePadding == null)
-						m_UsePadding = new ApplicableValueBoolean();
-				#endif
+				if (m_UsePadding == null)
+					m_UsePadding = new ApplicableValueBoolean();
 				return m_UsePadding;
 			}
 		}
