@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -68,6 +69,91 @@ namespace GuiToolkit
 		public OptionalAttribute( string _contextNameHint = null )
 		{
 			ContextNameHint = _contextNameHint;
+		}
+	}
+
+	/// <summary>
+	/// Marks an Object field whose requirement depends on other state of the same object, e.g. a reference that
+	/// is only needed while a toggle is off. The class decides: it names an instance method
+	/// <c>string Method()</c> that returns null or empty when everything is fine, and otherwise the error text
+	/// the Inspector shows above the field.
+	/// </summary>
+	/// <remarks>
+	/// Use <c>nameof</c> for the method name so a rename cannot break the link silently. The method must not be
+	/// wrapped in <c>#if UNITY_EDITOR</c>, because the <c>nameof</c> in the attribute is compiled into players too;
+	/// that also lets the class call the same rule at runtime, e.g. as an assertion in <c>Awake</c>.
+	///
+	/// The method runs on every Inspector repaint, so it has to be cheap and free of side effects.
+	/// Only supported on fields of the component itself, not inside nested serializable classes, and meant
+	/// for single references rather than arrays.
+	/// <code>
+	/// [SerializeField] private bool m_nameAsTitle;
+	/// [SerializeField][CustomMandatory(nameof(ValidateChip))] private UiChip m_chip;
+	///
+	/// private string ValidateChip() =>
+	///     !m_nameAsTitle &amp;&amp; !m_chip ? "Chip is required unless 'Name As Title' is set." : null;
+	/// </code>
+	/// </remarks>
+	[AttributeUsage(AttributeTargets.Field, AllowMultiple = false, Inherited = true)]
+	public sealed class CustomMandatoryAttribute : PropertyAttribute
+	{
+		public readonly string ValidatorName;
+
+		private static readonly Dictionary<(Type, string), MethodInfo> s_validators = new();
+
+		public CustomMandatoryAttribute( string _validatorName )
+		{
+			ValidatorName = _validatorName;
+		}
+
+		/// <summary>
+		/// Runs the validator on _owner.
+		/// </summary>
+		/// <returns>null if valid, otherwise the error text. A missing or malformed validator and an exception
+		/// thrown by it are reported as errors too: both are definitely wrong and would otherwise hide the rule.</returns>
+		public string Validate( object _owner )
+		{
+			if (_owner == null)
+				return null;
+
+			Type type = _owner.GetType();
+			MethodInfo method = FindValidator(type, ValidatorName);
+			if (method == null)
+				return $"[CustomMandatory] validator '{ValidatorName}' not found on {type.Name}: " +
+				       "needs an instance method 'string Method()' without parameters.";
+
+			try
+			{
+				string result = (string)method.Invoke(_owner, null);
+				return string.IsNullOrEmpty(result) ? null : result;
+			}
+			catch (TargetInvocationException e)
+			{
+				return $"[CustomMandatory] validator '{ValidatorName}' threw: {e.InnerException?.Message ?? e.Message}";
+			}
+		}
+
+		private static MethodInfo FindValidator( Type _type, string _name )
+		{
+			if (string.IsNullOrEmpty(_name))
+				return null;
+
+			var key = (_type, _name);
+			if (s_validators.TryGetValue(key, out var cached))
+				return cached;
+
+			MethodInfo result = null;
+			for (var t = _type; t != null && result == null; t = t.BaseType)
+			{
+				var method = t.GetMethod(_name,
+					BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly,
+					null, Type.EmptyTypes, null);
+				if (method != null && method.ReturnType == typeof(string))
+					result = method;
+			}
+
+			s_validators[key] = result;
+			return result;
 		}
 	}
 
@@ -436,6 +522,69 @@ namespace GuiToolkit
 			EditorGUI.PropertyField(_position, _property, new GUIContent(" "), true);
 
 			EditorGUI.EndProperty();
+		}
+	}
+
+	[CustomPropertyDrawer(typeof(CustomMandatoryAttribute))]
+	public sealed class CustomMandatoryDrawer : PropertyDrawer
+	{
+		public override float GetPropertyHeight( SerializedProperty _property, GUIContent _label )
+		{
+			float h = EditorGUI.GetPropertyHeight(_property, _label, true);
+			string error = GetError(_property);
+			if (error != null)
+				h += GetHelpHeight(error) + 2f;
+
+			return h;
+		}
+
+		public override void OnGUI( Rect _position, SerializedProperty _property, GUIContent _label )
+		{
+			EditorGUI.BeginProperty(_position, _label, _property);
+
+			Rect fieldRect = _position;
+			string error = GetError(_property);
+			if (error != null)
+			{
+				var helpRect = new Rect(_position.x, _position.y, _position.width, GetHelpHeight(error));
+				EditorGUI.HelpBox(helpRect, error, MessageType.Error);
+				fieldRect.y += helpRect.height + 2f;
+			}
+
+			fieldRect.height = EditorGUI.GetPropertyHeight(_property, _label, true);
+			EditorGUI.PropertyField(fieldRect, _property, _label, true);
+
+			EditorGUI.EndProperty();
+		}
+
+		private static float GetHelpHeight( string _error )
+		{
+			// The width is not known in GetPropertyHeight; the view width minus the help box icon is close enough.
+			float width = EditorGUIUtility.currentViewWidth - 60f;
+			float h = EditorStyles.helpBox.CalcHeight(new GUIContent(_error), width);
+			return Mathf.Max(h, EditorGUIUtility.singleLineHeight * 2);
+		}
+
+		private string GetError( SerializedProperty _property )
+		{
+			var attr = (CustomMandatoryAttribute)attribute;
+
+			foreach (var target in _property.serializedObject.targetObjects)
+			{
+				if (!target)
+					continue;
+
+				// The validator lives on the class that declares the field. Inside a nested serializable class the
+				// target is not that object, and guessing would run the wrong rule.
+				if (!fieldInfo.DeclaringType.IsInstanceOfType(target))
+					return $"[CustomMandatory] on '{fieldInfo.Name}' is only supported on fields of the component itself.";
+
+				string error = attr.Validate(target);
+				if (error != null)
+					return error;
+			}
+
+			return null;
 		}
 	}
 #endif

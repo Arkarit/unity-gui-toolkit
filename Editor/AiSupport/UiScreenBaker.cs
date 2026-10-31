@@ -452,6 +452,16 @@ namespace GuiToolkit.Editor.AiSupport
 
 		private static void WarnIfMandatoryFieldUnwired( Component _component, FieldInfo _field, string _nodeName )
 		{
+			// The class's own rule decides whether the field is needed; its text already says what is missing.
+			var customMandatory = _field.GetCustomAttribute<CustomMandatoryAttribute>();
+			if (customMandatory != null)
+			{
+				string error = customMandatory.Validate(_component);
+				if (error != null)
+					Warn($"Field '{_field.Name}' on {_component.GetType().Name} ('{_nodeName}'): {error}");
+				return;
+			}
+
 			if (_field.GetCustomAttribute<MandatoryAttribute>() == null)
 				return;
 
