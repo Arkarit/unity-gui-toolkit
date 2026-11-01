@@ -12,7 +12,7 @@ namespace GuiToolkit
 	/// Holds all shape-agnostic infrastructure:
 	/// - Serialized fields for frame size, fade size, padding, fixed size, disabled material,
 	///   stencil-mask inversion, simple-gradient reference and the IEnableableInHierarchy flag.
-	/// - Material handling (disabledMaterial swap, invert-mask material clone, stencil compare).
+	/// - Material handling (disabledMaterial swap, invert-mask material clone and its stencil compare).
 	/// - Sprite -> UV mapping based on world position inside the rect.
 	/// - OnPopulateMesh dispatch (Mesh and VertexHelper overloads) to abstract Generate* methods.
 	/// - Static vertex/triangle buffers and ApplyTo* writers.
@@ -437,12 +437,14 @@ namespace GuiToolkit
 				if (result == null)
 					result = material;
 
-				if (!maskable)
-					result.SetInt("_StencilComp", (int)CompareFunction.Always);
-				else if (m_invertMask)
+				// Only the inversion is ours to write. Everything else the stencil needs is already in the
+				// result: MaskableGraphic gives a masked shape its Equal material, and a Mask on this object
+				// gives the shape the Always/Replace material that writes the mask. Overwriting that with
+				// Equal kept a shape from ever working as a Mask, and the write landed on shared materials
+				// (the default UI material, StencilMaterial's pooled ones) besides. Inverting is safe: its
+				// base is our own clone, so the stencil material made from it is ours alone.
+				if (maskable && m_invertMask)
 					result.SetInt("_StencilComp", (int)CompareFunction.NotEqual);
-				else
-					result.SetInt("_StencilComp", (int)CompareFunction.Equal);
 
 				return result;
 			}
