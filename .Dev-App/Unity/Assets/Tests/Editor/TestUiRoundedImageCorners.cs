@@ -130,10 +130,59 @@ namespace GuiToolkit.Test
 			shape.Corners = CornerFlags.TopLeft | CornerFlags.TopRight | CornerFlags.BottomRight;
 			shape.ChamferedCorners = CornerFlags.TopLeft;
 
-			float outerArea = Width * Height - ChamferCut(Radius) - 2 * RoundCut(Radius);
-			float innerArea = (Width - 2 * frame) * (Height - 2 * frame)
-			                  - ChamferCut(Radius - frame * ChamferShrink) - 2 * RoundCut(Radius - frame);
-			Assert.That(Area(shape), Is.EqualTo(outerArea - innerArea).Within(Tolerance));
+			Assert.That(Area(shape), Is.EqualTo(RingArea(shape, frame)).Within(Tolerance));
+		}
+
+		[TestCase(1)]
+		[TestCase(2)]
+		[TestCase(3)]
+		[TestCase(6)]
+		public void ARoundFrameIsAsThickOnEverySegmentAsOnTheSides( int _segments )
+		{
+			const float frame = 8f;
+			var shape = Build();
+			shape.FrameSize = frame;
+			shape.CornerSegments = _segments;
+
+			// An inner arc of radius r - f made the frame f * cos(half a segment) thick on each segment:
+			// 71% on one, 92% on two - and the ring that much smaller than this.
+			Assert.That(Area(shape), Is.EqualTo(RingArea(shape, frame)).Within(Tolerance));
+		}
+
+		[TestCase(2, 9.5f)]  // past the centre: only the first and last segment still bound the inside
+		[TestCase(2, 30f)]   // past the corner entirely: the inside is the inner rect's square corner
+		[TestCase(6, 9.8f)]
+		public void AFrameAsThickAsItsRoundCornerKeepsItsThickness( int _segments, float _frame )
+		{
+			var shape = Build();
+			shape.Radius = 10f;
+			shape.FrameSize = _frame;
+			shape.CornerSegments = _segments;
+
+			Assert.That(Area(shape), Is.EqualTo(RingArea(shape, _frame)).Within(Tolerance));
+		}
+
+		[Test]
+		public void AFadedFewSegmentFrameCoversItsRingWithoutOverlap()
+		{
+			const float frame = 12f;
+			var shape = Build();
+			shape.FrameSize = frame;
+			shape.FadeSize = 3f;
+			shape.CornerSegments = 2;
+
+			Assert.That(Area(shape), Is.EqualTo(RingArea(shape, frame)).Within(Tolerance));
+		}
+
+		[Test]
+		public void AFilledFewSegmentShapeWithFadeLeavesNoSeam()
+		{
+			var shape = Build();
+			shape.FadeSize = 5f;
+			shape.CornerSegments = 2;
+
+			// The fade ring's inner boundary and the body's corners have to be the same polygon.
+			Assert.That(Area(shape), Is.EqualTo(PolygonArea(Outline(shape))).Within(Tolerance));
 		}
 
 		[Test]
@@ -161,10 +210,7 @@ namespace GuiToolkit.Test
 			shape.FadeSize = fade;
 			shape.ChamferedCorners = CornerFlags.BottomLeft | CornerFlags.TopRight;
 
-			float outerArea = Width * Height - 2 * ChamferCut(Radius) - 2 * RoundCut(Radius);
-			float innerArea = (Width - 2 * frame) * (Height - 2 * frame)
-			                  - 2 * ChamferCut(Radius - frame * ChamferShrink) - 2 * RoundCut(Radius - frame);
-			Assert.That(Area(shape), Is.EqualTo(outerArea - innerArea).Within(Tolerance));
+			Assert.That(Area(shape), Is.EqualTo(RingArea(shape, frame)).Within(Tolerance));
 		}
 
 		[Test]
@@ -191,6 +237,91 @@ namespace GuiToolkit.Test
 			_radius * _radius - Segments * 0.5f * _radius * _radius * Mathf.Sin(0.5f * Mathf.PI / Segments);
 
 		private static float ChamferCut( float _radius ) => 0.5f * _radius * _radius;
+
+		/// <summary>
+		/// What a frame _frame thick around this shape covers: its outline minus that outline with every edge
+		/// moved inwards by _frame. Worked out on the polygon alone, without the shape's own corner maths.
+		/// </summary>
+		private static float RingArea( UiRoundedImage _shape, float _frame )
+		{
+			var outline = Outline(_shape);
+			return PolygonArea(outline) - PolygonArea(Erode(outline, _frame));
+		}
+
+		/// <summary>The shape's outline, counter-clockwise: per corner its arc (one segment if chamfered) or the corner point.</summary>
+		private static List<Vector2> Outline( UiRoundedImage _shape )
+		{
+			float r = _shape.Radius;
+			var points = new List<Vector2>();
+			AddCorner(points, _shape, CornerFlags.BottomLeft, new Vector2(r, r), new Vector2(0, 0), 180f);
+			AddCorner(points, _shape, CornerFlags.BottomRight, new Vector2(Width - r, r), new Vector2(Width, 0), 270f);
+			AddCorner(points, _shape, CornerFlags.TopRight, new Vector2(Width - r, Height - r), new Vector2(Width, Height), 0f);
+			AddCorner(points, _shape, CornerFlags.TopLeft, new Vector2(r, Height - r), new Vector2(0, Height), 90f);
+			return points;
+		}
+
+		private static void AddCorner( List<Vector2> _points, UiRoundedImage _shape, CornerFlags _corner, Vector2 _centre, Vector2 _square, float _startDegrees )
+		{
+			if ((_shape.Corners & _corner) == 0 || _shape.Radius <= 0f)
+			{
+				_points.Add(_square);
+				return;
+			}
+
+			int segments = (_shape.ChamferedCorners & _corner) != 0 ? 1 : _shape.CornerSegments;
+			for (int i = 0; i <= segments; i++)
+			{
+				float angle = (_startDegrees + 90f * i / segments) * Mathf.Deg2Rad;
+				_points.Add(_centre + _shape.Radius * new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)));
+			}
+		}
+
+		/// <summary>A convex counter-clockwise polygon with every edge moved inwards by _depth: clipped by each moved edge in turn.</summary>
+		private static List<Vector2> Erode( List<Vector2> _polygon, float _depth )
+		{
+			var result = new List<Vector2>(_polygon);
+			for (int i = 0; i < _polygon.Count && result.Count > 0; i++)
+			{
+				Vector2 a = _polygon[i];
+				Vector2 edge = _polygon[(i + 1) % _polygon.Count] - a;
+				if (edge.sqrMagnitude < 1e-8f)
+					continue;
+
+				var inward = new Vector2(-edge.y, edge.x).normalized;
+				float Inside( Vector2 _p ) => Vector2.Dot(_p - a, inward) - _depth;
+
+				var clipped = new List<Vector2>();
+				for (int j = 0; j < result.Count; j++)
+				{
+					Vector2 p = result[j];
+					Vector2 q = result[(j + 1) % result.Count];
+					float dp = Inside(p);
+					float dq = Inside(q);
+
+					if (dp >= 0f)
+						clipped.Add(p);
+					if ((dp >= 0f) != (dq >= 0f))
+						clipped.Add(p + (q - p) * (dp / (dp - dq)));
+				}
+
+				result = clipped;
+			}
+
+			return result;
+		}
+
+		private static float PolygonArea( List<Vector2> _polygon )
+		{
+			float twice = 0f;
+			for (int i = 0; i < _polygon.Count; i++)
+			{
+				Vector2 a = _polygon[i];
+				Vector2 b = _polygon[(i + 1) % _polygon.Count];
+				twice += a.x * b.y - b.x * a.y;
+			}
+
+			return Mathf.Abs(twice) * 0.5f;
+		}
 
 		private UiRoundedImage Build()
 		{
