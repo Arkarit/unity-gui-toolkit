@@ -30,6 +30,8 @@ Shader "UIToolkit/UI_Glitter"
 		_CloudCoverage ("Cloud Effect on Coverage", Range(0,1)) = 0.5
 		_CloudSize ("Cloud Effect on Size", Range(0,1)) = 0.7
 		_CloudBrightness ("Cloud Effect on Brightness", Range(0,1)) = 0.5
+		[HDR] _CloudGlowColor ("Cloud Glow Color", Color) = (0,0,0,0)
+		_CloudGlowSoftness ("Cloud Glow Softness", Range(0,1)) = 0.6
 
 		_FoldoutStencil ("Stencil", Float) = 0
 		_StencilComp ("Stencil Comparison", Float) = 8
@@ -128,6 +130,8 @@ Shader "UIToolkit/UI_Glitter"
 				float _CloudCoverage;
 				float _CloudSize;
 				float _CloudBrightness;
+				half4 _CloudGlowColor;
+				float _CloudGlowSoftness;
 			#endif
 
 			#if defined(_COLORMODE_RAINBOW)
@@ -224,7 +228,8 @@ Shader "UIToolkit/UI_Glitter"
 				float brightMul = 1.0;
 				#if defined(_CLOUDS)
 					float2 cloudP = (fieldUV + scrollOffset) * _CloudScale + float2(1.0, 0.6) * (_Time.y * _CloudSpeed * _CloudScale);
-					float cloud = saturate((cloudNoise(cloudP) - 0.5) * _CloudContrast + 0.5);
+					float cloudRaw = cloudNoise(cloudP);
+					float cloud = saturate((cloudRaw - 0.5) * _CloudContrast + 0.5);
 					float outside = 1.0 - cloud;
 					coverage  *= 1.0 - _CloudCoverage * outside;
 					sizeMul    = 1.0 - _CloudSize * outside;
@@ -313,6 +318,17 @@ Shader "UIToolkit/UI_Glitter"
 				half4 color;
 				color.rgb = colorAcc * _Brightness;
 				color.a   = saturate(intensityAcc * _Brightness) * _Color.a;
+
+				#if defined(_CLOUDS)
+					// Cloud glow: a soft haze where the clouds are, from the same noise as the sparkle
+					// clouds, so light and glitter stay together while they drift. Softness blends the
+					// contrast curve of the sparkle clouds towards the raw noise, so the haze can be
+					// smoother than the sparkle patches. The glow color's alpha is its strength.
+					float glowShape = lerp(cloud, smoothstep(0.25, 0.85, cloudRaw), _CloudGlowSoftness);
+					half glow = glowShape * _CloudGlowColor.a;
+					color.rgb += _CloudGlowColor.rgb * glow;
+					color.a = saturate(color.a + glow);
+				#endif
 
 				color *= i.color;
 				color.a *= maskA;

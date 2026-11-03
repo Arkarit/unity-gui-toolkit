@@ -56,6 +56,8 @@ namespace GuiToolkit.Editor
 				DisplayProperty("_CloudCoverage", "How much fewer sparkles there are between clouds. 1 = none at all.");
 				DisplayProperty("_CloudSize", "How much smaller sparkles get between clouds. 1 = they shrink to nothing.");
 				DisplayProperty("_CloudBrightness", "How much dimmer sparkles get between clouds. 1 = fully dark.");
+				DisplayProperty("_CloudGlowColor", "Soft light inside the clouds, added to the sparkles (from the same noise, so it drifts with them). RGB = color (HDR), alpha = strength. Alpha 0 = no glow. Gets multiplied by the vertex color, the mask and the clip rect like the sparkles; with an alpha blend mode it also needs alpha to show.");
+				DisplayProperty("_CloudGlowSoftness", "Shape of the glow. 0 = same patches as the sparkle clouds (Cloud Contrast); 1 = a smooth, gradual haze.");
 			}
 
 			LargeSpace();
