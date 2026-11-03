@@ -12,6 +12,7 @@ Shader "UIToolkit/UI_Glitter"
 		_RainbowFloor ("Rainbow Brightness Floor", Range(0,1)) = 0.4
 		_DualScale ("Dual Render Inner Scale", Range(0.05, 1.0)) = 0.5
 
+		[Toggle(_CANVAS_UNITS)] _CanvasUnits ("Measure in Canvas Units", Float) = 0
 		_Density ("Density (cells per UV)", Float) = 8
 		_Coverage ("Coverage (0..1)", Range(0,1)) = 0.5
 		_Speed ("Twinkle Speed", Float) = 1
@@ -21,6 +22,14 @@ Shader "UIToolkit/UI_Glitter"
 		_SizeMax ("Sparkle Size Max", Range(0.05, 2.0)) = 0.6
 		_SpikeSharpness ("Spike Sharpness", Range(1, 32)) = 8
 		_Brightness ("Brightness", Float) = 1
+
+		[Toggle(_CLOUDS)] _Clouds ("Clouds", Float) = 0
+		_CloudScale ("Cloud Scale (blobs per UV)", Float) = 3
+		_CloudContrast ("Cloud Contrast", Range(0.5, 8)) = 2
+		_CloudSpeed ("Cloud Drift Speed (UV/s)", Float) = 0.02
+		_CloudCoverage ("Cloud Effect on Coverage", Range(0,1)) = 0.5
+		_CloudSize ("Cloud Effect on Size", Range(0,1)) = 0.7
+		_CloudBrightness ("Cloud Effect on Brightness", Range(0,1)) = 0.5
 
 		_FoldoutStencil ("Stencil", Float) = 0
 		_StencilComp ("Stencil Comparison", Float) = 8
@@ -78,6 +87,8 @@ Shader "UIToolkit/UI_Glitter"
 
 			#pragma multi_compile_local __ UNITY_UI_CLIP_RECT
 			#pragma multi_compile_local __ UNITY_UI_ALPHACLIP
+			#pragma shader_feature_local __ _CLOUDS
+			#pragma shader_feature_local __ _CANVAS_UNITS
 			#pragma shader_feature_local __ _COLORMODE_OFF _COLORMODE_RAINBOW _COLORMODE_TWOCOLOR _COLORMODE_THREECOLOR _COLORMODE_DUALRENDER
 
 			struct appdata_t
@@ -110,6 +121,15 @@ Shader "UIToolkit/UI_Glitter"
 			float     _SpikeSharpness;
 			float     _Brightness;
 
+			#if defined(_CLOUDS)
+				float _CloudScale;
+				float _CloudContrast;
+				float _CloudSpeed;
+				float _CloudCoverage;
+				float _CloudSize;
+				float _CloudBrightness;
+			#endif
+
 			#if defined(_COLORMODE_RAINBOW)
 				float _ColorVariation;
 				float _RainbowFloor;
@@ -133,6 +153,25 @@ Shader "UIToolkit/UI_Glitter"
 			float hash21(float2 p)
 			{
 				return frac(sin(dot(p, float2(12.9898, 78.233))) * 43758.5453);
+			}
+
+			// Smooth value noise, 0..1.
+			float valueNoise(float2 p)
+			{
+				float2 i = floor(p);
+				float2 f = frac(p);
+				float2 u = f * f * (3.0 - 2.0 * f);
+				float a = hash21(i);
+				float b = hash21(i + float2(1, 0));
+				float c = hash21(i + float2(0, 1));
+				float d = hash21(i + float2(1, 1));
+				return lerp(lerp(a, b, u.x), lerp(c, d, u.x), u.y);
+			}
+
+			// Two octaves of value noise: soft blobs with some detail on their edges, 0..1.
+			float cloudNoise(float2 p)
+			{
+				return valueNoise(p) * 0.65 + valueNoise(p * 2.13 + 17.7) * 0.35;
 			}
 
 			// 4-pointed star: horizontal spike + vertical spike + center bulb.
@@ -162,11 +201,35 @@ Shader "UIToolkit/UI_Glitter"
 			{
 				half maskA = tex2D(_MainTex, i.texcoord).a;
 
+				// Field coordinates: UV, or (with Canvas Units) canvas units / 100, so cells stay square and
+				// the same size on any rect. Canvas units per UV come from the screen derivatives; their
+				// ratio is constant across an axis-aligned quad, so it does not depend on zoom.
+				float2 fieldUV = i.texcoord;
+				#if defined(_CANVAS_UNITS)
+					float2 unitsPerUV = fwidth(i.worldPosition.xy) / max(fwidth(i.texcoord), 1e-6);
+					fieldUV = i.texcoord * unitsPerUV * 0.01;
+				#endif
+
 				// Scroll the cell grid; the mask sample below stays on the unscrolled UV.
 				float2 scrollOffset = float2(_ScrollSpeedX, _ScrollSpeedY) * _Time.y;
-				float2 gridUV  = (i.texcoord + scrollOffset) * _Density;
+				float2 gridUV  = (fieldUV + scrollOffset) * _Density;
 				float2 cellBase = floor(gridUV);
 				float2 localUV  = frac(gridUV);
+
+				// Clouds: one smooth noise value per fragment (it changes slowly compared to a cell,
+				// so sampling it per fragment instead of per cell costs one lookup, not nine).
+				// Inside a cloud (1) sparkles are unchanged; outside (0) they get sparser, smaller and dimmer.
+				float coverage = _Coverage;
+				float sizeMul = 1.0;
+				float brightMul = 1.0;
+				#if defined(_CLOUDS)
+					float2 cloudP = (fieldUV + scrollOffset) * _CloudScale + float2(1.0, 0.6) * (_Time.y * _CloudSpeed * _CloudScale);
+					float cloud = saturate((cloudNoise(cloudP) - 0.5) * _CloudContrast + 0.5);
+					float outside = 1.0 - cloud;
+					coverage  *= 1.0 - _CloudCoverage * outside;
+					sizeMul    = 1.0 - _CloudSize * outside;
+					brightMul  = 1.0 - _CloudBrightness * outside;
+				#endif
 
 				half3 colorAcc = half3(0,0,0);
 				float intensityAcc = 0.0;
@@ -186,10 +249,10 @@ Shader "UIToolkit/UI_Glitter"
 						float h5 = hash21(cellId + float2(73.1, 41.9));
 
 						// Branchless cell activation.
-						float active = step(h1, _Coverage);
+						float active = step(h1, coverage);
 
 						// Per-cell randomized size.
-						float size = lerp(_SizeMin, _SizeMax, h4);
+						float size = lerp(_SizeMin, _SizeMax, h4) * sizeMul;
 						float invSize = 1.0 / max(size, 0.01);
 
 						// Jitter inside the cell so sparkles aren't on a regular grid.
@@ -203,7 +266,7 @@ Shader "UIToolkit/UI_Glitter"
 						float fade  = saturate(pulse * 1.5 - 0.5);
 
 						float shape = starShape(p, _SpikeSharpness);
-						float contrib = saturate(shape) * fade * active;
+						float contrib = saturate(shape) * fade * active * brightMul;
 
 						half3 tinted;
 						#if defined(_COLORMODE_RAINBOW)

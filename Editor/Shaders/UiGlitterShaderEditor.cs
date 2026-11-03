@@ -34,7 +34,8 @@ namespace GuiToolkit.Editor
 			}
 
 			SmallSpace();
-			DisplayProperty("_Density", "Cells per UV unit. Higher = more (and smaller) sparkles. Try 4..32.");
+			DisplayProperty("_CanvasUnits", "Off: Density, scroll and cloud scale are per UV unit, so sparkles stretch with the rect's aspect. On: they are per 100 canvas units, so sparkles stay round and equally sized on rects of any size (a wide row and a small tile look alike).");
+			DisplayProperty("_Density", "Cells per UV unit (or per 100 canvas units with Measure in Canvas Units). Higher = more (and smaller) sparkles. Try 4..32.");
 			DisplayProperty("_Coverage", "Fraction of cells that actually contain a sparkle. 0 = none, 1 = every cell.");
 			DisplayProperty("_Speed", "Twinkle speed in cycles per second. Each cell has its own randomized period multiplier on top of this.");
 			DisplayProperty("_ScrollSpeedX", "Horizontal scroll speed of the sparkle field in UV units per second. 0 = no scrolling. The mask texture stays static.");
@@ -43,6 +44,19 @@ namespace GuiToolkit.Editor
 			DisplayProperty("_SizeMax", "Maximum sparkle size, relative to a cell. Set equal to min for uniform size.");
 			DisplayProperty("_SpikeSharpness", "How thin the cross spikes are. 1 = round blob, 32 = needle-thin star.");
 			DisplayProperty("_Brightness", "Output multiplier. With additive blending you can dial this above 1.");
+
+			SmallSpace();
+			DisplayProperty("_Clouds", "Soft cloud-like variation across the field: inside a cloud the sparkles are as set above, between clouds they get sparser, smaller and dimmer. Off = uniform field (no extra cost).");
+			var cloudsProp = FindProperty("_Clouds", MaterialProperties, false);
+			if (cloudsProp != null && cloudsProp.floatValue > 0.5f)
+			{
+				DisplayProperty("_CloudScale", "Cloud frequency in blobs per UV unit (or per 100 canvas units with Measure in Canvas Units). Lower = bigger clouds.");
+				DisplayProperty("_CloudContrast", "How sharply clouds separate from the gaps. 1 = soft, gradual; 4+ = distinct patches.");
+				DisplayProperty("_CloudSpeed", "Drift speed of the clouds in UV units (or 100 canvas units) per second, independent of the sparkle scroll. 0 = static clouds.");
+				DisplayProperty("_CloudCoverage", "How much fewer sparkles there are between clouds. 1 = none at all.");
+				DisplayProperty("_CloudSize", "How much smaller sparkles get between clouds. 1 = they shrink to nothing.");
+				DisplayProperty("_CloudBrightness", "How much dimmer sparkles get between clouds. 1 = fully dark.");
+			}
 
 			LargeSpace();
 			Foldout("_FoldoutStencil", () =>
