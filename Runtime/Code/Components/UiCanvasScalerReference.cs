@@ -23,7 +23,7 @@ namespace GuiToolkit
 			{
 				if (m_reference)
 				{
-					m_reference.CopyTo((CanvasScaler)this);
+					m_reference.CopySettingsTo(this);
 				}
 
 				if (m_coroutine == null)

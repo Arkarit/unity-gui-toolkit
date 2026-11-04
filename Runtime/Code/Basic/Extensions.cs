@@ -911,6 +911,29 @@ namespace GuiToolkit
 		}
 
 
+		/// <summary>
+		/// Copies a CanvasScaler's settings (what its inspector shows) to another one, and nothing else.
+		/// Never use CopyTo for a CanvasScaler: it copies Unity's private runtime fields too, among them
+		/// m_Canvas. A template that was never enabled has none, so the target's Handle() returned early from
+		/// then on and the scale froze at its last value - wrong after any resolution or orientation change.
+		/// </summary>
+		public static void CopySettingsTo( this CanvasScaler _self, CanvasScaler _other )
+		{
+			if (_self == null || _other == null || _self == _other)
+				return;
+
+			_other.uiScaleMode = _self.uiScaleMode;
+			_other.referencePixelsPerUnit = _self.referencePixelsPerUnit;
+			_other.scaleFactor = _self.scaleFactor;
+			_other.referenceResolution = _self.referenceResolution;
+			_other.screenMatchMode = _self.screenMatchMode;
+			_other.matchWidthOrHeight = _self.matchWidthOrHeight;
+			_other.physicalUnit = _self.physicalUnit;
+			_other.fallbackScreenDPI = _self.fallbackScreenDPI;
+			_other.defaultSpriteDPI = _self.defaultSpriteDPI;
+			_other.dynamicPixelsPerUnit = _self.dynamicPixelsPerUnit;
+		}
+
 		public static T CopyTo<T>( this Component _self, T _other, HashSet<string> _excludedMembers = null, HashSet<Type> _excludedTypes = null ) where T : Component
 		{
 			return (T)InternalCopyTo(_self, _other, _excludedMembers, _excludedTypes);

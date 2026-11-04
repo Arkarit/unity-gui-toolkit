@@ -270,7 +270,7 @@ namespace GuiToolkit
 		protected IEnumerator ApplyGlobalCanvasScalerTemplateDelayed( CanvasScaler _template )
 		{
 			yield return 0;
-			_template.CopyTo(CanvasScaler);
+			_template.CopySettingsTo(CanvasScaler);
 		}
 
 		/// <summary>

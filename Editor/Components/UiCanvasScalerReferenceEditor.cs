@@ -36,7 +36,7 @@ namespace GuiToolkit.Editor
 
 			if (isReferenceSet)
 			{
-				thisUiCSR.Reference.CopyTo((CanvasScaler)thisUiCSR);
+				thisUiCSR.Reference.CopySettingsTo(thisUiCSR);
 				serializedObject.Update();
 			}
 			else

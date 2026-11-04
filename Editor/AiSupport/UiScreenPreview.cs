@@ -115,7 +115,7 @@ namespace GuiToolkit.Editor.AiSupport
 					var template = config != null ? config.GlobalCanvasScalerTemplate : null;
 					if (template != null)
 					{
-						template.CopyTo(scaler);
+						template.CopySettingsTo(scaler);
 					}
 					else
 					{
