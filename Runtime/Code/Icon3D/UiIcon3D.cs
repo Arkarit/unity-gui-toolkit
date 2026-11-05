@@ -86,7 +86,8 @@ namespace GuiToolkit
 		private GameObject m_requestedPrefab;
 		private Icon3DAssetLease m_lease;
 		private bool m_isDirty = true;
-		private bool m_isSubscribed;
+		// Not kept over a script reload: the listeners are gone then, a true left over would skip adding them again
+		[System.NonSerialized] private bool m_isSubscribed;
 		private float m_nextRefreshTime;
 		private string m_shownSignature;
 		private string m_pendingSignature;

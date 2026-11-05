@@ -28,7 +28,9 @@ namespace GuiToolkit.Style
 		
 		protected UiAbstractStyleBase m_style;
 
-		private bool m_skinListenersAdded = false;
+		// Not kept over a script reload (Unity keeps private fields then, the event's listeners are gone): a true left
+		// over made SetSkinListeners skip subscribing, and the applier no longer followed a skin change.
+		[System.NonSerialized] private bool m_skinListenersAdded = false;
 		private UiStyleConfig m_effectiveStyleConfig;
 		private bool m_effectiveStyleConfigInitialized;
 #if UNITY_EDITOR
@@ -416,18 +418,14 @@ namespace GuiToolkit.Style
 		
 		public void SetSkinListeners(bool value)
 		{
-			if (m_skinListenersAdded == value)
-				return;
+			// Removed first in any case, so subscribing never doubles and never relies on the flag alone
+			UiEventDefinitions.EvSkinChanged.RemoveListener(OnSkinChanged);
+			UiEventDefinitions.EvSkinValuesChanged.RemoveListener(OnSkinValuesChanged);
 
 			if (value)
 			{
 				UiEventDefinitions.EvSkinChanged.AddListener(OnSkinChanged);
 				UiEventDefinitions.EvSkinValuesChanged.AddListener(OnSkinValuesChanged);
-			}
-			else
-			{
-				UiEventDefinitions.EvSkinChanged.RemoveListener(OnSkinChanged);
-				UiEventDefinitions.EvSkinValuesChanged.RemoveListener(OnSkinValuesChanged);
 			}
 
 			m_skinListenersAdded = value;

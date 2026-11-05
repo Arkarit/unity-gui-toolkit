@@ -143,7 +143,8 @@ namespace GuiToolkit
 		/// </summary>
 		protected readonly List<(UiButton button, UnityAction action)> m_buttonListeners = new();
 
-		private bool m_eventListenersAdded = false;
+		// Not kept over a script reload: the listeners are gone then, a true left over would skip adding them again
+		[System.NonSerialized] private bool m_eventListenersAdded = false;
 		private bool m_isAwake = false;
 		private RectTransform m_rectTransform = null;
 
