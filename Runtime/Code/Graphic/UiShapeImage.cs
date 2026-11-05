@@ -60,7 +60,8 @@ namespace GuiToolkit
 			public Color Color;
 		}
 
-		[SerializeField] protected bool m_enabledInHierarchy;
+		// Before v-00-05-287 this defaulted to false, so older shapes carry false: see SyncEnabledInHierarchy.
+		[SerializeField] protected bool m_enabledInHierarchy = true;
 
 		[SerializeField] protected Material m_disabledMaterial;
 
@@ -392,6 +393,34 @@ namespace GuiToolkit
 		public IEnableableInHierarchy[] Children => GetComponentsInChildren<IEnableableInHierarchy>();
 		public void OnEnabledInHierarchyChanged( bool _enabled ) => SetMaterialDirty();
 		#endregion
+
+		protected override void OnEnable()
+		{
+			SyncEnabledInHierarchy();
+			base.OnEnable();
+		}
+
+		protected override void OnTransformParentChanged()
+		{
+			base.OnTransformParentChanged();
+			SyncEnabledInHierarchy();
+		}
+
+		/// <summary>
+		/// A shape's state is only written when the <see cref="UiThing"/> it belongs to changes its state
+		/// (<see cref="EnableableInHierarchyUtility"/>), and it used to be serialized false by default: a shape with a
+		/// disabled material looked disabled under an enabled button. Enabled or moved, it takes the state of the nearest
+		/// UiThing on or above it; a shape without one keeps its own.
+		/// </summary>
+		private void SyncEnabledInHierarchy()
+		{
+			var owner = GetComponentInParent<UiThing>(true);
+			if (owner == null || owner.EnabledInHierarchy == m_enabledInHierarchy)
+				return;
+
+			m_enabledInHierarchy = owner.EnabledInHierarchy;
+			SetMaterialDirty();
+		}
 
 		protected override void OnDisable()
 		{
