@@ -410,11 +410,21 @@ namespace GuiToolkit
 		/// A shape's state is only written when the <see cref="UiThing"/> it belongs to changes its state
 		/// (<see cref="EnableableInHierarchyUtility"/>), and it used to be serialized false by default: a shape with a
 		/// disabled material looked disabled under an enabled button. Enabled or moved, it takes the state of the nearest
-		/// UiThing on or above it; a shape without one keeps its own.
+		/// UiThing on or above it that takes part (<see cref="UiThing.IsEnableableInHierarchy"/>: a button does, an
+		/// animation doesn't and keeps true); a shape without one keeps its own.
 		/// </summary>
 		private void SyncEnabledInHierarchy()
 		{
-			var owner = GetComponentInParent<UiThing>(true);
+			UiThing owner = null;
+			foreach (var thing in GetComponentsInParent<UiThing>(true))
+			{
+				if (thing.IsEnableableInHierarchy)
+				{
+					owner = thing;
+					break;
+				}
+			}
+
 			if (owner == null || owner.EnabledInHierarchy == m_enabledInHierarchy)
 				return;
 

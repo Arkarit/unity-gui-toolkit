@@ -58,6 +58,21 @@ namespace GuiToolkit.Test
 		}
 
 		[Test]
+		public void AnAnimationOnTheShapeIsNotItsOwner()
+		{
+			// UiSimpleAnimation is a UiThing too, but takes no part in the state: it keeps true
+			var (button, shape, disabled) = ButtonWithShape();
+			shape.gameObject.AddComponent<UiSimpleAnimation>();
+			button.EnabledInHierarchy = false;
+
+			shape.gameObject.SetActive(false);
+			shape.gameObject.SetActive(true);
+
+			Assert.That(shape.EnabledInHierarchy, Is.False);
+			Assert.That(shape.materialForRendering.name, Does.Contain(disabled.name));
+		}
+
+		[Test]
 		public void DisablingTheButtonStillSwitchesTheShape()
 		{
 			var (button, shape, disabled) = ButtonWithShape();
