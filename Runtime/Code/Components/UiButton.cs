@@ -57,6 +57,12 @@ namespace GuiToolkit
 			}
 		}
 
+		protected override void ResetAnimations()
+		{
+			base.ResetAnimations();
+			ResetAnimation(m_simpleWiggleAnimation);
+		}
+
 		public override void OnEnabledInHierarchyChanged(bool _enabled)
 		{
 			base.OnEnabledInHierarchyChanged(_enabled);

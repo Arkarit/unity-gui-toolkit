@@ -66,6 +66,30 @@ namespace GuiToolkit
 		{
 			base.OnDisable();
 			OnPointerExit(null);
+			ResetAnimations();
+		}
+
+		/// <summary>
+		/// Puts the button's animations back to their start (the button's normal look). A button hidden or disabled in
+		/// the middle of its press animation (often by its own click, which changes the screen) kept that frame until it
+		/// was pressed again: a stopped animation stays where it is. In edit mode it only stops them, so prefabs and
+		/// scenes aren't changed.
+		/// </summary>
+		protected virtual void ResetAnimations()
+		{
+			ResetAnimation(m_simpleAnimation);
+		}
+
+		protected static void ResetAnimation( UiSimpleAnimationBase _animation )
+		{
+			if (!_animation)
+				return;
+
+			// Stop without the stop delegates first: Reset's own Stop would call them, and a release animation's
+			// "play forward again" delegate would start it anew.
+			_animation.Stop(false);
+			if (Application.isPlaying)
+				_animation.Reset();
 		}
 
 		public (Color leftOrTop, Color rightOrBottom) GetSimpleGradientColors()
@@ -78,8 +102,8 @@ namespace GuiToolkit
 		public override void OnEnabledInHierarchyChanged(bool _enabled)
 		{
 			base.OnEnabledInHierarchyChanged(_enabled);
-			if (!_enabled && m_simpleAnimation)
-				m_simpleAnimation.Stop(false);
+			if (!_enabled)
+				ResetAnimations();
 		}
 
 		/// <summary>
