@@ -48,6 +48,14 @@ namespace GuiToolkit.Editor
 		protected SerializedProperty m_preferredHeightStartProp;
 		protected SerializedProperty m_preferredHeightEndProp;
 		protected SerializedProperty m_preferredHeightCurveProp;
+		protected SerializedProperty m_animateMinWidthProp;
+		protected SerializedProperty m_minWidthStartProp;
+		protected SerializedProperty m_minWidthEndProp;
+		protected SerializedProperty m_minWidthCurveProp;
+		protected SerializedProperty m_animateMinHeightProp;
+		protected SerializedProperty m_minHeightStartProp;
+		protected SerializedProperty m_minHeightEndProp;
+		protected SerializedProperty m_minHeightCurveProp;
 
 
 		protected SerializedProperty m_optionalMouseOverSlaveAnimationResetProp;
@@ -100,6 +108,14 @@ namespace GuiToolkit.Editor
 			m_preferredHeightStartProp = serializedObject.FindProperty("m_preferredHeightStart");
 			m_preferredHeightEndProp = serializedObject.FindProperty("m_preferredHeightEnd");
 			m_preferredHeightCurveProp = serializedObject.FindProperty("m_preferredHeightCurve");
+			m_animateMinWidthProp = serializedObject.FindProperty("m_animateMinWidth");
+			m_minWidthStartProp = serializedObject.FindProperty("m_minWidthStart");
+			m_minWidthEndProp = serializedObject.FindProperty("m_minWidthEnd");
+			m_minWidthCurveProp = serializedObject.FindProperty("m_minWidthCurve");
+			m_animateMinHeightProp = serializedObject.FindProperty("m_animateMinHeight");
+			m_minHeightStartProp = serializedObject.FindProperty("m_minHeightStart");
+			m_minHeightEndProp = serializedObject.FindProperty("m_minHeightEnd");
+			m_minHeightCurveProp = serializedObject.FindProperty("m_minHeightCurve");
 
 			m_optionalMouseOverSlaveAnimationProp = serializedObject.FindProperty("m_optionalMouseOverSlaveAnimation");
 			m_optionalMouseOverSlaveAnimationResetProp = serializedObject.FindProperty("m_optionalMouseOverSlaveAnimationReset");
@@ -257,6 +273,26 @@ namespace GuiToolkit.Editor
 					EditorGUILayout.PropertyField(m_preferredHeightStartProp, new GUIContent("Start"));
 					EditorGUILayout.PropertyField(m_preferredHeightEndProp, new GUIContent("End"));
 					EditorGUILayout.PropertyField(m_preferredHeightCurveProp, new GUIContent("Norm. Curve"));
+					EditorGUI.indentLevel--;
+				}
+
+				EditorGUILayout.PropertyField(m_animateMinWidthProp, new GUIContent("Min Width"));
+				if (m_animateMinWidthProp.boolValue)
+				{
+					EditorGUI.indentLevel++;
+					EditorGUILayout.PropertyField(m_minWidthStartProp, new GUIContent("Start"));
+					EditorGUILayout.PropertyField(m_minWidthEndProp, new GUIContent("End"));
+					EditorGUILayout.PropertyField(m_minWidthCurveProp, new GUIContent("Norm. Curve"));
+					EditorGUI.indentLevel--;
+				}
+
+				EditorGUILayout.PropertyField(m_animateMinHeightProp, new GUIContent("Min Height"));
+				if (m_animateMinHeightProp.boolValue)
+				{
+					EditorGUI.indentLevel++;
+					EditorGUILayout.PropertyField(m_minHeightStartProp, new GUIContent("Start"));
+					EditorGUILayout.PropertyField(m_minHeightEndProp, new GUIContent("End"));
+					EditorGUILayout.PropertyField(m_minHeightCurveProp, new GUIContent("Norm. Curve"));
 					EditorGUI.indentLevel--;
 				}
 

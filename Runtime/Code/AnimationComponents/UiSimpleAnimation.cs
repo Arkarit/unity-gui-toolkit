@@ -340,6 +340,24 @@ namespace GuiToolkit
 		protected float m_preferredHeightEnd;
 		[SerializeField]
 		protected AnimationCurve m_preferredHeightCurve;
+		// The minimum size wins over the preferred size in a layout group: animating it grows or shrinks an element
+		// whose preferred size the layout can't honour (a flexible element that the group squeezes).
+		[SerializeField]
+		protected bool m_animateMinWidth;
+		[SerializeField]
+		protected float m_minWidthStart;
+		[SerializeField]
+		protected float m_minWidthEnd;
+		[SerializeField]
+		protected AnimationCurve m_minWidthCurve;
+		[SerializeField]
+		protected bool m_animateMinHeight;
+		[SerializeField]
+		protected float m_minHeightStart;
+		[SerializeField]
+		protected float m_minHeightEnd;
+		[SerializeField]
+		protected AnimationCurve m_minHeightCurve;
 
 		public LayoutElement LayoutElement
 		{
@@ -393,6 +411,54 @@ namespace GuiToolkit
 		{
 			get => m_preferredHeightCurve;
 			set { Stop(); m_preferredHeightCurve = value; }
+		}
+
+		public bool AnimateMinWidth
+		{
+			get => m_animateMinWidth;
+			set { Stop(); m_animateMinWidth = value; }
+		}
+
+		public float MinWidthStart
+		{
+			get => m_minWidthStart;
+			set { Stop(); m_minWidthStart = value; }
+		}
+
+		public float MinWidthEnd
+		{
+			get => m_minWidthEnd;
+			set { Stop(); m_minWidthEnd = value; }
+		}
+
+		public AnimationCurve MinWidthCurve
+		{
+			get => m_minWidthCurve;
+			set { Stop(); m_minWidthCurve = value; }
+		}
+
+		public bool AnimateMinHeight
+		{
+			get => m_animateMinHeight;
+			set { Stop(); m_animateMinHeight = value; }
+		}
+
+		public float MinHeightStart
+		{
+			get => m_minHeightStart;
+			set { Stop(); m_minHeightStart = value; }
+		}
+
+		public float MinHeightEnd
+		{
+			get => m_minHeightEnd;
+			set { Stop(); m_minHeightEnd = value; }
+		}
+
+		public AnimationCurve MinHeightCurve
+		{
+			get => m_minHeightCurve;
+			set { Stop(); m_minHeightCurve = value; }
 		}
 		#endregion
 
@@ -736,8 +802,8 @@ namespace GuiToolkit
 				m_uiSkew.AngleVertical = y;
 		}
 
-		// Holds its own reference like alpha and skew, so it runs without a target. Setting the preferred size
-		// marks the layout dirty by itself.
+		// Holds its own reference like alpha and skew, so it runs without a target. Setting the preferred or minimum
+		// size marks the layout dirty by itself.
 		private void AnimateLayoutElement( float _normalizedTime )
 		{
 			if (m_layoutElement == null)
@@ -749,7 +815,13 @@ namespace GuiToolkit
 			if (m_animatePreferredHeight && m_preferredHeightCurve != null)
 				m_layoutElement.preferredHeight = Mathf.LerpUnclamped(m_preferredHeightStart, m_preferredHeightEnd, m_preferredHeightCurve.Evaluate(_normalizedTime));
 
-			Log($"AnimateLayoutElement({_normalizedTime}), preferred:{m_layoutElement.preferredWidth}x{m_layoutElement.preferredHeight}");
+			if (m_animateMinWidth && m_minWidthCurve != null)
+				m_layoutElement.minWidth = Mathf.LerpUnclamped(m_minWidthStart, m_minWidthEnd, m_minWidthCurve.Evaluate(_normalizedTime));
+
+			if (m_animateMinHeight && m_minHeightCurve != null)
+				m_layoutElement.minHeight = Mathf.LerpUnclamped(m_minHeightStart, m_minHeightEnd, m_minHeightCurve.Evaluate(_normalizedTime));
+
+			Log($"AnimateLayoutElement({_normalizedTime}), preferred:{m_layoutElement.preferredWidth}x{m_layoutElement.preferredHeight}, min:{m_layoutElement.minWidth}x{m_layoutElement.minHeight}");
 
 #if UNITY_EDITOR
 			// The new size only marks the layout dirty; it is rebuilt when a canvas renders, which outside play mode
