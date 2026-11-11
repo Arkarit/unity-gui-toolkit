@@ -21,6 +21,14 @@ namespace GuiToolkit
 			public string Text = null;
 			public string PlaceholderText = null;
 			public string InputText = null;
+			/// <summary>
+			/// Checks the input as it is typed: null when it is valid, otherwise what is wrong (shown in the input
+			/// error text, if the requester has one). While it is invalid, the buttons with
+			/// <see cref="UiRequesterBase.ButtonInfo.RequiresValidInput"/> are disabled.
+			/// </summary>
+			public Func<string, string> InputValidator = null;
+			/// <summary>The input's maximum length; 0 keeps the input field's own.</summary>
+			public int InputCharacterLimit = 0;
 			public UiDateTimePanel.Options DateTimeOptions = null;
 		}
 
@@ -29,6 +37,8 @@ namespace GuiToolkit
 		[SerializeField] protected UiDateTimePanel m_dateTimePanel;
 		[SerializeField] protected TextMeshProUGUI m_text;
 		[SerializeField] protected TMP_InputField m_inputField;
+		[Tooltip("Shows what is wrong with the input (Options.InputValidator); hidden while the input is valid or untouched.")]
+		[SerializeField][Optional] protected TMP_Text m_inputErrorText;
 		[FormerlySerializedAs("m_dialogPanel")] 
 		[SerializeField] protected RectTransform m_measureRectTransform;
 		[SerializeField][Min(1f)] private float m_minBodyFontSize = 8f;
@@ -36,6 +46,10 @@ namespace GuiToolkit
 		private float m_originalBodyFontSize;
 		private bool m_originalBodyAutoSizing;
 		private bool m_pendingFit = true;
+		private Func<string, string> m_inputValidator;
+		private int? m_originalCharacterLimit;
+		private bool m_inputTouched;
+		private bool m_inputValid = true;
 
 		protected override void Awake()
 		{
@@ -368,7 +382,8 @@ namespace GuiToolkit
 					{
 						Text = string.IsNullOrEmpty(_yesText) ? __("Ok") : _yesText,
 						Prefab = UiMain.Instance.OkButtonPrefab,
-						OnClick = () => _onOk(GetInputText())
+						OnClick = () => _onOk(GetInputText()),
+						RequiresValidInput = true
 					},
 					new ButtonInfo
 					{
@@ -410,7 +425,8 @@ namespace GuiToolkit
 					{
 						Text = string.IsNullOrEmpty(_yesText) ? __("Ok") : _yesText,
 						Prefab = UiMain.Instance.OkButtonPrefab,
-						OnClick = null
+						OnClick = null,
+						RequiresValidInput = true
 					},
 					new ButtonInfo
 					{
@@ -443,6 +459,74 @@ namespace GuiToolkit
 		}
 
 		public string GetInputText() => m_inputField.text;
+
+		/// <summary>Whether the input passes the options' validator (always true without one).</summary>
+		public bool IsInputValid => m_inputValid;
+
+		protected override bool CanClick( ButtonInfo _buttonInfo ) => !_buttonInfo.RequiresValidInput || m_inputValid;
+
+		protected override void Clear()
+		{
+			if (m_inputField != null)
+			{
+				m_inputField.onValueChanged.RemoveListener(OnInputChanged);
+				if (m_originalCharacterLimit.HasValue)
+					m_inputField.characterLimit = m_originalCharacterLimit.Value;
+			}
+
+			// The buttons go back to the pool: one greyed out by the validator would stay grey in the next requester.
+			if (m_inputValidator != null)
+				SetValidInputButtonsEnabled(true);
+
+			m_originalCharacterLimit = null;
+			m_inputValidator = null;
+			m_inputTouched = false;
+			m_inputValid = true;
+			if (m_inputErrorText != null)
+				m_inputErrorText.gameObject.SetActive(false);
+
+			base.Clear();
+		}
+
+		private void OnInputChanged( string _ )
+		{
+			m_inputTouched = true;
+			Validate();
+		}
+
+		private void Validate()
+		{
+			// Without a validator the buttons are left as their ButtonInfos set them.
+			if (m_inputValidator == null)
+			{
+				m_inputValid = true;
+				return;
+			}
+
+			string error = m_inputValidator(m_inputField.text);
+			m_inputValid = error == null;
+			SetValidInputButtonsEnabled(m_inputValid);
+
+			if (m_inputErrorText == null)
+				return;
+
+			// An untouched field (a new, empty name) only greys the button out; the message waits for the first edit.
+			bool showError = !m_inputValid && m_inputTouched;
+			m_inputErrorText.gameObject.SetActive(showError);
+			if (showError)
+				m_inputErrorText.text = error;
+		}
+
+		private void SetValidInputButtonsEnabled( bool _enabled )
+		{
+			var buttons = Buttons;
+			var infos = ButtonInfosOfButtons;
+			for (int i = 0; i < buttons.Count; i++)
+			{
+				if (infos[i].RequiresValidInput && buttons[i] != null)
+					buttons[i].EnabledInHierarchy = _enabled;
+			}
+		}
 
 		public DateTime GetDateTime() => m_dateTimePanel.SelectedDateTime;
 
@@ -483,6 +567,18 @@ namespace GuiToolkit
 					if (placeholderText != null)
 						placeholderText.text = options.PlaceholderText;
 				}
+
+				if (options.InputCharacterLimit > 0)
+				{
+					m_originalCharacterLimit = m_inputField.characterLimit;
+					m_inputField.characterLimit = options.InputCharacterLimit;
+				}
+
+				m_inputValidator = options.InputValidator;
+				m_inputTouched = false;
+				Validate();
+				if (m_inputValidator != null)
+					m_inputField.onValueChanged.AddListener(OnInputChanged);
 				UiMain.Instance.SetFocus(m_inputField);
 			}
 

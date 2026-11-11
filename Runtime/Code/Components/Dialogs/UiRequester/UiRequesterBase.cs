@@ -48,6 +48,11 @@ namespace GuiToolkit
 			public bool CloseRequester = true;
 			public bool EnabledInHierarchy = true;
 			public EDisabledButtonsHandling DisabledButtonsHandling = EDisabledButtonsHandling.SetNonActive;
+			/// <summary>
+			/// The button is disabled (EnabledInHierarchy) while the requester's input is invalid, and does nothing
+			/// when clicked then. Only for requesters with an input validator (UiRequester.Options.InputValidator).
+			/// </summary>
+			public bool RequiresValidInput = false;
 		}
 
 		public class Options
@@ -85,6 +90,7 @@ namespace GuiToolkit
 
 		private readonly List<UiButton> m_buttons = new();
 		private readonly List<UnityAction> m_listeners = new();
+		private readonly List<ButtonInfo> m_buttonInfos = new();
 		private UnityAction m_closeButtonAction;
 		private RequesterHandle m_requesterHandle;
 		private bool m_consumed;
@@ -304,6 +310,7 @@ namespace GuiToolkit
 
 			m_buttons.Clear();
 			m_listeners.Clear();
+			m_buttonInfos.Clear();
 			OnClickCatcher = null;
 			m_closeButtonAction = null;
 			m_options = null;
@@ -360,6 +367,7 @@ namespace GuiToolkit
 
 				m_buttons.Add(button);
 				m_listeners.Add(bi.OnClick);
+				m_buttonInfos.Add(bi);
 
 				// in a real programming language you would be able to declare the lambda capture mode (ref or copy)
 				int buttonIdx = i;
@@ -395,12 +403,24 @@ namespace GuiToolkit
 			m_optionalCloseButton.gameObject.SetActive(hasCloseButton);
 		}
 
+		/// <summary>The buttons as created from the options' ButtonInfos (a skipped info has no button).</summary>
+		protected IReadOnlyList<UiButton> Buttons => m_buttons;
+
+		/// <summary>The options' ButtonInfos for the buttons in <see cref="Buttons"/>, index for index.</summary>
+		protected IReadOnlyList<ButtonInfo> ButtonInfosOfButtons => m_buttonInfos;
+
+		/// <summary>Whether the button may act now; false makes a click do nothing (e.g. while the input is invalid).</summary>
+		protected virtual bool CanClick( ButtonInfo _buttonInfo ) => true;
+
 		private void OnClick( int _idx ) => HandleButtonClick(_idx);
 		private void OnCloseButton() => HandleButtonClick(-1);
 
 		private void HandleButtonClick( int _idx )
 		{
 			bool idxIsCloseButton = _idx == -1;
+			if (!idxIsCloseButton && !CanClick(m_options.ButtonInfos[_idx]))
+				return;
+
 			bool buttonClosesRequester = idxIsCloseButton || m_options.ButtonInfos[_idx].CloseRequester;
 			Debug.Assert(_idx < m_listeners.Count && _idx >= -1);
 
