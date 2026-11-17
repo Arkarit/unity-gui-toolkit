@@ -708,7 +708,10 @@ namespace GuiToolkit.Editor.AiSupport
 						ThrowIfBusy("playMode/" + action);
 
 					if (action == "enter" && !EditorApplication.isPlayingOrWillChangePlaymode)
+					{
+						PrepareSceneChoiceForPlay((string)request["dirtyScenes"]);
 						s_playModeRequest = 1;
+					}
 					else if (action == "exit" && EditorApplication.isPlaying)
 						s_playModeRequest = -1;
 
@@ -869,6 +872,53 @@ namespace GuiToolkit.Editor.AiSupport
 				(long?)request["sinceSequence"] ?? 0,
 				(int?)request["limit"] ?? 0,
 				(bool?)request["withStackTraces"] ?? false);
+		}
+
+		/// <summary>
+		/// With Only Main Scene On Play on, entering Play Mode closes every other scene and asks about unsaved changes
+		/// in a modal dialog. Nobody is there to click it when the bridge enters, and the whole editor stands still. So
+		/// with unsaved scenes the caller decides beforehand: 'save' or 'discard' (the scenes come back from disk after
+		/// Play Mode, so discarded changes are gone); without a decision the request is refused and names the scenes.
+		/// The answer holds for this entering only: the domain reload of Play Mode clears it, and so does the end of
+		/// the change (<see cref="ClearSceneChoiceAfterPlayModeChange"/>).
+		/// </summary>
+		private static void PrepareSceneChoiceForPlay( string _dirtyScenes )
+		{
+			EditorSceneUtility.NonInteractiveChoice = null;
+			if (!OnlyMainSceneOnPlay.ClosesScenesOnPlay)
+				return;
+
+			var dirty = EditorSceneUtility.DirtyScenesExceptMain();
+			if (dirty.Count == 0)
+				return;
+
+			switch ((_dirtyScenes ?? "refuse").ToLowerInvariant())
+			{
+				case "save":
+					EditorSceneUtility.NonInteractiveChoice = EditorSceneUtility.ESceneUnloadChoice.Save;
+					break;
+				case "discard":
+					EditorSceneUtility.NonInteractiveChoice = EditorSceneUtility.ESceneUnloadChoice.Ignore;
+					break;
+				default:
+					throw new Exception("playMode/enter refused: Only Main Scene On Play closes the other scenes on entering Play "
+						+ $"Mode, and these have unsaved changes: {string.Join(", ", dirty)}. The editor would ask in a modal "
+						+ "dialog nobody can click. Pass dirtyScenes 'save' or 'discard' (discarded changes are lost), or "
+						+ "let the user save or discard them in the editor.");
+			}
+
+			EditorApplication.playModeStateChanged -= ClearSceneChoiceAfterPlayModeChange;
+			EditorApplication.playModeStateChanged += ClearSceneChoiceAfterPlayModeChange;
+		}
+
+		private static void ClearSceneChoiceAfterPlayModeChange( PlayModeStateChange _state )
+		{
+			// The scenes were closed by then (ExitingEditMode), or entering did not happen after all.
+			if (_state is PlayModeStateChange.EnteredPlayMode or PlayModeStateChange.EnteredEditMode)
+			{
+				EditorSceneUtility.NonInteractiveChoice = null;
+				EditorApplication.playModeStateChanged -= ClearSceneChoiceAfterPlayModeChange;
+			}
 		}
 
 		private static JObject PlayModeState( string _action ) => new()

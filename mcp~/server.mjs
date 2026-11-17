@@ -1038,12 +1038,19 @@ tool(
 	"Mode starts the app at its FIRST scene, which for a real game usually means splash, login and network — " +
 	"reaching a particular screen from there is often not something you can drive. The productive pattern is " +
 	"usually the other way round: ask the human to bring the app to the state in question, then use " +
-	"screenshot_game and probe_ui on it.",
+	"screenshot_game and probe_ui on it. With the toolkit's Only Main Scene On Play on, entering closes every " +
+	"scene but the main one; when one of them has unsaved changes, 'enter' is refused and names them, because " +
+	"the editor would otherwise ask in a modal dialog nobody can click (and stand still). Decide with " +
+	"'dirtyScenes' and call again - but those are the user's changes: ask before discarding them.",
 	{
 		action: z.enum(["status", "enter", "exit"]).optional().describe("Default 'status'."),
+		dirtyScenes: z.enum(["refuse", "save", "discard"]).optional().describe(
+			"For 'enter' with Only Main Scene On Play on: what happens to unsaved changes of the scenes it closes. " +
+			"'refuse' (default) refuses and names them; 'save' saves them; 'discard' drops them (the scenes come " +
+			"back from disk after Play Mode)."),
 	},
-	async ({ action }) => {
-		try { return ok(await callBridge("playMode", JSON.stringify({ action: action ?? "status" }))); }
+	async ({ action, dirtyScenes }) => {
+		try { return ok(await callBridge("playMode", JSON.stringify({ action: action ?? "status", dirtyScenes }))); }
 		catch (e) { return fail(e); }
 	}
 );

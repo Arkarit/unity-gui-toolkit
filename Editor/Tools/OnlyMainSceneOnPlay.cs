@@ -41,6 +41,12 @@ namespace GuiToolkit
 			EditorApplication.playModeStateChanged += HandleScenes;
 		}
 
+		/// <summary>
+		/// Whether entering Play Mode closes every scene but the main one, asking first about unsaved changes
+		/// (<see cref="EditorSceneUtility.DirtyScenesExceptMain"/>).
+		/// </summary>
+		public static bool ClosesScenesOnPlay => IsEnabled && BuildSettingsUtility.HasMainScene();
+
 		[MenuItem(StringConstants.MAIN_SCENE_ON_PLAY_MENU_NAME, priority = Constants.MAIN_SCENE_ON_PLAY_MENU_NAME_PRIORITY)]
 		private static void Toggle()
 		{

@@ -18,14 +18,55 @@ namespace GuiToolkit
 			Cancel,
 		}
 
+		/// <summary>
+		/// The answer the "Pending Scene changes" dialogs give without asking; null asks the user, as always.
+		/// </summary>
+		/// <remarks>
+		/// For automation that changes the editor's state while nobody watches it, e.g. the MCP bridge entering
+		/// Play Mode with Only Main Scene On Play on: the dialog is modal, so with nobody to click it the editor
+		/// stands still. Whoever sets it clears it again; a domain reload clears it too.
+		/// </remarks>
+		public static ESceneUnloadChoice? NonInteractiveChoice { get; set; }
+
 		public static ESceneUnloadChoice DoDirtyEditorScenesCloseDialog()
 		{
+			if (NonInteractiveChoice.HasValue)
+				return NonInteractive("Some scenes have been changed");
+
 			return (ESceneUnloadChoice) EditorUtility.DisplayDialogComplex("Pending Scene changes", "Some scenes have been changed. How should we continue?", "Save", "Ignore", "Cancel" );
 		}
 
 		public static ESceneUnloadChoice DoDirtyEditorSceneCloseDialog(string _sceneName)
 		{
+			if (NonInteractiveChoice.HasValue)
+				return NonInteractive($"Scene '{_sceneName}' has been changed");
+
 			return (ESceneUnloadChoice) EditorUtility.DisplayDialogComplex("Pending Scene changes", $"Scene '{_sceneName}' has been changed. How should we continue?", "Save", "Ignore", "Cancel");
+		}
+
+		private static ESceneUnloadChoice NonInteractive( string _what )
+		{
+			var choice = NonInteractiveChoice.Value;
+			UiLog.Log($"Pending Scene changes: {_what}; answered '{choice}' without asking ({nameof(NonInteractiveChoice)}).");
+			return choice;
+		}
+
+		/// <summary>
+		/// The loaded scenes with unsaved changes, except the main scene: what closing all scenes but the main one
+		/// (<see cref="CloseAllEditorScenesExceptMain"/>, Only Main Scene On Play) would ask about.
+		/// </summary>
+		public static List<string> DirtyScenesExceptMain()
+		{
+			var result = new List<string>();
+			Scene mainScene = BuildSettingsUtility.GetMainScene();
+			for (int i = 0; i < SceneManager.loadedSceneCount; i++)
+			{
+				Scene scene = EditorSceneManager.GetSceneAt(i);
+				if (scene != mainScene && scene.isDirty)
+					result.Add(scene.path);
+			}
+
+			return result;
 		}
 
 		public static bool CheckBeforeCloseEditorScenes()
