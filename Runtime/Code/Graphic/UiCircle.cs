@@ -58,7 +58,8 @@ namespace GuiToolkit
 
 			BuildRing(center, Mathf.Max(0f, r - m_fadeSize), s_perimB);
 			EmitFrameStripFromPerimeters(s_perimA, s_perimB, m_fadeColor, color);
-			EmitFilledFromPerimeter(center, s_perimB, color);
+			if (!m_fadeOnly)
+				EmitFilledFromPerimeter(center, s_perimB, color);
 		}
 
 		protected override void GenerateFrame()

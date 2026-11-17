@@ -720,7 +720,8 @@ namespace GuiToolkit
 
 			int startIndex = GenerateFrameRectSimple(rect, m_fadeSize);
 			FadeFrameRect(startIndex, rect, Fade.Outer);
-			AddRectMinusBands(Deflate(rect, m_fadeSize));
+			if (!m_fadeOnly)
+				AddRectMinusBands(Deflate(rect, m_fadeSize));
 		}
 
 		// -------------------------------------------------------------------------------- shaped corners
@@ -961,6 +962,9 @@ namespace GuiToolkit
 			CornerRadii(s_radii, s_chords);
 			if (!Mathf.Approximately(0, m_fadeSize))
 				GenerateRing(ref rect, s_radii, s_chords, m_fadeSize, Fade.Outer);
+
+			if (m_fadeOnly)
+				return;
 
 			// A filled shape tiles exactly as rectangles plus one fan per shaped corner. Rectangles split
 			// against a band trivially, and the fans sit in the corners, which the bands are clamped away

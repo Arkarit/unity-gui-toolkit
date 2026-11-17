@@ -77,6 +77,10 @@ namespace GuiToolkit
 		[Tooltip("The Transparent color")]
 		[SerializeField] protected Color m_fadeColor = Color.clear;
 
+		[Tooltip("Draws only the fade ring of a filled shape and leaves the inside empty: an outer glow around "
+		         + "something else. Without Fade Size nothing is drawn; a frame (Frame Size > 0) ignores it.")]
+		[SerializeField] protected bool m_fadeOnly;
+
 		[Tooltip("Invert stencil mask. Useful for cutouts.")]
 		[SerializeField] protected bool m_invertMask;
 
@@ -174,6 +178,30 @@ namespace GuiToolkit
 					return;
 
 				m_fadeColor = value;
+				SetVerticesDirty();
+			}
+		}
+
+		/// <summary>
+		/// A filled shape draws only its fade ring, not the body inside it.
+		/// </summary>
+		/// <remarks>
+		/// Made for an outer glow: a shape grown by Size Offset behind something, its fade running outwards
+		/// from that something's edge. With the body drawn, the glow's solid inside lies under the content
+		/// and shows wherever the content is transparent or not there yet: covering it costs overdraw, and
+		/// fading both in together shows the solid body for a moment. Without a fade there is no ring, so
+		/// nothing is drawn (a glow faded down to size 0 is gone, not a solid shape). A frame
+		/// (<see cref="FrameSize"/> > 0) has no body and ignores this.
+		/// </remarks>
+		public bool FadeOnly
+		{
+			get => m_fadeOnly;
+			set
+			{
+				if (m_fadeOnly == value)
+					return;
+
+				m_fadeOnly = value;
 				SetVerticesDirty();
 			}
 		}
@@ -512,7 +540,7 @@ namespace GuiToolkit
 		{
 			if (m_frameSize > 0)
 				GenerateFrame();
-			else
+			else if (!m_fadeOnly || !Mathf.Approximately(0, m_fadeSize))
 				GenerateFilled();
 
 			if (type == Type.Filled)
@@ -548,6 +576,7 @@ namespace GuiToolkit
 
 		/// <summary>
 		/// Generate the filled (no-frame) mesh of the shape. Must populate s_vertices and s_triangles.
+		/// With <see cref="FadeOnly"/> it emits the fade ring only; it is not called then without a fade.
 		/// </summary>
 		protected abstract void GenerateFilled();
 

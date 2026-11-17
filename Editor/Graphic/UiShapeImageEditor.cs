@@ -33,6 +33,7 @@ namespace GuiToolkit.Editor
 		protected SerializedProperty m_enabledInHierarchyProp;
 		protected SerializedProperty m_gradientSimpleProp;
 		protected SerializedProperty m_fadeColorProp;
+		protected SerializedProperty m_fadeOnlyProp;
 		protected SerializedProperty m_uniformSizeOffsetProp;
 		protected SerializedProperty m_sizeOffsetProp;
 		protected SerializedProperty m_positionOffsetProp;
@@ -63,6 +64,7 @@ namespace GuiToolkit.Editor
 			m_enabledInHierarchyProp = serializedObject.FindProperty("m_enabledInHierarchy");
 			m_gradientSimpleProp = serializedObject.FindProperty("m_gradientSimple");
 			m_fadeColorProp = serializedObject.FindProperty("m_fadeColor");
+			m_fadeOnlyProp = serializedObject.FindProperty("m_fadeOnly");
 			m_uniformSizeOffsetProp = serializedObject.FindProperty("m_uniformSizeOffset");
 			m_sizeOffsetProp = serializedObject.FindProperty("m_sizeOffset");
 			m_positionOffsetProp = serializedObject.FindProperty("m_positionOffset");
@@ -174,6 +176,11 @@ namespace GuiToolkit.Editor
 			EditorGUILayout.PropertyField(m_frameSizeProp);
 			EditorGUILayout.PropertyField(m_fadeSizeProp);
 			EditorGUILayout.PropertyField(m_fadeColorProp);
+
+			// Only a filled shape has a body to leave out.
+			using (new EditorGUI.DisabledScope(m_frameSizeProp.floatValue > 0))
+				EditorGUILayout.PropertyField(m_fadeOnlyProp);
+
 			EditorGUILayout.PropertyField(m_gradientSimpleProp);
 
 			using (new EditorGUI.DisabledScope(!_shapeImage.maskable))
