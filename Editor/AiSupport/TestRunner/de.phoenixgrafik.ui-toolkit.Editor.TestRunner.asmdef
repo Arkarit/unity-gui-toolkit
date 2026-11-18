@@ -21,7 +21,7 @@
     "versionDefines": [
         {
             "name": "com.unity.test-framework",
-            "expression": "1.3.0",
+            "expression": "1.1.0",
             "define": "UITK_TEST_FRAMEWORK"
         }
     ],
