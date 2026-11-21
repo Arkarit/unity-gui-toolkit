@@ -1,0 +1,151 @@
+{
+    "Version": 2,
+    "Namespace": "GuiToolkit.Style",
+    "Prefix": "",
+    "Records": [
+        {
+            "Used": true,
+            "Name": "AnimationSpeed",
+            "QualifiedTypeName": "System.Single",
+            "TypeName": "Single"
+        },
+        {
+            "Used": true,
+            "Name": "AnimationStartTime",
+            "QualifiedTypeName": "System.Single",
+            "TypeName": "Single"
+        },
+        {
+            "Used": true,
+            "Name": "Bounds",
+            "QualifiedTypeName": "UnityEngine.Bounds",
+            "TypeName": "Bounds"
+        },
+        {
+            "Used": true,
+            "Name": "CanvasInParent",
+            "QualifiedTypeName": "UnityEngine.Canvas",
+            "TypeName": "Canvas"
+        },
+        {
+            "Used": true,
+            "Name": "enabled",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": true,
+            "Name": "EnabledInHierarchy",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": true,
+            "Name": "FrameDivider",
+            "QualifiedTypeName": "System.Int32",
+            "TypeName": "Int32"
+        },
+        {
+            "Used": false,
+            "Name": "hideFlags",
+            "QualifiedTypeName": "UnityEngine.HideFlags",
+            "TypeName": "HideFlags"
+        },
+        {
+            "Used": true,
+            "Name": "LoadingTexture",
+            "QualifiedTypeName": "UnityEngine.Texture",
+            "TypeName": "Texture"
+        },
+        {
+            "Used": true,
+            "Name": "Mode",
+            "QualifiedTypeName": "GuiToolkit.UiIcon3D.EMode",
+            "TypeName": "EMode"
+        },
+        {
+            "Used": false,
+            "Name": "name",
+            "QualifiedTypeName": "System.String",
+            "TypeName": "String"
+        },
+        {
+            "Used": true,
+            "Name": "OverrideBounds",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": true,
+            "Name": "OverrideViewRotation",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": true,
+            "Name": "Paused",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": true,
+            "Name": "Prefab",
+            "QualifiedTypeName": "UnityEngine.GameObject",
+            "TypeName": "GameObject"
+        },
+        {
+            "Used": true,
+            "Name": "PrefabId",
+            "QualifiedTypeName": "System.String",
+            "TypeName": "String"
+        },
+        {
+            "Used": true,
+            "Name": "Preset",
+            "QualifiedTypeName": "GuiToolkit.UiIcon3DPreset",
+            "TypeName": "UiIcon3DPreset"
+        },
+        {
+            "Used": true,
+            "Name": "RefreshInterval",
+            "QualifiedTypeName": "System.Single",
+            "TypeName": "Single"
+        },
+        {
+            "Used": true,
+            "Name": "ResolutionScale",
+            "QualifiedTypeName": "System.Single",
+            "TypeName": "Single"
+        },
+        {
+            "Used": true,
+            "Name": "RewindSpeed",
+            "QualifiedTypeName": "System.Single",
+            "TypeName": "Single"
+        },
+        {
+            "Used": false,
+            "Name": "runInEditMode",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": false,
+            "Name": "tag",
+            "QualifiedTypeName": "System.String",
+            "TypeName": "String"
+        },
+        {
+            "Used": false,
+            "Name": "useGUILayout",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": true,
+            "Name": "ViewRotation",
+            "QualifiedTypeName": "UnityEngine.Quaternion",
+            "TypeName": "Quaternion"
+        }
+    ]
+}
