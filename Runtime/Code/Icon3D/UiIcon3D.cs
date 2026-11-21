@@ -64,6 +64,10 @@ namespace GuiToolkit
 		[SerializeField] private bool m_overrideBounds;
 		[Tooltip("Box to frame, in the shown object's local space (its root). Can be tuned while playing and copied into the prefab.")]
 		[SerializeField] private Bounds m_bounds = new(Vector3.zero, Vector3.one);
+		[Tooltip("Correction of the framed box (the one above, the object's hint or its renderers): its size times this. Below 1 frames tighter, above 1 wider.")]
+		[SerializeField][Min(0.01f)] private float m_framingPadding = 1;
+		[Tooltip("Correction of the framed box: its centre moved by this, in units of its size (0, 0.1, 0 = a tenth of its height up).")]
+		[SerializeField] private Vector3 m_framingOffset;
 		[SerializeField] private EMode m_mode = EMode.Static;
 		[Tooltip("Rewinding mode: how much faster than normal the animation runs back to its first frame")]
 		[SerializeField][Min(0.1f)] private float m_rewindSpeed = 2f;
@@ -199,6 +203,39 @@ namespace GuiToolkit
 				m_bounds = value;
 				if (m_overrideBounds)
 					SetDirty();
+			}
+		}
+
+		/// <summary>
+		/// The framed box's size times this (below 1 tighter, above 1 wider), whichever box it is: <see cref="Bounds"/>,
+		/// the object's hint or its renderers. Lets a style correct the framing of every icon of a kind while each keeps
+		/// its object's own box.
+		/// </summary>
+		public float FramingPadding
+		{
+			get => m_framingPadding;
+			set
+			{
+				value = Mathf.Max(0.01f, value);
+				if (Mathf.Approximately(m_framingPadding, value))
+					return;
+
+				m_framingPadding = value;
+				SetDirty();
+			}
+		}
+
+		/// <summary>The framed box's centre moved by this, in units of its size (see <see cref="FramingPadding"/>).</summary>
+		public Vector3 FramingOffset
+		{
+			get => m_framingOffset;
+			set
+			{
+				if (m_framingOffset == value)
+					return;
+
+				m_framingOffset = value;
+				SetDirty();
 			}
 		}
 
@@ -506,8 +543,9 @@ namespace GuiToolkit
 			var rotation = m_overrideViewRotation ? ViewRotation : (Quaternion?)null;
 			var bounds = m_overrideBounds ? m_bounds : (Bounds?)null;
 			var handle = m_mode == EMode.Animated
-				? UiIcon3DRenderer.RenderAnimated(_prefab, m_preset, _size, rotation, m_frameDivider, bounds, m_animationSpeed, m_animationStartTime)
-				: UiIcon3DRenderer.RenderStatic(_prefab, m_preset, _size, rotation, bounds);
+				? UiIcon3DRenderer.RenderAnimated(_prefab, m_preset, _size, rotation, m_frameDivider, bounds, m_animationSpeed, m_animationStartTime,
+					m_framingPadding, m_framingOffset)
+				: UiIcon3DRenderer.RenderStatic(_prefab, m_preset, _size, rotation, bounds, m_framingPadding, m_framingOffset);
 
 			// Nothing that matters changed (static icons share by key; animated ones are never equal)
 			if (m_shown != null && handle.Key == m_shown.Key)
@@ -531,7 +569,8 @@ namespace GuiToolkit
 			string rotation = m_overrideViewRotation ? m_viewRotation.ToString("F3") : "preset";
 			string bounds = m_overrideBounds ? $"{m_bounds.center.ToString("F4")};{m_bounds.size.ToString("F4")}" : "object";
 			int presetId = m_preset != null ? m_preset.GetInstanceID() : 0;
-			return $"{_prefab.GetInstanceID()}/{presetId}/{_size.x}x{_size.y}/{rotation}/{bounds}/{m_animationSpeed:F3}/{m_animationStartTime:F3}";
+			string framing = $"{m_framingPadding:F4};{m_framingOffset.ToString("F4")}";
+			return $"{_prefab.GetInstanceID()}/{presetId}/{_size.x}x{_size.y}/{rotation}/{bounds}/{framing}/{m_animationSpeed:F3}/{m_animationStartTime:F3}";
 		}
 
 		private Texture LoadingTextureOrPlaceholder => m_loadingTexture != null ? m_loadingTexture : RenderTextureManager.Placeholder;

@@ -20,6 +20,7 @@ namespace GuiToolkit.Style
 		private class ApplicableValueCanvas : ApplicableValue<UnityEngine.Canvas> {}
 		private class ApplicableValueBoolean : ApplicableValue<System.Boolean> {}
 		private class ApplicableValueInt32 : ApplicableValue<System.Int32> {}
+		private class ApplicableValueVector3 : ApplicableValue<UnityEngine.Vector3> {}
 		private class ApplicableValueTexture : ApplicableValue<UnityEngine.Texture> {}
 		private class ApplicableValueEMode : ApplicableValue<GuiToolkit.UiIcon3D.EMode> {}
 		private class ApplicableValueGameObject : ApplicableValue<UnityEngine.GameObject> {}
@@ -38,6 +39,8 @@ namespace GuiToolkit.Style
 				Enabled,
 				EnabledInHierarchy,
 				FrameDivider,
+				FramingOffset,
+				FramingPadding,
 				LoadingTexture,
 				Mode,
 				OverrideBounds,
@@ -60,6 +63,8 @@ namespace GuiToolkit.Style
 		[SerializeReference] private ApplicableValueBoolean m_enabled = new();
 		[SerializeReference] private ApplicableValueBoolean m_EnabledInHierarchy = new();
 		[SerializeReference] private ApplicableValueInt32 m_FrameDivider = new();
+		[SerializeReference] private ApplicableValueVector3 m_FramingOffset = new();
+		[SerializeReference] private ApplicableValueSingle m_FramingPadding = new();
 		[SerializeReference] private ApplicableValueTexture m_LoadingTexture = new();
 		[SerializeReference] private ApplicableValueEMode m_Mode = new();
 		[SerializeReference] private ApplicableValueBoolean m_OverrideBounds = new();
@@ -140,6 +145,26 @@ namespace GuiToolkit.Style
 				if (m_FrameDivider == null)
 					m_FrameDivider = new ApplicableValueInt32();
 				return m_FrameDivider;
+			}
+		}
+
+		public ApplicableValue<UnityEngine.Vector3> FramingOffset
+		{
+			get
+			{
+				if (m_FramingOffset == null)
+					m_FramingOffset = new ApplicableValueVector3();
+				return m_FramingOffset;
+			}
+		}
+
+		public ApplicableValue<System.Single> FramingPadding
+		{
+			get
+			{
+				if (m_FramingPadding == null)
+					m_FramingPadding = new ApplicableValueSingle();
+				return m_FramingPadding;
 			}
 		}
 

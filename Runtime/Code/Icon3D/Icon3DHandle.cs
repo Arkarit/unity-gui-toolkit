@@ -137,6 +137,12 @@ namespace GuiToolkit
 		public readonly Quaternion? ViewRotation;
 		/// <summary>The icon's own framing box in the object's local space (its root); null = the object's hint, or its renderers.</summary>
 		public readonly Bounds? LocalBounds;
+		/// <summary>
+		/// Correction of whichever box is framed (the icon's own, the object's hint or its renderers): its size times
+		/// FramingPadding (below 1 tighter, above 1 wider), its centre moved by FramingOffset in units of its size.
+		/// </summary>
+		public float FramingPadding = 1;
+		public Vector3 FramingOffset;
 		public int RefCount;
 		public int VisibleHandles;
 		public readonly long Sequence;

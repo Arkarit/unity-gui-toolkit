@@ -46,6 +46,18 @@
             "TypeName": "Int32"
         },
         {
+            "Used": true,
+            "Name": "FramingOffset",
+            "QualifiedTypeName": "UnityEngine.Vector3",
+            "TypeName": "Vector3"
+        },
+        {
+            "Used": true,
+            "Name": "FramingPadding",
+            "QualifiedTypeName": "System.Single",
+            "TypeName": "Single"
+        },
+        {
             "Used": false,
             "Name": "hideFlags",
             "QualifiedTypeName": "UnityEngine.HideFlags",

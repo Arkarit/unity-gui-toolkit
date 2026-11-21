@@ -28,6 +28,10 @@ namespace GuiToolkit.Style
 				try { SpecificComponent.EnabledInHierarchy = Tweenable ? SpecificStyle.EnabledInHierarchy.Value : SpecificStyle.EnabledInHierarchy.RawValue; } catch {}
 			if (SpecificStyle.FrameDivider.IsApplicable)
 				try { SpecificComponent.FrameDivider = Tweenable ? SpecificStyle.FrameDivider.Value : SpecificStyle.FrameDivider.RawValue; } catch {}
+			if (SpecificStyle.FramingOffset.IsApplicable)
+				try { SpecificComponent.FramingOffset = Tweenable ? SpecificStyle.FramingOffset.Value : SpecificStyle.FramingOffset.RawValue; } catch {}
+			if (SpecificStyle.FramingPadding.IsApplicable)
+				try { SpecificComponent.FramingPadding = Tweenable ? SpecificStyle.FramingPadding.Value : SpecificStyle.FramingPadding.RawValue; } catch {}
 			if (SpecificStyle.LoadingTexture.IsApplicable)
 				try { SpecificComponent.LoadingTexture = Tweenable ? SpecificStyle.LoadingTexture.Value : SpecificStyle.LoadingTexture.RawValue; } catch {}
 			if (SpecificStyle.Mode.IsApplicable)
@@ -73,6 +77,10 @@ namespace GuiToolkit.Style
 				try { SpecificStyle.EnabledInHierarchy.RawValue = SpecificComponent.EnabledInHierarchy; } catch {}
 			if (SpecificStyle.FrameDivider.IsApplicable)
 				try { SpecificStyle.FrameDivider.RawValue = SpecificComponent.FrameDivider; } catch {}
+			if (SpecificStyle.FramingOffset.IsApplicable)
+				try { SpecificStyle.FramingOffset.RawValue = SpecificComponent.FramingOffset; } catch {}
+			if (SpecificStyle.FramingPadding.IsApplicable)
+				try { SpecificStyle.FramingPadding.RawValue = SpecificComponent.FramingPadding; } catch {}
 			if (SpecificStyle.LoadingTexture.IsApplicable)
 				try { SpecificStyle.LoadingTexture.RawValue = SpecificComponent.LoadingTexture; } catch {}
 			if (SpecificStyle.Mode.IsApplicable)
@@ -124,6 +132,10 @@ namespace GuiToolkit.Style
 				result.EnabledInHierarchy.IsApplicable = specificTemplate.EnabledInHierarchy.IsApplicable;
 				result.FrameDivider.Value = specificTemplate.FrameDivider.Value;
 				result.FrameDivider.IsApplicable = specificTemplate.FrameDivider.IsApplicable;
+				result.FramingOffset.Value = specificTemplate.FramingOffset.Value;
+				result.FramingOffset.IsApplicable = specificTemplate.FramingOffset.IsApplicable;
+				result.FramingPadding.Value = specificTemplate.FramingPadding.Value;
+				result.FramingPadding.IsApplicable = specificTemplate.FramingPadding.IsApplicable;
 				result.LoadingTexture.Value = specificTemplate.LoadingTexture.Value;
 				result.LoadingTexture.IsApplicable = specificTemplate.LoadingTexture.IsApplicable;
 				result.Mode.Value = specificTemplate.Mode.Value;
@@ -159,6 +171,8 @@ namespace GuiToolkit.Style
 			try { result.Enabled.Value = SpecificComponent.enabled; } catch {}
 			try { result.EnabledInHierarchy.Value = SpecificComponent.EnabledInHierarchy; } catch {}
 			try { result.FrameDivider.Value = SpecificComponent.FrameDivider; } catch {}
+			try { result.FramingOffset.Value = SpecificComponent.FramingOffset; } catch {}
+			try { result.FramingPadding.Value = SpecificComponent.FramingPadding; } catch {}
 			try { result.LoadingTexture.Value = SpecificComponent.LoadingTexture; } catch {}
 			try { result.Mode.Value = SpecificComponent.Mode; } catch {}
 			try { result.OverrideBounds.Value = SpecificComponent.OverrideBounds; } catch {}

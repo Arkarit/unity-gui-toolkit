@@ -245,18 +245,25 @@ namespace GuiToolkit
 		/// <param name="_size">Texture size in pixels.</param>
 		/// <param name="_viewRotation">Overrides the preset's view rotation.</param>
 		/// <param name="_bounds">Box to frame in _prefab's local space; overrides the object's hint and its renderers.</param>
+		/// <param name="_framingPadding">The framed box's size times this: below 1 tighter, above 1 wider.</param>
+		/// <param name="_framingOffset">The framed box's centre moved by this, in units of its size.</param>
 		public static Icon3DHandle RenderStatic( GameObject _prefab, UiIcon3DPreset _preset, Vector2Int _size, Quaternion? _viewRotation = null,
-			Bounds? _bounds = null )
+			Bounds? _bounds = null, float _framingPadding = 1, Vector3 _framingOffset = default )
 		{
 			if (_prefab == null)
 				throw new ArgumentNullException(nameof(_prefab));
 
 			_size = Vector2Int.Max(_size, Vector2Int.one);
-			string key = BuildKey(_prefab, _preset, _size, _viewRotation, _bounds);
+			_framingPadding = Mathf.Max(0.01f, _framingPadding);
+			string key = BuildKey(_prefab, _preset, _size, _viewRotation, _bounds, _framingPadding, _framingOffset);
 
 			if (!s_requests.TryGetValue(key, out var request))
 			{
-				request = new Icon3DRequest(key, _prefab, _preset, _size, _viewRotation, false, _bounds);
+				request = new Icon3DRequest(key, _prefab, _preset, _size, _viewRotation, false, _bounds)
+				{
+					FramingPadding = _framingPadding,
+					FramingOffset = _framingOffset
+				};
 				s_requests.Add(key, request);
 				RenderTextureManager.RegisterProducer(key, request);
 				EnsureUpdateHook();
@@ -274,7 +281,8 @@ namespace GuiToolkit
 		/// first frame: several icons of the same animation then don't move in step.
 		/// </summary>
 		public static Icon3DHandle RenderAnimated( GameObject _prefab, UiIcon3DPreset _preset, Vector2Int _size,
-			Quaternion? _viewRotation = null, int _frameDivider = 1, Bounds? _bounds = null, float _speed = 1, float _startTime = 0 )
+			Quaternion? _viewRotation = null, int _frameDivider = 1, Bounds? _bounds = null, float _speed = 1, float _startTime = 0,
+			float _framingPadding = 1, Vector3 _framingOffset = default )
 		{
 			if (_prefab == null)
 				throw new ArgumentNullException(nameof(_prefab));
@@ -285,7 +293,9 @@ namespace GuiToolkit
 			{
 				FrameDivider = Mathf.Max(1, _frameDivider),
 				AnimationSpeed = Mathf.Max(0.01f, _speed),
-				AnimationStartTime = Mathf.Max(0, _startTime)
+				AnimationStartTime = Mathf.Max(0, _startTime),
+				FramingPadding = Mathf.Max(0.01f, _framingPadding),
+				FramingOffset = _framingOffset
 			};
 
 			s_requests.Add(key, request);
@@ -474,7 +484,8 @@ namespace GuiToolkit
 			}
 		}
 
-		private static string BuildKey( GameObject _prefab, UiIcon3DPreset _preset, Vector2Int _size, Quaternion? _viewRotation, Bounds? _bounds )
+		private static string BuildKey( GameObject _prefab, UiIcon3DPreset _preset, Vector2Int _size, Quaternion? _viewRotation, Bounds? _bounds,
+			float _framingPadding, Vector3 _framingOffset )
 		{
 			string rotation = _viewRotation.HasValue
 				? $"{_viewRotation.Value.x:F4},{_viewRotation.Value.y:F4},{_viewRotation.Value.z:F4},{_viewRotation.Value.w:F4}"
@@ -483,7 +494,8 @@ namespace GuiToolkit
 				? $"{_bounds.Value.center.x:F4},{_bounds.Value.center.y:F4},{_bounds.Value.center.z:F4};{_bounds.Value.size.x:F4},{_bounds.Value.size.y:F4},{_bounds.Value.size.z:F4}"
 				: "object";
 			int presetId = _preset != null ? _preset.GetInstanceID() : 0;
-			return $"icon3d/{_prefab.GetInstanceID()}/{presetId}/{_size.x}x{_size.y}/{rotation}/{bounds}";
+			string framing = $"{_framingPadding:F4};{_framingOffset.x:F4},{_framingOffset.y:F4},{_framingOffset.z:F4}";
+			return $"icon3d/{_prefab.GetInstanceID()}/{presetId}/{_size.x}x{_size.y}/{rotation}/{bounds}/{framing}";
 		}
 
 		/// <summary>
@@ -987,6 +999,11 @@ namespace GuiToolkit
 				_bounds = hint.WorldBounds;
 			else if (!Icon3DFitter.TryGetBounds(_instance, out _bounds))
 				_bounds = new Bounds(_instance.transform.position, Vector3.one);
+
+			// The icon's correction of the box, whichever it is: a style can say "a bit tighter, a bit higher" for all
+			// icons of a kind and still keep each object's own box
+			var size = _bounds.size;
+			_bounds = new Bounds(_bounds.center + Vector3.Scale(_request.FramingOffset, size), size * _request.FramingPadding);
 
 			_rotation = _request.ViewRotation
 				?? (useHint && hint.OverrideViewRotation ? hint.WorldViewRotation : _preset.ViewRotation);
